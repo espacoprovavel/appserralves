@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Serralves Decor — Orçamentos</title>
+<meta name="description" content="Sistema de orçamentos Serralves Decor" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#2A2520" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-title" content="SD Orçamentos" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="icon" type="image/png" href="icons/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --dark: #2A2520;
+    --creme: #F5F0E6;
+    --white: #FFFFFF;
+    --muted: #6B645B;
+    --border: #D4CFC5;
+    --wa: #2D4A3E;
+    --err: #A83232;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--creme); color: var(--dark); font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45; }
+  h1, h2, h3, h4, .serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: 0.2px; }
+  h1 { font-size: 26px; margin: 0; }
+  h2 { font-size: 22px; margin: 0 0 12px 0; }
+  h3 { font-size: 18px; margin: 18px 0 8px 0; }
+  p { margin: 6px 0; }
+  a { color: var(--dark); }
+  button { font-family: 'DM Sans', sans-serif; }
+
+  /* Header */
+  .topbar { background: var(--dark); color: var(--creme); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar .brand { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 1.5px; }
+  .topbar .brand small { display: block; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 2px; opacity: 0.7; font-weight: 400; }
+  .topbar .ver { font-size: 11px; opacity: 0.6; }
+
+  /* Desktop nav */
+  .nav-desktop { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; gap: 0; }
+  .nav-desktop button { background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 14px 22px; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase; }
+  .nav-desktop button.active { color: var(--dark); border-bottom-color: var(--dark); }
+  .nav-desktop button:hover { color: var(--dark); }
+
+  /* Mobile nav */
+  .nav-mobile { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--border); z-index: 40; }
+  .nav-mobile button { flex: 1; background: transparent; border: 0; padding: 10px 4px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; cursor: pointer; }
+  .nav-mobile button.active { color: var(--dark); }
+  .nav-mobile button svg { width: 22px; height: 22px; }
+
+  /* Layout */
+  .container { max-width: 1100px; margin: 0 auto; padding: 22px 20px 100px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .card { background: var(--white); border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 16px; }
+  .card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+  /* Forms */
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=search], textarea, select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--dark);
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--dark); }
+  textarea { min-height: 80px; resize: vertical; }
+  .field { margin-bottom: 12px; }
+  .grid { display: grid; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-6 { grid-template-columns: repeat(6, 1fr); }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4, .grid-6 { grid-template-columns: 1fr; }
+  }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--dark); color: var(--creme); border: 0; border-radius: 0; padding: 11px 20px; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--dark); border: 1px solid var(--dark); }
+  .btn-ghost { background: transparent; color: var(--muted); padding: 8px 12px; }
+  .btn-ghost:hover { color: var(--dark); }
+  .btn-danger { background: var(--err); color: var(--white); }
+  .btn-wa { background: var(--wa); color: var(--white); }
+  .btn-sm { padding: 7px 12px; font-size: 11px; }
+  .btn-full { width: 100%; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Items list */
+  .item-card { border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; background: var(--white); position: relative; }
+  .item-card .remove-btn { position: absolute; top: 8px; right: 8px; }
+  .item-suggest { font-size: 12px; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+  /* Table */
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.t th, table.t td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.t th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); background: var(--creme); }
+  table.t tbody tr:nth-child(even) td { background: rgba(212,207,197,0.18); }
+  table.t .num { text-align: right; white-space: nowrap; }
+  .totals { margin-top: 14px; }
+  .totals .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+  .totals .row.total { font-size: 20px; font-weight: 700; border-top: 2px solid var(--dark); margin-top: 8px; padding-top: 10px; font-family: 'Playfair Display', serif; }
+
+  /* History */
+  .history-row { display: grid; grid-template-columns: 1fr 1fr 2fr 1fr auto; gap: 12px; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .history-row:hover { background: rgba(212,207,197,0.18); }
+  .history-row .ref { font-weight: 600; font-size: 14px; }
+  .history-row .date { color: var(--muted); font-size: 13px; }
+  .history-row .total { text-align: right; font-weight: 600; }
+  @media (max-width: 768px) {
+    .history-row { grid-template-columns: 1fr auto; gap: 4px; }
+    .history-row .date, .history-row .total { grid-column: 1; }
+  }
+
+  /* PDF preview area (hidden by default, shown on print) */
+  .pdf-preview { background: var(--white); padding: 30px 38px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; color: var(--dark); }
+  .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--dark); padding-bottom: 14px; margin-bottom: 18px; }
+  .pdf-header .logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+  .pdf-header .logo small { display: block; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 1.5px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .pdf-header .meta { text-align: right; font-size: 12px; }
+  .pdf-header .meta .num { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; }
+  .pdf-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 22px; font-size: 13px; }
+  .pdf-parties .h { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+  .pdf-table th { background: var(--dark); color: var(--creme); text-align: left; padding: 9px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .pdf-table td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .pdf-table tbody tr:nth-child(even) td { background: #FAF7F1; }
+  .pdf-table .num { text-align: right; white-space: nowrap; }
+  .pdf-totals { margin-left: auto; width: 320px; font-size: 13px; }
+  .pdf-totals .row { display: flex; justify-content: space-between; padding: 5px 0; }
+  .pdf-totals .row.grand { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; border-top: 2px solid var(--dark); margin-top: 6px; padding-top: 8px; }
+  .pdf-iva { text-align: right; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .pdf-notes { margin-top: 22px; padding: 12px 14px; background: #FAF7F1; border-left: 3px solid var(--dark); font-size: 12px; }
+  .pdf-notes .h { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .pdf-footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--muted); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--creme); padding: 12px 22px; font-size: 13px; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  @media (min-width: 769px) { .toast { bottom: 24px; } }
+
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(42,37,32,0.6); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: var(--white); padding: 24px; max-width: 480px; width: 100%; max-height: 90vh; overflow: auto; }
+
+  /* Helpers */
+  .row-flex { display: flex; gap: 10px; align-items: center; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+  .right { text-align: right; }
+  .mb-0 { margin-bottom: 0 !important; }
+  .mt-12 { margin-top: 12px; }
+  .price-list-row { display: grid; grid-template-columns: 1fr 140px auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+  @media (max-width: 768px) { .price-list-row { grid-template-columns: 1fr 100px auto; } }
+
+  /* Hide PDF preview on screen by default (only show during print or generation) */
+  #pdfArea { position: absolute; left: -9999px; top: 0; width: 794px; background: var(--white); }
+
+  /* Mobile nav visible only on mobile */
+  @media (max-width: 768px) {
+    .nav-desktop { display: none; }
+    .nav-mobile { display: flex; }
+    .container { padding: 16px 14px 90px; }
+    .card { padding: 14px; }
+    h1 { font-size: 22px; }
+    .topbar { padding: 12px 14px; }
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    @page { size: A4; margin: 15mm 20mm; }
+    body { background: #fff; }
+    .no-print, nav, .nav-desktop, .nav-mobile, .topbar, .toast, .modal-backdrop, .btn-row, .item-card .remove-btn { display: none !important; }
+    .container { padding: 0; max-width: none; }
+    .section { display: none !important; }
+    .card { border: 0; padding: 0; margin: 0; }
+    #pdfArea { position: static !important; left: auto !important; width: auto !important; display: block !important; }
+    .pdf-preview { border: 0; padding: 0; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media print and (max-width: 80mm) {
+    @page { size: 80mm auto; margin: 5mm; }
+    #pdfArea { max-width: 80mm; }
+    .pdf-preview { max-width: 80mm; font-size: 10px; padding: 0; }
+    .pdf-table { font-size: 9px; }
+    .pdf-table th, .pdf-table td { padding: 3px 2px; }
+    .pdf-header { flex-direction: column; gap: 6px; }
+    .pdf-header .logo { font-size: 16px; }
+    .pdf-parties { grid-template-columns: 1fr; gap: 6px; font-size: 9px; }
+    .pdf-totals { width: 100%; font-size: 10px; }
+    .pdf-totals .row.grand { font-size: 13px; }
+    .pdf-notes { font-size: 9px; padding: 6px; }
+    .pdf-footer { font-size: 8px; }
+  }
+
+  /* Receipt mode forced via class */
+  body.receipt-mode .pdf-preview { max-width: 80mm; font-size: 10px; padding: 4mm; }
+  body.receipt-mode .pdf-table { font-size: 9px; }
+  body.receipt-mode .pdf-header { flex-direction: column; gap: 6px; }
+  body.receipt-mode .pdf-parties { grid-template-columns: 1fr; gap: 6px; }
+  body.receipt-mode .pdf-totals { width: 100%; }
+</style>
+</head>
+<body>
+
+<header class="topbar no-print">
+  <div class="brand">SERRALVES DECOR<small>ORÇAMENTOS</small></div>
+  <div class="ver" id="netStatus">●</div>
+</header>
+
+<nav class="nav-desktop no-print">
+  <button data-tab="novo" class="active">Novo Orçamento</button>
+  <button data-tab="pdf">Gerar PDF</button>
+  <button data-tab="historico">Histórico</button>
+  <button data-tab="config">Configurações</button>
+</nav>
+
+<main class="container">
+
+  <!-- ============ SECÇÃO 1: NOVO ORÇAMENTO ============ -->
+  <section class="section active" id="sec-novo">
+    <div class="card">
+      <div class="card-title">
+        <h2>Novo Orçamento</h2>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" id="btnLimpar">Limpar</button>
+          <button class="btn btn-sm" id="btnGuardar">Guardar</button>
+        </div>
+      </div>
+      <p class="muted small" id="refDisplay">Referência: SD-XXXXX · Data: --/--/----</p>
+    </div>
+
+    <!-- Cliente -->
+    <div class="card">
+      <h3 style="margin-top:0;">Dados do Cliente</h3>
+      <div class="grid grid-2">
+        <div class="field"><label>Nome *</label><input type="text" id="cliNome" placeholder="Nome do cliente" /></div>
+        <div class="field"><label>Telefone</label><input type="tel" id="cliTel" placeholder="+351 9XX XXX XXX" /></div>
+        <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="cliente@exemplo.pt" /></div>
+        <div class="field"><label>NIF</label><input type="text" id="cliNif" placeholder="123 456 789" /></div>
+        <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="cliMorada" placeholder="Rua, número, código postal, localidade" /></div>
+      </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="card">
+      <div class="card-title"><h3 style="margin-top:0;">Itens do Orçamento</h3>
+        <button class="btn btn-sm" id="btnAddItem">+ Adicionar item</button>
+      </div>
+      <div id="itemsList"></div>
+    </div>
+
+    <!-- Desconto -->
+    <div class="card">
+      <h3 style="margin-top:0;">Desconto</h3>
+      <div class="grid grid-2">
+        <div class="field"><label>Desconto (%)</label><input type="number" id="descPct" min="0" max="100" step="0.5" placeholder="0" /></div>
+        <div class="field"><label>OU Desconto fixo (€)</label><input type="number" id="descEur" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div class="card">
+      <h3 style="margin-top:0;">Notas e Condições</h3>
+      <textarea id="notas" rows="4"></textarea>
+      <div class="grid grid-2 mt-12">
+        <div class="field"><label>Validade (dias)</label><input type="number" id="validade" min="1" value="30" /></div>
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="card">
+      <h3 style="margin-top:0;">Resumo</h3>
+      <div style="overflow-x:auto;">
+        <table class="t" id="resumoTable">
+          <thead><tr><th>#</th><th>Descrição</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P. Unit.</th><th class="num">Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><span id="subtotal">€0.00</span></div>
+        <div class="row" id="descRow" style="display:none;"><span>Desconto</span><span id="descValor">-€0.00</span></div>
+        <div class="row total"><span>TOTAL</span><span id="total">€0.00</span></div>
+      </div>
+      <div class="btn-row mt-12">
+        <button class="btn" id="btnIrPdf">Gerar Orçamento →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECÇÃO 2: PDF ============ -->
+  <section class="section" id="sec-pdf">
+    <div class="card no-print">
+      <div class="card-title">
+        <h2>Gerar Orçamento</h2>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" id="btnVoltarNovo">← Editar</button>
+        </div>
+      </div>
+      <div class="btn-row mt-12">
+        <button class="btn" id="btnImprimir">🖨️ Imprimir</button>
+        <button class="btn btn-outline" id="btnDownloadPDF">⬇️ Descarregar PDF</button>
+        <button class="btn btn-wa" id="btnWhatsApp">WhatsApp</button>
+        <button class="btn btn-outline" id="btnEmail">Email</button>
+      </div>
+      <p class="small muted mt-12" id="formatoInfo"></p>
+    </div>
+
+    <div id="pdfPreviewWrap" class="card">
+      <div id="pdfArea-screen"></div>
+    </div>
+  </section>
+
+  <!-- Hidden PDF generation area -->
+  <div id="pdfArea" aria-hidden="true"></div>
+
+  <!-- ============ SECÇÃO 3: HISTÓRICO ============ -->
+  <section class="section" id="sec-historico">
+    <div class="card">
+      <div class="card-title"><h2>Histórico</h2>
+        <input type="search" id="histSearch" placeholder="Pesquisar..." style="max-width:260px;" />
+      </div>
+      <div id="historicoList"></div>
+    </div>
+  </section>
+
+  <!-- ============ SECÇÃO 4: CONFIGURAÇÕES ============ -->
+  <section class="section" id="sec-config">
+    <div class="card">
+      <h2>Configurações</h2>
+      <p class="muted small">Tudo é guardado localmente no dispositivo.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><h3 style="margin-top:0;">Tecidos (€/m²)</h3>
+        <button class="btn btn-sm" id="btnAddTecido">+ Tecido</button>
+      </div>
+      <div id="tecidosList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><h3 style="margin-top:0;">Calhas (€/metro linear)</h3>
+        <button class="btn btn-sm" id="btnAddCalha">+ Calha</button>
+      </div>
+      <div id="calhasList"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Serviços</h3>
+      <div class="grid grid-2">
+        <div class="field"><label>Medição profissional (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
+        <div class="field"><label>Instalação por janela (€)</label><input type="number" id="svcInstalacao" step="0.01" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Dados da Empresa</h3>
+      <div class="grid grid-2">
+        <div class="field"><label>Nome</label><input type="text" id="empNome" /></div>
+        <div class="field"><label>Telefone</label><input type="tel" id="empTel" /></div>
+        <div class="field"><label>Email</label><input type="email" id="empEmail" /></div>
+        <div class="field"><label>NIF</label><input type="text" id="empNif" /></div>
+        <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="empMorada" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Condições Padrão</h3>
+      <div class="field"><label>Notas (default)</label><textarea id="defNotas" rows="3"></textarea></div>
+      <div class="grid grid-2">
+        <div class="field"><label>Validade default (dias)</label><input type="number" id="defValidade" /></div>
+        <div class="field"><label>Formato de impressão</label>
+          <select id="printFormat">
+            <option value="a4">A4 Normal</option>
+            <option value="receipt">Recibo 80mm</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn" id="btnSaveConfig">Guardar Configurações</button>
+        <button class="btn btn-outline" id="btnExport">Exportar dados</button>
+        <button class="btn btn-outline" id="btnImport">Importar dados</button>
+        <button class="btn btn-danger" id="btnResetConfig">Repor Defaults</button>
+      </div>
+      <input type="file" id="fileImport" accept="application/json" style="display:none;" />
+    </div>
+  </section>
+
+</main>
+
+<!-- Mobile bottom nav -->
+<nav class="nav-mobile no-print">
+  <button data-tab="novo" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Novo</span>
+  </button>
+  <button data-tab="pdf">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+    <span>PDF</span>
+  </button>
+  <button data-tab="historico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+    <span>Histórico</span>
+  </button>
+  <button data-tab="config">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    <span>Config</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SERRALVES DECOR — ORÇAMENTOS · App PWA
+// ============================================================
+
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+const fmtEUR = (n) => '€' + (Math.round((n||0)*100)/100).toFixed(2).replace('.', ',');
+const todayISO = () => new Date().toISOString().slice(0,10);
+const fmtDate = (iso) => { const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
+
+// ---------- DEFAULTS ----------
+const DEFAULT_CONFIG = {
+  tecidos: [
+    { nome: 'Voile', preco: 22, cores: 'Branco, Cru, Linho, Cinza' },
+    { nome: 'Alinhado', preco: 28, cores: 'Cru, Linho, Pedra, Areia' },
+    { nome: 'Corta-Luz', preco: 32, cores: 'Cru, Pedra, Cinza, Castanho' },
+    { nome: 'Blackout', preco: 38, cores: 'Branco, Cinza, Antracite, Castanho' },
+    { nome: 'Chenille', preco: 42, cores: 'Cru, Areia, Pedra, Cinza, Tabaco' },
+    { nome: 'Veludo', preco: 55, cores: 'Verde, Bordeaux, Mostarda, Azul-marinho' }
+  ],
+  calhas: [
+    { nome: 'Calha Simples', preco: 14 },
+    { nome: 'Calha Dupla', preco: 22 },
+    { nome: 'Calha Motorizada', preco: 95 },
+    { nome: 'Varão', preco: 28 }
+  ],
+  svcMedicao: 25,
+  svcInstalacao: 35,
+  empNome: 'Serralves Decor',
+  empTel: '+351 930 476 602',
+  empEmail: 'contacto@serralvesdecor.com',
+  empMorada: 'Porto, Portugal',
+  empNif: '',
+  defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
+  defValidade: 30,
+  printFormat: 'a4',
+  contador: 1
+};
+
+const PRODUTOS = [
+  'Cortina Onda Natural','Cortina Ilhós','Cortina Franzido','Cortina Blackout',
+  'Calha Simples','Calha Dupla','Calha Motorizada','Varão','Estore',
+  'Instalação','Medição','Outro'
+];
+const TECIDOS_ENUM = ['Voile','Alinhado','Corta-Luz','Blackout','Chenille','Veludo','N/A'];
+const COEFS = { 'Cortina Onda Natural': 2.0, 'Cortina Ilhós': 2.0, 'Cortina Franzido': 2.5, 'Cortina Blackout': 1.5 };
+
+// ---------- STORAGE ----------
+const LS = {
+  cfg: 'sd-config',
+  hist: 'sd-historico',
+  draft: 'sd-draft'
+};
+const getCfg = () => {
+  try { const c = JSON.parse(localStorage.getItem(LS.cfg) || 'null'); return c ? {...DEFAULT_CONFIG, ...c} : {...DEFAULT_CONFIG}; }
+  catch { return {...DEFAULT_CONFIG}; }
+};
+const setCfg = (c) => localStorage.setItem(LS.cfg, JSON.stringify(c));
+const getHist = () => { try { return JSON.parse(localStorage.getItem(LS.hist) || '[]'); } catch { return []; } };
+const setHist = (h) => localStorage.setItem(LS.hist, JSON.stringify(h));
+
+let config = getCfg();
+
+// ---------- STATE: orçamento actual ----------
+let orc = newOrc();
+
+function newOrc() {
+  return {
+    id: null,
+    ref: nextRef(),
+    data: todayISO(),
+    cliente: { nome: '', tel: '', email: '', morada: '', nif: '' },
+    itens: [emptyItem()],
+    descPct: 0,
+    descEur: 0,
+    notas: config.defNotas,
+    validade: config.defValidade
+  };
+}
+function emptyItem() {
+  return { desc: '', descCustom: '', tecido: '', cor: '', largura: 0, altura: 0, qtd: 1, preco: 0 };
+}
+function nextRef() {
+  const n = (config.contador || 1).toString().padStart(5, '0');
+  return 'SD-' + n;
+}
+
+// ---------- TABS ----------
+function showTab(tab) {
+  $$('.section').forEach(s => s.classList.remove('active'));
+  $('#sec-' + tab)?.classList.add('active');
+  $$('.nav-desktop button, .nav-mobile button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'pdf') renderPDFPreview();
+  if (tab === 'historico') renderHistorico();
+  if (tab === 'config') renderConfigForm();
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+$$('.nav-desktop button, .nav-mobile button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+// ---------- ITEMS UI ----------
+function renderItems() {
+  const wrap = $('#itemsList');
+  wrap.innerHTML = '';
+  orc.itens.forEach((it, i) => {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
+      <button class="btn btn-ghost btn-sm remove-btn" data-rm="${i}" title="Remover">✕</button>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Descrição</label>
+          <select data-fld="desc" data-i="${i}">
+            <option value="">— Seleccionar —</option>
+            ${PRODUTOS.map(p => `<option ${it.desc===p?'selected':''} value="${p}">${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Outro / livre</label>
+          <input type="text" data-fld="descCustom" data-i="${i}" value="${esc(it.descCustom)}" placeholder="Produto livre"/>
+        </div>
+        <div class="field">
+          <label>Tecido</label>
+          <select data-fld="tecido" data-i="${i}">
+            <option value="">— Tecido —</option>
+            ${TECIDOS_ENUM.map(t => `<option ${it.tecido===t?'selected':''} value="${t}">${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-6">
+        <div class="field"><label>Cor</label><input type="text" data-fld="cor" data-i="${i}" value="${esc(it.cor)}" /></div>
+        <div class="field"><label>Largura (cm)</label><input type="number" min="0" step="1" data-fld="largura" data-i="${i}" value="${it.largura||''}" /></div>
+        <div class="field"><label>Altura (cm)</label><input type="number" min="0" step="1" data-fld="altura" data-i="${i}" value="${it.altura||''}" /></div>
+        <div class="field"><label>Qtd</label><input type="number" min="1" step="1" data-fld="qtd" data-i="${i}" value="${it.qtd||1}" /></div>
+        <div class="field"><label>Preço Unit. (€)</label><input type="number" min="0" step="0.01" data-fld="preco" data-i="${i}" value="${it.preco||''}" /></div>
+        <div class="field"><label>Total</label><input type="text" disabled value="${fmtEUR((it.qtd||0)*(it.preco||0))}" /></div>
+      </div>
+      <div class="item-suggest" data-suggest="${i}"></div>
+    `;
+    wrap.appendChild(card);
+    updateSuggestion(i);
+  });
+
+  wrap.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.rm;
+    if (orc.itens.length === 1) { orc.itens[0] = emptyItem(); }
+    else { orc.itens.splice(i, 1); }
+    renderItems(); recalcResumo(); saveDraft();
+  }));
+  wrap.querySelectorAll('[data-fld]').forEach(el => {
+    el.addEventListener('input', (e) => {
+      const i = +el.dataset.i;
+      const f = el.dataset.fld;
+      let v = el.value;
+      if (['largura','altura','qtd','preco'].includes(f)) v = parseFloat(v) || 0;
+      orc.itens[i][f] = v;
+      // when preco changes by hand, leave suggestion as info
+      // when product/fabric/dims change, auto-fill price suggestion if preco==0
+      if (['desc','tecido','largura','altura','qtd'].includes(f)) {
+        const sug = computeSuggested(orc.itens[i]);
+        if (sug.preco > 0 && (!orc.itens[i].preco || orc.itens[i].preco === 0)) {
+          orc.itens[i].preco = sug.preco;
+          const priceInput = wrap.querySelector(`[data-fld="preco"][data-i="${i}"]`);
+          if (priceInput) priceInput.value = sug.preco.toFixed(2);
+        }
+        updateSuggestion(i);
+      }
+      // update line total in UI
+      const totEl = el.closest('.item-card').querySelector('input[disabled]');
+      if (totEl) totEl.value = fmtEUR((orc.itens[i].qtd||0)*(orc.itens[i].preco||0));
+      recalcResumo();
+      saveDraft();
+    });
+  });
+}
+
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function computeSuggested(it) {
+  // m² tecido = largura/100 * coef * altura/100 * qtd
+  const coef = COEFS[it.desc];
+  const tec = config.tecidos.find(t => t.nome === it.tecido);
+  if (!coef || !tec || !it.largura || !it.altura) return { preco: 0, text: '' };
+  const m2 = (it.largura/100) * coef * (it.altura/100) * (it.qtd||1);
+  const precoTecido = m2 * tec.preco;
+  // calha: assume calha simples por defeito, comprimento = largura
+  const calha = config.calhas.find(c => c.nome === 'Calha Simples');
+  let precoCalha = 0; let textCalha = '';
+  if (calha && it.desc.startsWith('Cortina')) {
+    const ml = (it.largura/100) * (it.qtd||1);
+    precoCalha = ml * calha.preco;
+    textCalha = ` + ${ml.toFixed(2)} m × €${calha.preco}/m`;
+  }
+  const total = precoTecido + precoCalha;
+  return {
+    preco: Math.round(total*100)/100,
+    text: `${m2.toFixed(2)} m² × €${tec.preco}/m²${textCalha} = ${fmtEUR(total)} sugerido`
+  };
+}
+
+function updateSuggestion(i) {
+  const el = $(`[data-suggest="${i}"]`);
+  if (!el) return;
+  const s = computeSuggested(orc.itens[i]);
+  el.textContent = s.text;
+}
+
+// ---------- RESUMO ----------
+function recalcResumo() {
+  const tbody = $('#resumoTable tbody');
+  tbody.innerHTML = '';
+  let subtotal = 0;
+  orc.itens.forEach((it, i) => {
+    const desc = it.descCustom?.trim() || it.desc || '—';
+    const linha = (it.qtd||0) * (it.preco||0);
+    subtotal += linha;
+    const medidas = (it.largura && it.altura) ? `${it.largura}×${it.altura} cm` : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${esc(desc)}${it.tecido?`<br><small class="muted">${esc(it.tecido)}${it.cor?' · '+esc(it.cor):''}</small>`:''}</td><td>${medidas}</td><td class="num">${it.qtd||0}</td><td class="num">${fmtEUR(it.preco||0)}</td><td class="num">${fmtEUR(linha)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  let descVal = 0;
+  if (orc.descPct > 0) descVal = subtotal * (orc.descPct / 100);
+  else if (orc.descEur > 0) descVal = orc.descEur;
+  const total = Math.max(0, subtotal - descVal);
+
+  $('#subtotal').textContent = fmtEUR(subtotal);
+  if (descVal > 0) {
+    $('#descRow').style.display = '';
+    $('#descValor').textContent = '-' + fmtEUR(descVal);
+  } else {
+    $('#descRow').style.display = 'none';
+  }
+  $('#total').textContent = fmtEUR(total);
+
+  $('#refDisplay').textContent = `Referência: ${orc.ref} · Data: ${fmtDate(orc.data)}`;
+}
+
+// ---------- BIND CLIENTE / DESCONTO / NOTAS ----------
+const bindings = [
+  ['#cliNome','cliente.nome'], ['#cliTel','cliente.tel'], ['#cliEmail','cliente.email'],
+  ['#cliMorada','cliente.morada'], ['#cliNif','cliente.nif'],
+  ['#descPct','descPct'], ['#descEur','descEur'], ['#notas','notas'], ['#validade','validade']
+];
+function applyOrcToForm() {
+  $('#cliNome').value = orc.cliente.nome;
+  $('#cliTel').value = orc.cliente.tel;
+  $('#cliEmail').value = orc.cliente.email;
+  $('#cliMorada').value = orc.cliente.morada;
+  $('#cliNif').value = orc.cliente.nif;
+  $('#descPct').value = orc.descPct || '';
+  $('#descEur').value = orc.descEur || '';
+  $('#notas').value = orc.notas;
+  $('#validade').value = orc.validade;
+}
+bindings.forEach(([sel, path]) => {
+  $(sel).addEventListener('input', (e) => {
+    const v = e.target.value;
+    const parts = path.split('.');
+    if (parts.length === 2) orc[parts[0]][parts[1]] = v;
+    else {
+      if (['descPct','descEur','validade'].includes(path)) orc[path] = parseFloat(v) || 0;
+      else orc[path] = v;
+    }
+    // mutual exclusion of desconto
+    if (path === 'descPct' && parseFloat(v) > 0) { $('#descEur').value=''; orc.descEur=0; }
+    if (path === 'descEur' && parseFloat(v) > 0) { $('#descPct').value=''; orc.descPct=0; }
+    recalcResumo(); saveDraft();
+  });
+});
+
+// ---------- ADD/REMOVE/CLEAR/SAVE ----------
+$('#btnAddItem').addEventListener('click', () => { orc.itens.push(emptyItem()); renderItems(); recalcResumo(); saveDraft(); });
+$('#btnLimpar').addEventListener('click', () => {
+  if (!confirm('Limpar este orçamento? (não apaga histórico)')) return;
+  orc = newOrc(); applyOrcToForm(); renderItems(); recalcResumo(); saveDraft(); toast('Orçamento limpo');
+});
+$('#btnGuardar').addEventListener('click', () => { saveOrc(); toast('Orçamento guardado'); });
+$('#btnIrPdf').addEventListener('click', () => { saveOrc(); showTab('pdf'); });
+$('#btnVoltarNovo').addEventListener('click', () => showTab('novo'));
+
+function saveOrc() {
+  if (!orc.cliente.nome.trim()) { toast('Indique o nome do cliente', true); $('#cliNome').focus(); return false; }
+  const hist = getHist();
+  if (orc.id) {
+    const idx = hist.findIndex(o => o.id === orc.id);
+    if (idx >= 0) hist[idx] = JSON.parse(JSON.stringify(orc));
+  } else {
+    orc.id = Date.now();
+    hist.unshift(JSON.parse(JSON.stringify(orc)));
+    // bump counter
+    config.contador = (config.contador || 1) + 1;
+    setCfg(config);
+  }
+  setHist(hist);
+  saveDraft();
+  return true;
+}
+function saveDraft() { localStorage.setItem(LS.draft, JSON.stringify(orc)); }
+function loadDraft() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS.draft) || 'null');
+    if (d && d.itens && d.itens.length) orc = d;
+  } catch {}
+}
+
+// ---------- HISTÓRICO ----------
+function renderHistorico() {
+  const wrap = $('#historicoList');
+  const q = ($('#histSearch').value || '').toLowerCase().trim();
+  let hist = getHist();
+  hist.sort((a,b) => (b.id||0) - (a.id||0));
+  if (q) hist = hist.filter(o => (o.ref+' '+o.cliente.nome).toLowerCase().includes(q));
+  if (!hist.length) { wrap.innerHTML = '<p class="muted">Nenhum orçamento ainda.</p>'; return; }
+  wrap.innerHTML = hist.map(o => {
+    const tot = totalOf(o);
+    return `<div class="history-row" data-id="${o.id}">
+      <div class="ref">${o.ref}</div>
+      <div class="date">${fmtDate(o.data)}</div>
+      <div>${esc(o.cliente.nome || '—')}</div>
+      <div class="total">${fmtEUR(tot)}</div>
+      <div><button class="btn btn-ghost btn-sm" data-del="${o.id}">Apagar</button></div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('[data-id]').forEach(r => r.addEventListener('click', (e) => {
+    if (e.target.matches('[data-del]')) return;
+    const id = +r.dataset.id;
+    const o = getHist().find(x => x.id === id);
+    if (o) { orc = JSON.parse(JSON.stringify(o)); applyOrcToForm(); renderItems(); recalcResumo(); showTab('novo'); toast('Orçamento carregado'); }
+  }));
+  wrap.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const id = +b.dataset.del;
+    if (!confirm('Apagar este orçamento?')) return;
+    setHist(getHist().filter(o => o.id !== id));
+    renderHistorico(); toast('Apagado');
+  }));
+}
+function totalOf(o) {
+  const sub = o.itens.reduce((a,it)=>a+(it.qtd||0)*(it.preco||0), 0);
+  let d = 0;
+  if (o.descPct>0) d = sub * (o.descPct/100);
+  else if (o.descEur>0) d = o.descEur;
+  return Math.max(0, sub - d);
+}
+$('#histSearch').addEventListener('input', renderHistorico);
+
+// ---------- CONFIG UI ----------
+function renderConfigForm() {
+  // tecidos
+  const tw = $('#tecidosList'); tw.innerHTML = '';
+  config.tecidos.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'price-list-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Nome" value="${esc(t.nome)}" data-tec="nome" data-i="${i}" />
+      <input type="number" placeholder="€/m²" step="0.01" value="${t.preco}" data-tec="preco" data-i="${i}" />
+      <button class="btn btn-ghost btn-sm" data-tec-rm="${i}">✕</button>
+    `;
+    tw.appendChild(row);
+  });
+  tw.querySelectorAll('[data-tec]').forEach(el => el.addEventListener('input', () => {
+    const i = +el.dataset.i; const f = el.dataset.tec;
+    config.tecidos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
+  }));
+  tw.querySelectorAll('[data-tec-rm]').forEach(b => b.addEventListener('click', () => {
+    config.tecidos.splice(+b.dataset.tecRm, 1); renderConfigForm();
+  }));
+
+  // calhas
+  const cw = $('#calhasList'); cw.innerHTML = '';
+  config.calhas.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'price-list-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Nome" value="${esc(c.nome)}" data-cal="nome" data-i="${i}" />
+      <input type="number" placeholder="€/ml" step="0.01" value="${c.preco}" data-cal="preco" data-i="${i}" />
+      <button class="btn btn-ghost btn-sm" data-cal-rm="${i}">✕</button>
+    `;
+    cw.appendChild(row);
+  });
+  cw.querySelectorAll('[data-cal]').forEach(el => el.addEventListener('input', () => {
+    const i = +el.dataset.i; const f = el.dataset.cal;
+    config.calhas[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
+  }));
+  cw.querySelectorAll('[data-cal-rm]').forEach(b => b.addEventListener('click', () => {
+    config.calhas.splice(+b.dataset.calRm, 1); renderConfigForm();
+  }));
+
+  $('#svcMedicao').value = config.svcMedicao;
+  $('#svcInstalacao').value = config.svcInstalacao;
+  $('#empNome').value = config.empNome;
+  $('#empTel').value = config.empTel;
+  $('#empEmail').value = config.empEmail;
+  $('#empMorada').value = config.empMorada;
+  $('#empNif').value = config.empNif;
+  $('#defNotas').value = config.defNotas;
+  $('#defValidade').value = config.defValidade;
+  $('#printFormat').value = config.printFormat || 'a4';
+}
+$('#btnAddTecido').addEventListener('click', () => { config.tecidos.push({nome:'Novo',preco:0,cores:''}); renderConfigForm(); });
+$('#btnAddCalha').addEventListener('click', () => { config.calhas.push({nome:'Nova',preco:0}); renderConfigForm(); });
+$('#btnSaveConfig').addEventListener('click', () => {
+  config.svcMedicao = parseFloat($('#svcMedicao').value)||0;
+  config.svcInstalacao = parseFloat($('#svcInstalacao').value)||0;
+  config.empNome = $('#empNome').value;
+  config.empTel = $('#empTel').value;
+  config.empEmail = $('#empEmail').value;
+  config.empMorada = $('#empMorada').value;
+  config.empNif = $('#empNif').value;
+  config.defNotas = $('#defNotas').value;
+  config.defValidade = parseFloat($('#defValidade').value)||30;
+  config.printFormat = $('#printFormat').value;
+  setCfg(config); toast('Configurações guardadas');
+});
+$('#btnResetConfig').addEventListener('click', () => {
+  if (!confirm('Repor todas as configurações para os valores padrão?')) return;
+  const contador = config.contador;
+  config = {...DEFAULT_CONFIG, contador};
+  setCfg(config); renderConfigForm(); toast('Reposto');
+});
+$('#btnExport').addEventListener('click', () => {
+  const data = { config: getCfg(), historico: getHist() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `serralves-decor-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+$('#btnImport').addEventListener('click', () => $('#fileImport').click());
+$('#fileImport').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (d.config) { config = {...DEFAULT_CONFIG, ...d.config}; setCfg(config); }
+      if (d.historico) setHist(d.historico);
+      renderConfigForm(); toast('Importado');
+    } catch { toast('Ficheiro inválido', true); }
+  };
+  r.readAsText(f);
+});
+
+// ---------- PDF RENDER ----------
+function pdfHTML(o) {
+  const sub = o.itens.reduce((a,it)=>a+(it.qtd||0)*(it.preco||0), 0);
+  let descVal = 0;
+  if (o.descPct>0) descVal = sub * (o.descPct/100);
+  else if (o.descEur>0) descVal = o.descEur;
+  const total = Math.max(0, sub - descVal);
+  const validadeData = new Date(o.data); validadeData.setDate(validadeData.getDate() + (parseInt(o.validade)||30));
+  const validadeStr = fmtDate(validadeData.toISOString().slice(0,10));
+
+  const linhas = o.itens.map((it, i) => {
+    const desc = (it.descCustom?.trim() || it.desc || '—');
+    const tc = [it.tecido, it.cor].filter(Boolean).join(' · ') || '—';
+    const med = (it.largura && it.altura) ? `${it.largura}×${it.altura} cm` : '—';
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${esc(desc)}</td>
+      <td>${esc(tc)}</td>
+      <td>${med}</td>
+      <td class="num">${it.qtd||0}</td>
+      <td class="num">${fmtEUR(it.preco||0)}</td>
+      <td class="num">${fmtEUR((it.qtd||0)*(it.preco||0))}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="pdf-preview">
+      <div class="pdf-header">
+        <div>
+          <div class="logo">SERRALVES DECOR<small>Cortinas · Calhas · Varões — Porto, Portugal</small></div>
+        </div>
+        <div class="meta">
+          <div class="num">Orçamento ${o.ref}</div>
+          <div>Data: ${fmtDate(o.data)}</div>
+          <div>Válido até: ${validadeStr}</div>
+        </div>
+      </div>
+
+      <div class="pdf-parties">
+        <div>
+          <div class="h">Cliente</div>
+          <div><strong>${esc(o.cliente.nome || '—')}</strong></div>
+          ${o.cliente.morada?`<div>${esc(o.cliente.morada)}</div>`:''}
+          ${o.cliente.tel?`<div>Tel: ${esc(o.cliente.tel)}</div>`:''}
+          ${o.cliente.email?`<div>${esc(o.cliente.email)}</div>`:''}
+          ${o.cliente.nif?`<div>NIF: ${esc(o.cliente.nif)}</div>`:''}
+        </div>
+        <div style="text-align:right;">
+          <div class="h">Emitido por</div>
+          <div><strong>${esc(config.empNome)}</strong></div>
+          ${config.empMorada?`<div>${esc(config.empMorada)}</div>`:''}
+          ${config.empTel?`<div>${esc(config.empTel)}</div>`:''}
+          ${config.empEmail?`<div>${esc(config.empEmail)}</div>`:''}
+          ${config.empNif?`<div>NIF: ${esc(config.empNif)}</div>`:''}
+        </div>
+      </div>
+
+      <table class="pdf-table">
+        <thead><tr><th>#</th><th>Descrição</th><th>Tecido / Cor</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P. Unit.</th><th class="num">Total</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+
+      <div class="pdf-totals">
+        <div class="row"><span>Subtotal</span><span>${fmtEUR(sub)}</span></div>
+        ${descVal>0?`<div class="row"><span>Desconto${o.descPct>0?` (${o.descPct}%)`:''}</span><span>-${fmtEUR(descVal)}</span></div>`:''}
+        <div class="row grand"><span>TOTAL</span><span>${fmtEUR(total)}</span></div>
+        <div class="pdf-iva">Valores com IVA incluído</div>
+      </div>
+
+      <div class="pdf-notes">
+        <div class="h">Notas e Condições</div>
+        <div>${esc(o.notas || '').replace(/\n/g,'<br>')}</div>
+      </div>
+
+      <div class="pdf-footer">
+        ${esc(config.empNome)} · ${esc(config.empMorada||'Porto')} · ${esc(config.empTel||'')}<br>
+        Orçamento válido por ${o.validade||30} dias · Preços sujeitos a confirmação após medição em obra
+      </div>
+    </div>
+  `;
+}
+
+function renderPDFPreview() {
+  const html = pdfHTML(orc);
+  $('#pdfArea-screen').innerHTML = html;
+  $('#pdfArea').innerHTML = html;
+  $('#formatoInfo').textContent = (config.printFormat === 'receipt')
+    ? 'Formato: Recibo 80mm (impressora térmica) — pode alterar nas Configurações.'
+    : 'Formato: A4 — pode alterar para Recibo 80mm nas Configurações.';
+  document.body.classList.toggle('receipt-mode', config.printFormat === 'receipt');
+}
+
+// ---------- ACTIONS PDF ----------
+$('#btnImprimir').addEventListener('click', () => { renderPDFPreview(); setTimeout(() => window.print(), 100); });
+$('#btnDownloadPDF').addEventListener('click', async () => {
+  renderPDFPreview();
+  const el = $('#pdfArea');
+  // ensure visible for html2pdf
+  const prev = el.style.cssText;
+  el.style.cssText = 'position:absolute; left:0; top:0; width:794px; background:#fff; z-index:-1;';
+  const opt = {
+    margin: [10, 12, 10, 12],
+    filename: `Orcamento_${orc.ref}_${(orc.cliente.nome||'Cliente').replace(/\s+/g,'_')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css','legacy'] }
+  };
+  try {
+    await html2pdf().set(opt).from(el).save();
+    toast('PDF descarregado');
+  } catch (e) {
+    console.error(e); toast('Erro ao gerar PDF', true);
+  } finally {
+    el.style.cssText = prev;
+  }
+});
+$('#btnWhatsApp').addEventListener('click', () => {
+  const tot = totalOf(orc);
+  const msg = `*Orçamento ${orc.ref}* — ${config.empNome}\n` +
+    `Cliente: ${orc.cliente.nome}\n` +
+    `Data: ${fmtDate(orc.data)}\n\n` +
+    orc.itens.map(it => {
+      const d = it.descCustom?.trim() || it.desc || '—';
+      const med = (it.largura&&it.altura) ? ` ${it.largura}×${it.altura}cm` : '';
+      return `• ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR(it.qtd*it.preco)}`;
+    }).join('\n') +
+    `\n\n*Total: ${fmtEUR(tot)}*\nIVA incluído · Válido ${orc.validade||30} dias\n\n${config.empNome} · ${config.empTel}`;
+  const tel = (orc.cliente.tel || '').replace(/[^\d+]/g,'');
+  const url = tel ? `https://wa.me/${tel.replace(/^\+/,'')}?text=${encodeURIComponent(msg)}`
+                  : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+});
+$('#btnEmail').addEventListener('click', () => {
+  const tot = totalOf(orc);
+  const subject = `Orçamento ${orc.ref} — ${config.empNome}`;
+  const body = `Caro(a) ${orc.cliente.nome||'cliente'},\n\nSegue em anexo / em baixo o resumo do orçamento ${orc.ref}.\n\n` +
+    orc.itens.map(it => {
+      const d = it.descCustom?.trim() || it.desc || '—';
+      const med = (it.largura&&it.altura) ? ` (${it.largura}×${it.altura}cm)` : '';
+      return `- ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR(it.qtd*it.preco)}`;
+    }).join('\n') +
+    `\n\nTotal: ${fmtEUR(tot)} (IVA incluído)\nValidade: ${orc.validade||30} dias\n\nCom os melhores cumprimentos,\n${config.empNome}\n${config.empTel}\n${config.empEmail}`;
+  window.location.href = `mailto:${encodeURIComponent(orc.cliente.email||'')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+});
+
+// ---------- TOAST ----------
+let toastT;
+function toast(msg, err=false) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.style.background = err ? 'var(--err)' : 'var(--dark)';
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ---------- NETWORK STATUS ----------
+function updateNet() {
+  const el = $('#netStatus');
+  if (navigator.onLine) { el.textContent = '● Online'; el.style.color = '#9CC4A8'; }
+  else { el.textContent = '● Offline'; el.style.color = '#E0C29F'; }
+}
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+
+// ---------- INIT ----------
+function init() {
+  loadDraft();
+  // ensure ref is current if no draft
+  if (!orc.ref) orc.ref = nextRef();
+  if (!orc.notas) orc.notas = config.defNotas;
+  if (!orc.validade) orc.validade = config.defValidade;
+  applyOrcToForm();
+  renderItems();
+  recalcResumo();
+  updateNet();
+}
+init();
+
+// ---------- SERVICE WORKER ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW reg falhou', err));
+  });
+}
+</script>
+</body>
+</html>
