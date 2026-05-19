@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'sd-orcamentos-v1';
+const CACHE_VERSION = 'sd-orcamentos-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -28,7 +28,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
-
+  // Network-first for navigation/HTML to avoid stale app shell
+  const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+  if (isHTML) {
+    event.respondWith(
+      fetch(req).then((resp) => {
+        const clone = resp.clone();
+        caches.open(CACHE_VERSION).then((c) => c.put(req, clone));
+        return resp;
+      }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(req).then((cached) => {
       const fetchPromise = fetch(req)
