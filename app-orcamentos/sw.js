@@ -1,8 +1,10 @@
-const CACHE_VERSION = 'sd-orcamentos-v2';
+const CACHE_VERSION = 'sd-orcamentos-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './firebase-config.js',
+  './cloud.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap',

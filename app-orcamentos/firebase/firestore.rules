@@ -1,0 +1,78 @@
+rules_version = '2';
+// =====================================================================
+// SERRALVES DECOR — regras de segurança Firestore
+// =====================================================================
+// Copia este ficheiro inteiro para Firebase Console → Firestore Database
+// → Rules → cola por cima do existente → Publicar.
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function isSignedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(uid()));
+    }
+    function userTenant() { return userDoc().data.tenantId; }
+    function userRole()   { return userDoc().data.role; }
+    function isOwner()    { return isSignedIn() && userRole() == 'owner'; }
+    function inMain()     { return isSignedIn() && userTenant() == 'main'; }
+    function memberActive() {
+      return get(/databases/$(database)/documents/tenants/main/members/$(uid())).data.active != false;
+    }
+
+    // ---------- /users/{uid} ----------
+    // A user reads their own record. The first signup bootstrap requires
+    // self-creating the user doc together with the tenant 'main' (only
+    // possible while 'main' doesn't exist yet). After that, only owners
+    // can write user records (via the secondary-app invite flow).
+    match /users/{userId} {
+      allow read: if isSignedIn() && (userId == uid() || isOwner());
+      allow create: if isSignedIn() && (
+        // Bootstrap path: this user is creating their own first user-doc
+        // tied to the (about-to-be-created) tenant 'main'.
+        (userId == uid()
+          && request.resource.data.tenantId == 'main'
+          && !exists(/databases/$(database)/documents/tenants/main))
+        // Owner-invite path: an existing owner is creating someone else's record.
+        || (isOwner() && request.resource.data.tenantId == 'main')
+      );
+      allow update, delete: if isOwner();
+    }
+
+    // ---------- /tenants/{tid} ----------
+    // Only tenant 'main' can ever exist. Created exactly once by the very
+    // first user (bootstrap). Read by members. Modified only by owners.
+    match /tenants/{tid} {
+      allow read: if isSignedIn() && tid == 'main';
+      allow create: if isSignedIn() && tid == 'main'
+        && !exists(/databases/$(database)/documents/tenants/main);
+      allow update, delete: if isOwner() && tid == 'main';
+
+      // ---------- /tenants/main/data/{key} ----------
+      // Shared app data — only active members can read/write.
+      match /data/{docId} {
+        allow read:  if tid == 'main' && inMain() && memberActive();
+        allow write: if tid == 'main' && inMain() && memberActive();
+      }
+
+      // ---------- /tenants/main/members/{uid} ----------
+      // Members list. Active members read; owners write. Plus a special
+      // bootstrap allowance so the first user can create themselves.
+      match /members/{memberId} {
+        allow read: if tid == 'main' && inMain() && memberActive();
+        allow create: if tid == 'main' && (
+          // Bootstrap: first user becomes owner of new tenant.
+          (memberId == uid()
+            && request.resource.data.role == 'owner'
+            && !exists(/databases/$(database)/documents/tenants/main))
+          // Owner adds new member.
+          || isOwner()
+        );
+        allow update, delete: if tid == 'main' && isOwner();
+      }
+    }
+  }
+}
