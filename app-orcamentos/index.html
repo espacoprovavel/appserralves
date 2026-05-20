@@ -550,6 +550,9 @@
       <section class="section" id="sec-produtos">
         <div class="page-head">
           <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
+          <div class="btn-row">
+            <input type="search" id="catalogSearch" placeholder="Pesquisar código ou nome..." style="width:260px;max-width:100%;" />
+          </div>
         </div>
 
         <div class="card">
@@ -782,6 +785,7 @@ let clientes = load(K.cli, []);
 let historico = load(K.hist, []);
 let contador = load(K.ct, 1);
 let orc = null;
+let isAdmin = true; // true em modo local; atualizado após autenticação cloud
 
 // Persist defaults on first load
 if (!localStorage.getItem(K.prod)) save(K.prod, produtos);
@@ -1229,19 +1233,29 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // PRODUTOS / TECIDOS UI
 // ============================================================
 function renderProdutos() {
+  const q = norm(($('#catalogSearch')?.value || '')).trim();
+  const ro = !isAdmin;
+  const dis = ro ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
+
+  const prodFiltrados = q ? produtos.filter(p => norm(p.codigo+' '+p.nome+' '+p.categoria).includes(q)) : produtos;
+  const tecFiltrados  = q ? tecidos.filter(t  => norm(t.codigo+' '+t.nome+' '+(t.cores||'')).includes(q)) : tecidos;
+
   const pb = $('#prodTable tbody'); pb.innerHTML = '';
-  produtos.forEach((p, i) => {
+  // Map filtered index back to real index for mutations
+  prodFiltrados.forEach((p) => {
+    const i = produtos.indexOf(p);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><input type="text" data-p="${i}" data-f="codigo" value="${esc(p.codigo)}" /></td>
-      <td><input type="text" data-p="${i}" data-f="nome" value="${esc(p.nome)}" /></td>
-      <td><input type="text" data-p="${i}" data-f="categoria" value="${esc(p.categoria)}" /></td>
-      <td><input type="number" step="0.01" data-p="${i}" data-f="preco" value="${p.preco}" class="num" /></td>
-      <td><input type="text" data-p="${i}" data-f="unidade" value="${esc(p.unidade)}" /></td>
-      <td class="center"><button class="btn btn-ghost btn-icon" data-rmp="${i}">✕</button></td>
+      <td><input type="text" data-p="${i}" data-f="codigo" value="${esc(p.codigo)}" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="nome" value="${esc(p.nome)}" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="categoria" value="${esc(p.categoria)}" ${dis} /></td>
+      <td><input type="number" step="0.01" data-p="${i}" data-f="preco" value="${p.preco}" class="num" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="unidade" value="${esc(p.unidade)}" ${dis} /></td>
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmp="${i}">✕</button>` : ''}</td>
     `;
     pb.appendChild(tr);
   });
+  if (!prodFiltrados.length) pb.innerHTML = `<tr><td colspan="6" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
   pb.querySelectorAll('[data-p]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.p, f = el.dataset.f;
     produtos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
@@ -1253,17 +1267,19 @@ function renderProdutos() {
   }));
 
   const tb = $('#tecTable tbody'); tb.innerHTML = '';
-  tecidos.forEach((t, i) => {
+  tecFiltrados.forEach((t) => {
+    const i = tecidos.indexOf(t);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo)}" /></td>
-      <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome)}" /></td>
-      <td><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco}" class="num" /></td>
-      <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" /></td>
-      <td class="center"><button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button></td>
+      <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo)}" ${dis} /></td>
+      <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome)}" ${dis} /></td>
+      <td><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco}" class="num" ${dis} /></td>
+      <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>
     `;
     tb.appendChild(tr);
   });
+  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="5" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
   tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
     tecidos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
@@ -1274,11 +1290,14 @@ function renderProdutos() {
     tecidos.splice(+b.dataset.rmt, 1); save(K.tec, tecidos); renderProdutos();
   }));
 }
+$('#catalogSearch')?.addEventListener('input', renderProdutos);
 $('#btnAddProduto').addEventListener('click', () => {
+  if (!isAdmin) return;
   produtos.push({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: '', preco: 0, unidade: 'un' });
   save(K.prod, produtos); renderProdutos();
 });
 $('#btnAddTecido').addEventListener('click', () => {
+  if (!isAdmin) return;
   tecidos.push({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', preco: 0, cores: '' });
   save(K.tec, tecidos); renderProdutos();
 });
@@ -1646,6 +1665,32 @@ $('#btnLogout')?.addEventListener('click', async () => {
 });
 
 // ============================================================
+// ROLE-BASED UI
+// ============================================================
+function applyRoleUI() {
+  const admin = isAdmin;
+  // Equipa tab: só admins (quando cloud está activa)
+  const showEquipa = !window.FIREBASE_ENABLED || admin;
+  $$('[data-tab="equipa"]').forEach(b => b.style.display = showEquipa ? '' : 'none');
+  // Configurações: botões de escrita só para admin
+  ['btnSaveConfig','btnExport','btnImport','btnResetConfig'].forEach(id => {
+    const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
+  });
+  // Configurações: inputs readonly para não-admin
+  ['empNome','empNif','empTel','empEmail','empMorada','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat'].forEach(id => {
+    const el = $('#'+id); if (!el) return;
+    el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
+    el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
+  });
+  // Produtos: botões de adicionar
+  ['btnAddProduto','btnAddTecido'].forEach(id => {
+    const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
+  });
+  // Re-render produtos se a secção estiver activa
+  if ($('#sec-produtos')?.classList.contains('active')) renderProdutos();
+}
+
+// ============================================================
 // INIT
 // ============================================================
 function init() {
@@ -1695,7 +1740,11 @@ function bootApp() {
   if (window.Cloud && window.FIREBASE_ENABLED) {
     document.getElementById('appRoot')?.classList.add('hidden-until-auth');
     const ub = document.getElementById('userBlock'); if (ub) ub.style.display = '';
-    document.addEventListener('cloud:ready', () => { init(); }, { once: true });
+    document.addEventListener('cloud:ready', () => {
+      isAdmin = Cloud.isOwner();
+      init();
+      applyRoleUI();
+    }, { once: true });
     Cloud.boot();
   } else {
     if (window.Cloud) Cloud.boot();
