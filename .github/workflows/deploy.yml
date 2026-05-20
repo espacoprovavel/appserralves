@@ -1,37 +1,21 @@
-name: Deploy para GitHub Pages
+name: Deploy para Firebase Hosting
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:   # permite correr manualmente
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Carregar artefacto
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy para Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          path: .        # publica a raiz do repo (index.html redirige para app-orcamentos/)
-
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SA }}
+          projectId: serralves-decor
+          channelId: live
