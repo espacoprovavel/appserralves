@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Serralves Decor — Guia de Acesso</title>
+<style>
+  :root {
+    --dark: #2A2520;
+    --creme: #F5F0E6;
+    --muted: #6B645B;
+    --border: #D4CFC5;
+    --soft: #FAF7F1;
+    --ok: #2D4A3E;
+    --accent: #8C6B30;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--creme); color: var(--dark); font-family: 'Georgia', serif; font-size: 14px; line-height: 1.6; }
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 32px 60px; }
+
+  /* HEADER */
+  .header { background: var(--dark); color: var(--creme); padding: 32px 36px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+  .header .brand { font-size: 26px; letter-spacing: 3px; font-weight: 700; line-height: 1.1; }
+  .header .sub { font-size: 10px; letter-spacing: 3px; opacity: 0.6; margin-top: 6px; text-transform: uppercase; font-family: Arial, sans-serif; }
+  .header .badge { text-align: right; font-family: Arial, sans-serif; font-size: 11px; opacity: 0.7; }
+  .header .badge strong { display: block; font-size: 14px; opacity: 1; }
+
+  /* SECTIONS */
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: Arial, sans-serif; font-weight: 600; margin: 32px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td:first-child { width: 220px; font-family: Arial, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); white-space: nowrap; }
+  td:last-child { font-size: 14px; }
+  tr:nth-child(even) td { background: rgba(212,207,197,0.15); }
+  tr:last-child td { border-bottom: 0; }
+
+  /* SPECIAL CELLS */
+  .url { font-family: 'Courier New', monospace; font-size: 13px; color: var(--ok); font-weight: 700; word-break: break-all; }
+  .key { display: inline-block; background: var(--dark); color: var(--creme); font-family: 'Courier New', monospace; font-size: 12px; padding: 3px 10px; letter-spacing: 0.5px; }
+  .blank { display: inline-block; border-bottom: 1.5px solid var(--dark); min-width: 260px; height: 20px; margin-left: 4px; }
+  .note { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: Arial, sans-serif; }
+  .pill { display: inline-block; padding: 2px 9px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, sans-serif; }
+  .pill-ok { background: var(--ok); color: #fff; }
+  .pill-warn { background: var(--accent); color: #fff; }
+
+  /* CARD */
+  .card { background: #fff; border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 16px; }
+  .card h3 { margin: 0 0 14px; font-size: 15px; }
+
+  /* STEPS */
+  .steps { counter-reset: s; }
+  .step { display: flex; gap: 14px; margin-bottom: 14px; }
+  .step::before { counter-increment: s; content: counter(s); width: 26px; height: 26px; background: var(--dark); color: var(--creme); display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .step p { margin: 0; }
+  .step .url { font-size: 12px; display: block; margin-top: 3px; }
+
+  /* ROLES */
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .role-card { border: 1px solid var(--border); padding: 14px 16px; }
+  .role-card .role-name { font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .role-card ul { margin: 0; padding: 0 0 0 16px; font-size: 13px; }
+  .role-card li { margin-bottom: 3px; }
+
+  /* FOOTER */
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-family: Arial, sans-serif; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 20px; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pill-ok, .pill-warn, .step::before, .key { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @media (max-width: 600px) {
+    .page { padding: 16px; }
+    .header { flex-direction: column; padding: 20px; }
+    .header .badge { text-align: left; }
+    .roles { grid-template-columns: 1fr; }
+    td:first-child { width: 150px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="brand">SERRALVES DECOR</div>
+      <div class="sub">Sistema de Orçamentos — Guia de Acesso</div>
+    </div>
+    <div class="badge">
+      Guardar este documento<br>num lugar seguro.<br>
+      <strong>Confidencial</strong>
+    </div>
+  </div>
+
+  <!-- ===== URLS ===== -->
+  <h2>Endereços da App</h2>
+  <table>
+    <tr>
+      <td>App principal</td>
+      <td><span class="url">https://serralves-decor.web.app</span>
+          <div class="note">URL permanente · Firebase Hosting</div>
+      </td>
+    </tr>
+    <tr>
+      <td>App alternativa</td>
+      <td><span class="url">https://espacoprovavel.github.io/appserralves/app-orcamentos/</span>
+          <div class="note">Funciona se a principal tiver problemas · GitHub Pages</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Instalar como app</td>
+      <td>Abre a app no telemóvel → <em>"Adicionar ao ecrã inicial"</em> (iOS / Android)
+          <div class="note">Funciona offline após instalação</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ===== LOGIN ===== -->
+  <h2>Como Entrar na App</h2>
+  <table>
+    <tr>
+      <td>Email de admin</td>
+      <td><span class="blank"></span>
+          <div class="note">O email que usaste para criar a primeira conta</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Palavra-passe</td>
+      <td><span class="blank"></span>
+          <div class="note">Escreve aqui a tua palavra-passe num local seguro</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Esqueci a palavra-passe</td>
+      <td>No ecrã de login → separador <strong>"Esqueci"</strong> → escreve o email → clica "Enviar link"
+          <div class="note">Recebes um email da Google para repor a palavra-passe</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ===== FIRST TIME ===== -->
+  <h2>Primeira Vez (criar conta de admin)</h2>
+  <div class="card steps">
+    <div class="step"><p>Abre <span class="url">https://serralves-decor.web.app</span></p></div>
+    <div class="step"><p>Clica no separador <strong>"Criar conta"</strong></p></div>
+    <div class="step"><p>Escreve o teu email e uma palavra-passe (mínimo 8 caracteres)</p></div>
+    <div class="step"><p>Clica <strong>"Criar conta"</strong> — a <strong>primeira conta criada é automaticamente administradora</strong></p></div>
+    <div class="step"><p>Para adicionar colegas: vai a <strong>Equipa → Adicionar novo membro</strong> (só o admin vê este separador)</p></div>
+  </div>
+
+  <!-- ===== ROLES ===== -->
+  <h2>Papéis na App</h2>
+  <div class="roles">
+    <div class="role-card">
+      <div class="role-name"><span class="pill pill-ok">Administrador</span></div>
+      <ul>
+        <li>Criar orçamentos</li>
+        <li>Ver histórico</li>
+        <li>Editar produtos e tecidos</li>
+        <li>Alterar configurações</li>
+        <li>Gerir equipa (convidar / remover)</li>
+        <li>Exportar / importar dados</li>
+        <li>Mudar funções da equipa</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-name"><span class="pill pill-warn">Utilizador</span></div>
+      <ul>
+        <li>Criar orçamentos</li>
+        <li>Ver histórico</li>
+        <li>Ver catálogo (só leitura)</li>
+        <li>Ver configurações (só leitura)</li>
+        <li>Não vê separador Equipa</li>
+        <li>Não pode alterar dados</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== DADOS ===== -->
+  <h2>Onde os Dados Estão Guardados</h2>
+  <table>
+    <tr>
+      <td>Base de dados</td>
+      <td><strong>Firebase Firestore</strong> — nuvem da Google
+          <div class="note">Sincroniza automaticamente entre todos os dispositivos e utilizadores</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Cópia local</td>
+      <td>localStorage do browser
+          <div class="note">Permite usar a app offline; sincroniza quando voltar a ter internet</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Backup manual</td>
+      <td>App → <strong>Configurações → Exportar dados (JSON)</strong>
+          <div class="note">Guarda um ficheiro .json com tudo: clientes, orçamentos, produtos, tecidos</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ===== FIREBASE ADMIN ===== -->
+  <h2>Painel Firebase (gestão técnica)</h2>
+  <table>
+    <tr>
+      <td>Firebase Console</td>
+      <td><span class="url">https://console.firebase.google.com/project/serralves-decor</span></td>
+    </tr>
+    <tr>
+      <td>Conta Google associada</td>
+      <td><span class="blank"></span>
+          <div class="note">A conta Google que criou o projecto Firebase</div>
+      </td>
+    </tr>
+    <tr>
+      <td>ID do projecto</td>
+      <td><span class="key">serralves-decor</span></td>
+    </tr>
+    <tr>
+      <td>Ver utilizadores Auth</td>
+      <td><span class="url">https://console.firebase.google.com/project/serralves-decor/authentication/users</span></td>
+    </tr>
+    <tr>
+      <td>Ver base de dados</td>
+      <td><span class="url">https://console.firebase.google.com/project/serralves-decor/firestore</span></td>
+    </tr>
+    <tr>
+      <td>Ver site publicado</td>
+      <td><span class="url">https://console.firebase.google.com/project/serralves-decor/hosting</span></td>
+    </tr>
+  </table>
+
+  <!-- ===== GITHUB ===== -->
+  <h2>Repositório de Código (GitHub)</h2>
+  <table>
+    <tr>
+      <td>Repositório</td>
+      <td><span class="url">https://github.com/espacoprovavel/appserralves</span></td>
+    </tr>
+    <tr>
+      <td>Conta GitHub</td>
+      <td><span class="blank"></span>
+          <div class="note">Utilizador/organização: <strong>espacoprovavel</strong></div>
+      </td>
+    </tr>
+    <tr>
+      <td>Deploy automático</td>
+      <td>Cada vez que código é publicado no ramo <strong>main</strong> → a app atualiza-se automaticamente
+          <div class="note">Ver histórico de deploys em: github.com/espacoprovavel/appserralves/actions</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Secret necessário</td>
+      <td><span class="key">FIREBASE_SERVICE_ACCOUNT_SERRALVES_DECOR</span>
+          <div class="note">JSON da conta de serviço Firebase · guardado em: GitHub → Settings → Secrets → Actions</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ===== TROUBLESHOOTING ===== -->
+  <h2>Problemas Frequentes</h2>
+  <table>
+    <tr>
+      <td>Esqueci a palavra-passe</td>
+      <td>Login → "Esqueci" → enviar link para o email de admin</td>
+    </tr>
+    <tr>
+      <td>App não abre</td>
+      <td>Tenta a URL alternativa: <span class="url" style="font-size:12px;">https://espacoprovavel.github.io/appserralves/app-orcamentos/</span></td>
+    </tr>
+    <tr>
+      <td>Dados desapareceram</td>
+      <td>Abre noutro dispositivo — os dados estão na nuvem (Firestore). Se apagados por engano, contacta suporte técnico.</td>
+    </tr>
+    <tr>
+      <td>Colega não consegue entrar</td>
+      <td>Admin → separador <strong>Equipa</strong> → verifica se a conta está activa</td>
+    </tr>
+    <tr>
+      <td>PDF sai em branco</td>
+      <td>Usa o botão <strong>"Imprimir"</strong> em vez de "Descarregar PDF" (fallback via browser)</td>
+    </tr>
+    <tr>
+      <td>Deploy falhou (fundo vermelho no GitHub Actions)</td>
+      <td>Verifica se o secret <span class="key">FIREBASE_SERVICE_ACCOUNT_SERRALVES_DECOR</span> existe em GitHub → Settings → Secrets</td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <span>Serralves Decor · Sistema de Orçamentos</span>
+    <span>Imprime este documento e guarda num local seguro</span>
+  </div>
+
+</div>
+</body>
+</html>
