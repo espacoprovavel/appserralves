@@ -16,6 +16,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="firebase-config.js"></script>
+<script type="module" src="cloud.js"></script>
 <style>
   :root {
     --dark: #2A2520;
@@ -251,6 +253,33 @@
     .item-grid-a, .item-grid-b { grid-template-columns: 1fr; }
   }
 
+  /* ===== AUTH OVERLAY ===== */
+  .hidden-until-auth { visibility: hidden; }
+  #authOverlay { position: fixed; inset: 0; background: var(--dark); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 24px; }
+  #authOverlay .auth-box { background: var(--creme); width: 100%; max-width: 380px; padding: 32px 28px; border-radius: 2px; box-shadow: 0 12px 48px rgba(0,0,0,0.3); }
+  #authOverlay .auth-brand { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 2px; text-align: center; margin-bottom: 4px; font-weight: 700; }
+  #authOverlay .auth-sub { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; text-align: center; color: var(--muted); margin-bottom: 22px; }
+  #authOverlay .auth-tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+  #authOverlay .auth-tab { flex: 1; background: transparent; border: 0; padding: 10px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  #authOverlay .auth-tab.active { color: var(--dark); border-bottom-color: var(--dark); }
+  #authOverlay .field { margin-bottom: 12px; }
+  #authOverlay #authError { display: none; padding: 10px 12px; background: rgba(168,50,50,0.08); border-left: 3px solid var(--err); color: var(--err); font-size: 12px; margin-bottom: 12px; }
+  #authOverlay .auth-actions { margin-top: 8px; }
+  #authOverlay .auth-foot { font-size: 11px; color: var(--muted); text-align: center; margin-top: 14px; }
+
+  /* ===== USER BADGE ===== */
+  .user-block { padding: 10px 22px; border-top: 1px solid rgba(245,240,230,0.1); font-size: 11px; color: rgba(245,240,230,0.7); }
+  .user-block .user-email { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
+  .user-block button { background: transparent; border: 1px solid rgba(245,240,230,0.3); color: rgba(245,240,230,0.8); padding: 6px 10px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; width: 100%; }
+  .user-block button:hover { background: rgba(245,240,230,0.06); color: var(--creme); }
+
+  /* ===== EQUIPA ===== */
+  .members-table .role-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .members-table .role-owner { background: #2D4A3E; color: #fff; }
+  .members-table .role-user { background: var(--soft); color: var(--muted); }
+  .members-table .inactive { opacity: 0.5; }
+  .invite-card { background: var(--soft); padding: 16px; margin-bottom: 16px; border-left: 3px solid var(--dark); }
+
   /* ===== PRINT ===== */
   @media print {
     @page { size: A4; margin: 14mm 16mm; }
@@ -286,7 +315,42 @@
 </head>
 <body>
 
-<div class="layout">
+<!-- ============ LOGIN OVERLAY (só aparece com Firebase activo) ============ -->
+<div id="authOverlay" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-brand">SERRALVES DECOR</div>
+    <div class="auth-sub">Orçamentos</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth="login">Entrar</button>
+      <button class="auth-tab" data-auth="signup">Criar conta</button>
+      <button class="auth-tab" data-auth="forgot">Esqueci</button>
+    </div>
+
+    <div id="authError"></div>
+
+    <div id="authForm-login">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" autocomplete="username" /></div>
+      <div class="field"><label>Palavra-passe</label><input type="password" id="loginPwd" autocomplete="current-password" /></div>
+      <div class="auth-actions"><button class="btn btn-full" id="btnAuthLogin">Entrar</button></div>
+    </div>
+
+    <div id="authForm-signup" style="display:none;">
+      <div class="field"><label>Email</label><input type="email" id="signupEmail" autocomplete="username" /></div>
+      <div class="field"><label>Palavra-passe (mín. 8)</label><input type="password" id="signupPwd" autocomplete="new-password" /></div>
+      <div class="field"><label>Confirmar palavra-passe</label><input type="password" id="signupPwd2" autocomplete="new-password" /></div>
+      <div class="auth-actions"><button class="btn btn-full" id="btnAuthSignup">Criar conta</button></div>
+      <div class="auth-foot">A primeira conta criada torna-se administradora. Contas seguintes têm de ser criadas pelo administrador na aba Equipa.</div>
+    </div>
+
+    <div id="authForm-forgot" style="display:none;">
+      <div class="field"><label>Email</label><input type="email" id="forgotEmail" autocomplete="username" /></div>
+      <div class="auth-actions"><button class="btn btn-full" id="btnAuthForgot">Enviar link de recuperação</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="layout" id="appRoot">
 
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar no-print">
@@ -307,14 +371,22 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>
         <span>Produtos</span>
       </button>
+      <button data-tab="equipa" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Equipa</span>
+      </button>
       <button data-tab="config">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
         <span>Configurações</span>
       </button>
     </nav>
+    <div class="user-block" id="userBlock" style="display:none;">
+      <span class="user-email" id="userBadge">—</span>
+      <button id="btnLogout">Terminar sessão</button>
+    </div>
     <div class="foot">
       <div class="net-status"><span class="net-dot" id="netDot"></span><span id="netLabel">Online</span></div>
-      <div style="margin-top:6px;">v2.0</div>
+      <div style="margin-top:6px;">v2.1</div>
     </div>
   </aside>
 
@@ -562,6 +634,50 @@
         </div>
       </section>
 
+      <!-- ============ EQUIPA (só admin) ============ -->
+      <section class="section" id="sec-equipa">
+        <div class="page-head">
+          <div><div class="crumbs">Sistema</div><h2>Equipa</h2></div>
+        </div>
+
+        <div class="card">
+          <h3>Adicionar novo membro</h3>
+          <p class="muted small">Cria uma conta para um colega. Recebe email + palavra-passe que tu definires; pode alterá-la depois.</p>
+          <div class="grid grid-3 mt-12">
+            <div class="field"><label>Email</label><input type="email" id="newMemberEmail" placeholder="colega@exemplo.pt" /></div>
+            <div class="field"><label>Palavra-passe inicial</label><input type="text" id="newMemberPwd" placeholder="Mín. 8 caracteres" /></div>
+            <div class="field"><label>Função</label>
+              <select id="newMemberRole">
+                <option value="user">Utilizador</option>
+                <option value="owner">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn mt-12" id="btnInviteMember">Criar conta</button>
+        </div>
+
+        <div class="card">
+          <h3>Membros</h3>
+          <div class="tbl-wrap">
+            <table class="t members-table">
+              <colgroup><col><col style="width:120px"><col style="width:100px"><col style="width:160px"></colgroup>
+              <thead><tr><th>Email</th><th>Função</th><th class="center">Estado</th><th></th></tr></thead>
+              <tbody id="membersBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Mudar a minha palavra-passe</h3>
+          <div class="grid grid-3">
+            <div class="field"><label>Actual</label><input type="password" id="pwdCurrent" autocomplete="current-password" /></div>
+            <div class="field"><label>Nova (mín. 8)</label><input type="password" id="pwdNew" autocomplete="new-password" /></div>
+            <div class="field"><label>Confirmar nova</label><input type="password" id="pwdNew2" autocomplete="new-password" /></div>
+          </div>
+          <button class="btn mt-12" id="btnChangePwd">Alterar palavra-passe</button>
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -583,6 +699,10 @@
   <button data-tab="produtos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/></svg>
     <span>Produtos</span>
+  </button>
+  <button data-tab="equipa" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <span>Equipa</span>
   </button>
   <button data-tab="config">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
@@ -609,8 +729,14 @@ const norm = (s) => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ
 
 // ---------- STORAGE ----------
 const K = { cfg: 'sd_config', cli: 'sd_clientes', prod: 'sd_produtos', tec: 'sd_tecidos', hist: 'sd_historico', draft: 'sd_draft', ct: 'sd_contador' };
+// Map local key → cloud doc key (drafts stay local only)
+const CLOUD_KEY = { 'sd_config': 'config', 'sd_clientes': 'clientes', 'sd_produtos': 'produtos', 'sd_tecidos': 'tecidos', 'sd_historico': 'historico', 'sd_contador': 'contador' };
 const load = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)); return v==null ? def : v; } catch { return def; } };
-const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const save = (k, v) => {
+  localStorage.setItem(k, JSON.stringify(v));
+  const ck = CLOUD_KEY[k];
+  if (ck && window.Cloud && Cloud.ready) Cloud.push(ck, v);
+};
 
 // ---------- DEFAULTS ----------
 const DEFAULT_PRODUTOS = [
@@ -692,6 +818,7 @@ function showTab(tab) {
   if (tab === 'historico') renderHistorico();
   if (tab === 'produtos') renderProdutos();
   if (tab === 'config') renderConfigForm();
+  if (tab === 'equipa') renderEquipa();
   // Hide preview when changing tab
   $('#printPreviewCard').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1410,6 +1537,107 @@ window.addEventListener('online', updateNet);
 window.addEventListener('offline', updateNet);
 
 // ============================================================
+// EQUIPA (gestão de utilizadores · só admin)
+// ============================================================
+async function renderEquipa() {
+  if (!window.Cloud || !Cloud.ready) {
+    $('#membersBody').innerHTML = '<tr><td colspan="4" class="center muted">Sincronização desactivada. Veja firebase/SETUP.md.</td></tr>';
+    return;
+  }
+  if (!Cloud.isOwner()) {
+    $('#membersBody').innerHTML = '<tr><td colspan="4" class="center muted">Só administradores podem gerir a equipa.</td></tr>';
+    return;
+  }
+  try {
+    const members = await Cloud.listMembers();
+    members.sort((a, b) => (a.email||'').localeCompare(b.email||''));
+    $('#membersBody').innerHTML = members.map(m => {
+      const isSelf = m.uid === Cloud.user.uid;
+      const inactive = m.active === false;
+      const roleSel = `<select data-role="${m.uid}" ${isSelf?'disabled':''}>
+        <option value="user" ${m.role==='user'?'selected':''}>Utilizador</option>
+        <option value="owner" ${m.role==='owner'?'selected':''}>Administrador</option>
+      </select>`;
+      const actBtn = isSelf ? '<span class="muted small">(tu)</span>'
+        : inactive
+          ? `<button class="btn btn-xs btn-outline" data-act="${m.uid}">Reactivar</button>`
+          : `<button class="btn btn-xs btn-outline" data-deact="${m.uid}">Desactivar</button>`;
+      const delBtn = isSelf ? '' : `<button class="btn btn-xs btn-ghost" data-rm="${m.uid}" title="Remover">✕</button>`;
+      return `<tr class="${inactive?'inactive':''}">
+        <td>${esc(m.email||'—')}</td>
+        <td>${roleSel}</td>
+        <td class="center"><span class="role-pill role-${inactive?'user':(m.role||'user')}">${inactive?'Inactivo':'Activo'}</span></td>
+        <td>${actBtn} ${delBtn}</td>
+      </tr>`;
+    }).join('');
+
+    $$('#membersBody [data-role]').forEach(sel => sel.addEventListener('change', async (e) => {
+      try { await Cloud.setMemberRole(sel.dataset.role, sel.value); toast('Função actualizada'); renderEquipa(); }
+      catch (err) { toast(err.message || 'Erro', true); renderEquipa(); }
+    }));
+    $$('#membersBody [data-deact]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('Desactivar este utilizador? Não vai conseguir entrar.')) return;
+      try { await Cloud.setMemberActive(b.dataset.deact, false); toast('Desactivado'); renderEquipa(); }
+      catch (err) { toast(err.message || 'Erro', true); }
+    }));
+    $$('#membersBody [data-act]').forEach(b => b.addEventListener('click', async () => {
+      try { await Cloud.setMemberActive(b.dataset.act, true); toast('Reactivado'); renderEquipa(); }
+      catch (err) { toast(err.message || 'Erro', true); }
+    }));
+    $$('#membersBody [data-rm]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('Remover este utilizador? Não vai conseguir entrar mais. (A conta de login fica no Firebase mas sem acesso.)')) return;
+      try { await Cloud.removeMember(b.dataset.rm); toast('Removido'); renderEquipa(); }
+      catch (err) { toast(err.message || 'Erro', true); }
+    }));
+  } catch (err) {
+    console.error(err);
+    $('#membersBody').innerHTML = '<tr><td colspan="4" class="center muted">Erro a carregar membros.</td></tr>';
+  }
+}
+
+const btnInvite = $('#btnInviteMember');
+if (btnInvite) btnInvite.addEventListener('click', async () => {
+  if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const email = ($('#newMemberEmail').value||'').trim();
+  const pwd = $('#newMemberPwd').value || '';
+  const role = $('#newMemberRole').value;
+  if (!email || !pwd) return toast('Indica email e palavra-passe', true);
+  if (pwd.length < 8) return toast('Palavra-passe muito curta (mínimo 8)', true);
+  btnInvite.disabled = true;
+  try {
+    await Cloud.inviteMember(email, pwd, role);
+    $('#newMemberEmail').value = ''; $('#newMemberPwd').value = '';
+    toast('Conta criada. Comunica ao colega as credenciais.');
+    renderEquipa();
+  } catch (err) {
+    toast(err.message || 'Erro ao criar conta', true);
+  } finally { btnInvite.disabled = false; }
+});
+
+const btnChangePwd = $('#btnChangePwd');
+if (btnChangePwd) btnChangePwd.addEventListener('click', async () => {
+  if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const cur = $('#pwdCurrent').value, nw = $('#pwdNew').value, nw2 = $('#pwdNew2').value;
+  if (!cur || !nw) return toast('Preenche todos os campos', true);
+  if (nw.length < 8) return toast('Nova palavra-passe demasiado curta', true);
+  if (nw !== nw2) return toast('Confirmação não coincide', true);
+  btnChangePwd.disabled = true;
+  try {
+    await Cloud.changePassword(cur, nw);
+    $('#pwdCurrent').value=''; $('#pwdNew').value=''; $('#pwdNew2').value='';
+    toast('Palavra-passe alterada');
+  } catch (err) {
+    toast(err.code === 'auth/invalid-credential' ? 'Palavra-passe actual incorrecta' : (err.message||'Erro'), true);
+  } finally { btnChangePwd.disabled = false; }
+});
+
+// Logout button (visible only when cloud enabled & signed in)
+$('#btnLogout')?.addEventListener('click', async () => {
+  if (!confirm('Terminar sessão?')) return;
+  try { await Cloud.logout(); } catch (err) { console.warn(err); }
+});
+
+// ============================================================
 // INIT
 // ============================================================
 function init() {
@@ -1427,7 +1655,53 @@ function init() {
   updateNet();
   updateFormatoInfo();
 }
-init();
+
+// ============================================================
+// CLOUD HOOKS — when cloud pushes data in, refresh local state + UI
+// ============================================================
+function refreshAfterCloudUpdate() {
+  // Re-bind orçamento form to the latest config defaults if not editing custom values
+  applyOrcToForm();
+  renderItems();
+  recalc();
+  if ($('#sec-historico').classList.contains('active')) renderHistorico();
+  if ($('#sec-produtos').classList.contains('active')) renderProdutos();
+  if ($('#sec-config').classList.contains('active')) renderConfigForm();
+}
+
+function wireCloudHandlers() {
+  if (!window.Cloud) return;
+  Cloud.onChange.config = (v) => { config = { ...DEFAULT_CONFIG, ...(v||{}) }; config.empresa = { ...DEFAULT_CONFIG.empresa, ...(config.empresa||{}) }; localStorage.setItem(K.cfg, JSON.stringify(config)); updateFormatoInfo(); if ($('#sec-config').classList.contains('active')) renderConfigForm(); };
+  Cloud.onChange.produtos = (v) => { produtos = v || []; localStorage.setItem(K.prod, JSON.stringify(produtos)); if ($('#sec-produtos').classList.contains('active')) renderProdutos(); };
+  Cloud.onChange.tecidos = (v) => { tecidos = v || []; localStorage.setItem(K.tec, JSON.stringify(tecidos)); if ($('#sec-produtos').classList.contains('active')) renderProdutos(); };
+  Cloud.onChange.clientes = (v) => { clientes = v || []; localStorage.setItem(K.cli, JSON.stringify(clientes)); };
+  Cloud.onChange.historico = (v) => { historico = v || []; localStorage.setItem(K.hist, JSON.stringify(historico)); if ($('#sec-historico').classList.contains('active')) renderHistorico(); };
+  Cloud.onChange.contador = (v) => { contador = (typeof v === 'number') ? v : ((v && v.value) || contador); localStorage.setItem(K.ct, JSON.stringify(contador)); };
+}
+
+// ============================================================
+// BOOT — wait for cloud auth if enabled; otherwise run immediately
+// ============================================================
+function bootApp() {
+  wireCloudHandlers();
+  if (window.Cloud && window.FIREBASE_ENABLED) {
+    document.getElementById('appRoot')?.classList.add('hidden-until-auth');
+    const ub = document.getElementById('userBlock'); if (ub) ub.style.display = '';
+    document.addEventListener('cloud:ready', () => { init(); }, { once: true });
+    Cloud.boot();
+  } else {
+    if (window.Cloud) Cloud.boot();
+    init();
+  }
+}
+
+// Module scripts (cloud.js) are deferred — wait for DOMContentLoaded so
+// window.Cloud is defined before we call it.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApp, { once: true });
+} else {
+  bootApp();
+}
 
 // ============================================================
 // SERVICE WORKER
