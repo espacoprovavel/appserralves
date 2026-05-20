@@ -130,7 +130,7 @@
   .item-card .item-head .line-tot { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
   .item-suggest { font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; min-height: 14px; }
   .item-grid-a { display: grid; grid-template-columns: 110px 1fr 160px; gap: 10px; margin-bottom: 10px; }
-  .item-grid-b { display: grid; grid-template-columns: 1fr 100px 100px 80px 110px; gap: 10px; }
+  .item-grid-b { display: grid; grid-template-columns: 1fr 90px 90px 70px 80px 90px 70px; gap: 8px; }
 
   /* ===== TOTALS ===== */
   .totals { margin-top: 14px; max-width: 360px; margin-left: auto; }
@@ -224,6 +224,39 @@
   .pdf-footer { display: flex; justify-content: space-between; gap: 16px; padding: 18px 32px 24px; margin-top: 16px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
   .pdf-footer .right { text-align: right; }
   .pdf-footer strong { color: var(--dark); }
+
+  /* ===== PDF CLEAN (estilo concorrência) ===== */
+  .pdf-clean { padding: 40px 48px 28px; font-family: 'DM Sans', Arial, sans-serif; color: #1a1a1a; }
+  .pdf-header-clean { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: flex-start; margin-bottom: 28px; }
+  .pdf-header-clean .pdf-col-l { font-size: 12px; line-height: 1.7; }
+  .pdf-header-clean .pdf-col-r { text-align: right; font-size: 12px; line-height: 1.7; }
+  .pdf-header-clean .pdf-col-c { text-align: center; padding: 0 12px; }
+  .pdf-header-clean .pdf-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+  .pdf-header-clean .pdf-logo-sub { font-size: 9px; letter-spacing: 2px; color: #888; margin-top: 4px; text-transform: uppercase; }
+  .pdf-header-clean .line { font-size: 12px; }
+  .pdf-cli-extra { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 0 0 14px; border-bottom: 1px solid #bbb; margin-bottom: 14px; font-size: 11px; color: #555; }
+  .pdf-clean-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px; }
+  .pdf-clean-table thead th { padding: 8px 6px; text-align: left; border-bottom: 1px solid #888; font-weight: 600; font-size: 10px; color: #555; }
+  .pdf-clean-table thead th.num { text-align: right; }
+  .pdf-clean-table thead th.center { text-align: center; }
+  .pdf-clean-table tbody td { padding: 7px 6px; vertical-align: top; border-bottom: 1px solid #eee; font-size: 11px; }
+  .pdf-clean-table tbody td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pdf-clean-table tbody td.center { text-align: center; }
+  .pdf-clean-table tbody td.codigo { font-size: 10px; color: #666; font-family: 'DM Sans', monospace; }
+  .pdf-clean-table tbody tr.janela-row td { background: #f4f4f0; padding: 6px 8px; font-size: 10.5px; border-bottom: 1px solid #e0e0d8; }
+  .pdf-pagar { display: flex; justify-content: flex-end; align-items: baseline; gap: 24px; padding: 14px 6px 4px; border-top: 1px solid #888; }
+  .pdf-pagar .pagar-label { font-size: 13px; font-weight: 600; letter-spacing: 1.5px; }
+  .pdf-pagar .pagar-valor { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 700; }
+  .pdf-condicoes-clean { margin-top: 18px; padding: 10px 12px; font-size: 10.5px; color: #555; line-height: 1.5; background: #f9f8f4; border-left: 2px solid #999; }
+  .pdf-rodape { margin-top: 14px; font-size: 9.5px; color: #777; font-style: italic; }
+  .pdf-foot-clean { margin-top: 28px; padding-top: 12px; border-top: 1px solid #bbb; display: flex; justify-content: space-between; font-size: 9.5px; color: #888; letter-spacing: 0.4px; }
+
+  /* Override the dark old PDF styles so the new ones win */
+  .pdf-doc.pdf-clean { background: #fff; }
+  .pdf-doc.pdf-clean * { color: inherit; background: inherit; }
+  .pdf-doc.pdf-clean .pdf-logo { color: #1a1a1a; }
+  .pdf-doc.pdf-clean tr.janela-row td { background: #f4f4f0 !important; }
+  .pdf-doc.pdf-clean thead th { background: transparent !important; color: #555 !important; }
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 900px) {
@@ -511,17 +544,15 @@
           <div class="tbl-wrap">
             <table class="t" id="resumoTable">
               <colgroup>
-                <col style="width:42px"><col><col style="width:120px"><col style="width:50px"><col style="width:90px"><col style="width:100px">
+                <col style="width:36px"><col><col style="width:110px"><col style="width:48px"><col style="width:80px"><col style="width:48px"><col style="width:90px">
               </colgroup>
-              <thead><tr><th>#</th><th>Descrição</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P. Unit.</th><th class="num">Total</th></tr></thead>
+              <thead><tr><th>#</th><th>Descrição</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="num">Total</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
           <div class="totals">
-            <div class="row"><span>Subtotal s/ IVA</span><span id="subtotal">€0,00</span></div>
-            <div class="row" id="descRow" style="display:none;"><span id="descLabel">Desconto</span><span id="descMostra">-€0,00</span></div>
-            <div class="row" id="ivaRow"><span>IVA 23%</span><span id="ivaMostra">€0,00</span></div>
-            <div class="row total"><span>TOTAL c/ IVA</span><span id="total">€0,00</span></div>
+            <div class="row total"><span>TOTAL A PAGAR</span><span id="total">€0,00</span></div>
+            <div class="row muted"><span></span><span>* Valores com IVA incluído à taxa em vigor (23%)</span></div>
           </div>
         </div>
 
@@ -831,7 +862,13 @@ function newOrc() {
   };
 }
 function newItem() {
-  return { codigo: '', nome: '', categoria: '', tecido: '', cor: '', largura: 0, altura: 0, qtd: 1, preco: 0 };
+  return { codigo: '', nome: '', categoria: '', tecido: '', cor: '', largura: 0, altura: 0, qtd: 1, un: '', preco: 0, desc: 0 };
+}
+
+function lineTotal(it) {
+  const subtotal = (it.qtd||0) * (it.preco||0);
+  const descPct = Math.max(0, Math.min(100, it.desc||0));
+  return Math.round(subtotal * (1 - descPct/100) * 100) / 100;
 }
 
 // ============================================================
@@ -969,7 +1006,7 @@ function renderItems() {
       <div class="item-head">
         <div class="ix">Item ${i+1}</div>
         <div style="display:flex; align-items:center; gap:12px;">
-          <div class="line-tot">${fmtEUR((it.qtd||0)*(it.preco||0))}</div>
+          <div class="line-tot">${fmtEUR(lineTotal(it))}</div>
           <button class="btn btn-ghost btn-icon" data-rm title="Remover">✕</button>
         </div>
       </div>
@@ -994,8 +1031,10 @@ function renderItems() {
         <div class="field tight"><label>Cor</label><input type="text" data-fld="cor" value="${esc(it.cor)}" placeholder="Linho, Cru..." /></div>
         <div class="field tight"><label>Largura (cm)</label><input type="number" min="0" step="1" data-fld="largura" value="${it.largura||''}" /></div>
         <div class="field tight"><label>Altura (cm)</label><input type="number" min="0" step="1" data-fld="altura" value="${it.altura||''}" /></div>
-        <div class="field tight"><label>Qtd</label><input type="number" min="1" step="1" data-fld="qtd" value="${it.qtd||1}" /></div>
-        <div class="field tight"><label>Preço Unit. (€)</label><input type="number" min="0" step="0.01" data-fld="preco" value="${it.preco||''}" /></div>
+        <div class="field tight"><label>Qtd</label><input type="number" min="0" step="0.01" data-fld="qtd" value="${it.qtd||1}" /></div>
+        <div class="field tight"><label>Un</label><input type="text" data-fld="un" value="${esc(it.un||'')}" placeholder="UN / MT / m²" /></div>
+        <div class="field tight"><label>P.V.P. (€)</label><input type="number" min="0" step="0.01" data-fld="preco" value="${it.preco||''}" /></div>
+        <div class="field tight"><label>Desc (%)</label><input type="number" min="0" max="100" step="1" data-fld="desc" value="${it.desc||0}" /></div>
       </div>
       <div class="item-suggest"></div>
     `;
@@ -1012,7 +1051,7 @@ function renderItems() {
       el.addEventListener('input', () => {
         const f = el.dataset.fld;
         let v = el.value;
-        if (['largura','altura','qtd','preco'].includes(f)) v = parseFloat(v) || 0;
+        if (['largura','altura','qtd','preco','desc'].includes(f)) v = parseFloat(v) || 0;
         orc.itens[i][f] = v;
         if (['nome','tecido','largura','altura','qtd'].includes(f)) {
           const s = computeSuggested(orc.itens[i]);
@@ -1022,7 +1061,7 @@ function renderItems() {
           }
           updateSuggestion(card, i);
         }
-        card.querySelector('.line-tot').textContent = fmtEUR((orc.itens[i].qtd||0)*(orc.itens[i].preco||0));
+        card.querySelector('.line-tot').textContent = fmtEUR(lineTotal(orc.itens[i]));
         recalc(); saveDraft();
       });
     });
@@ -1061,6 +1100,7 @@ function setupProdAutocomplete(card, i) {
     orc.itens[i].codigo = p.codigo;
     orc.itens[i].nome = p.nome;
     orc.itens[i].categoria = p.categoria;
+    if (p.unidade && !orc.itens[i].un) orc.itens[i].un = p.unidade;
     const sug = computeSuggested(orc.itens[i]);
     if (sug.preco > 0) orc.itens[i].preco = sug.preco;
     else if (p.preco > 0 && !orc.itens[i].preco) orc.itens[i].preco = p.preco;
@@ -1099,12 +1139,13 @@ function updateSuggestion(card, i) {
 function recalc() {
   const tbody = $('#resumoTable tbody');
   tbody.innerHTML = '';
-  let sub = 0;
+  let total = 0;
   orc.itens.forEach((it, i) => {
-    const tot = (it.qtd||0) * (it.preco||0);
-    sub += tot;
+    const tot = lineTotal(it);
+    total += tot;
     const med = (it.largura && it.altura) ? `${it.largura}×${it.altura} cm` : '—';
     const tecCor = [it.tecido, it.cor].filter(Boolean).join(' · ');
+    const dscTxt = (it.desc||0) > 0 ? `${it.desc}%` : '—';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${i+1}</td>
@@ -1112,36 +1153,17 @@ function recalc() {
       <td>${med}</td>
       <td class="num">${it.qtd||0}</td>
       <td class="num">${fmtEUR(it.preco||0)}</td>
+      <td class="num">${dscTxt}</td>
       <td class="num">${fmtEUR(tot)}</td>
     `;
     tbody.appendChild(tr);
   });
-  let descVal = 0;
-  if (orc.descTipo === 'pct') descVal = sub * (orc.descValor/100);
-  else if (orc.descTipo === 'eur') descVal = orc.descValor;
-  descVal = Math.max(0, Math.min(descVal, sub));
-  const net = sub - descVal;
-  const ivaAmt = Math.round(net * 0.23 * 100) / 100;
-  const tot = Math.round((net + ivaAmt) * 100) / 100;
-
-  $('#subtotal').textContent = fmtEUR(sub);
-  if (descVal > 0) {
-    $('#descRow').style.display = '';
-    $('#descLabel').textContent = orc.descTipo === 'pct' ? `Desconto (${orc.descValor}%)` : 'Desconto';
-    $('#descMostra').textContent = '-' + fmtEUR(descVal);
-  } else { $('#descRow').style.display = 'none'; }
-  $('#ivaMostra').textContent = fmtEUR(ivaAmt);
-  $('#total').textContent = fmtEUR(tot);
+  $('#total').textContent = fmtEUR(total);
   $('#refDisplay').textContent = `Referência: ${orc.ref} · Data: ${fmtDate(orc.data)}`;
 }
 
 function totalOf(o) {
-  const sub = o.itens.reduce((a,it)=>a+(it.qtd||0)*(it.preco||0),0);
-  let d = 0;
-  if (o.descTipo === 'pct') d = sub * (o.descValor/100);
-  else if (o.descTipo === 'eur') d = o.descValor;
-  const net = Math.max(0, sub - Math.max(0, Math.min(d, sub)));
-  return Math.round(net * 1.23 * 100) / 100;
+  return o.itens.reduce((a, it) => a + lineTotal(it), 0);
 }
 
 // ============================================================
@@ -1396,95 +1418,95 @@ function updateFormatoInfo() {
 // PDF / PRINT / SHARE
 // ============================================================
 function pdfHTML(o) {
-  const sub = o.itens.reduce((a,it)=>a+(it.qtd||0)*(it.preco||0), 0);
-  let descVal = 0;
-  if (o.descTipo === 'pct') descVal = sub * (o.descValor/100);
-  else if (o.descTipo === 'eur') descVal = o.descValor;
-  descVal = Math.max(0, Math.min(descVal, sub));
-  const net = sub - descVal;
-  const ivaAmt = Math.round(net * 0.23 * 100) / 100;
-  const tot = Math.round((net + ivaAmt) * 100) / 100;
+  let total = 0;
+  o.itens.forEach(it => total += lineTotal(it));
 
   const dt = new Date(o.data + 'T00:00');
   const vd = new Date(dt); vd.setDate(vd.getDate() + (parseInt(o.validade)||30));
   const validadeStr = fmtDate(vd.toISOString().slice(0,10));
 
-  const linhas = o.itens.map((it, i) => {
-    const desc = it.nome || '—';
-    const tc = [it.tecido, it.cor].filter(Boolean).join(' · ') || '—';
-    const med = (it.largura && it.altura) ? `${it.largura}×${it.altura} cm` : '—';
-    return `<tr>
+  // Linhas da tabela — para itens com medidas, inserir sub-linha "Janela ..."
+  let linhas = '';
+  let lastDim = '';
+  o.itens.forEach((it) => {
+    const tot = lineTotal(it);
+    const dim = (it.largura && it.altura) ? `${it.largura}cm largura × ${it.altura}cm altura` : '';
+    if (dim && dim !== lastDim) {
+      linhas += `<tr class="janela-row"><td colspan="8"><strong>Janela</strong> (${dim})</td></tr>`;
+      lastDim = dim;
+    } else if (!dim) {
+      lastDim = '';
+    }
+    const desc = [it.nome, it.tecido && (it.cor ? `${it.tecido} ${it.cor}` : it.tecido)].filter(Boolean).join(' · ') || '—';
+    linhas += `<tr>
       <td class="codigo">${esc(it.codigo||'—')}</td>
       <td>${esc(desc)}</td>
-      <td>${esc(tc)}</td>
-      <td>${med}</td>
-      <td class="num">${it.qtd||0}</td>
+      <td class="num">${it.qtd ? (Number.isInteger(it.qtd) ? it.qtd : it.qtd.toString().replace('.', ',')) : '—'}</td>
+      <td class="center">${esc(it.un||'UN')}</td>
       <td class="num">${fmtEUR(it.preco||0)}</td>
-      <td class="num">${fmtEUR((it.qtd||0)*(it.preco||0))}</td>
+      <td class="num">${(it.desc||0) > 0 ? (it.desc + ' %') : '0 %'}</td>
+      <td class="center">23</td>
+      <td class="num">${fmtEUR(tot)}</td>
     </tr>`;
-  }).join('');
+  });
 
   const cli = o.cliente;
   const emp = config.empresa;
+  const vendedor = (window.Cloud && Cloud.user && Cloud.user.email) ? (Cloud.user.email.split('@')[0]) : '—';
 
   return `
-    <div class="pdf-doc">
-      <div class="pdf-header">
-        <div>
-          <div class="logo">SERRALVES DECOR</div>
-          <div class="tag">Cortinas · Calhas · Varões — Porto, Portugal</div>
+    <div class="pdf-doc pdf-clean">
+      <div class="pdf-header-clean">
+        <div class="pdf-col-l">
+          <div class="line"><strong>Cliente:</strong> ${esc(cli.nome||'—')}</div>
+          <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
         </div>
-        <div class="meta">
-          <div class="label">Orçamento</div>
-          <div class="ref">${esc(o.ref)}</div>
-          <div class="line">Data: ${fmtDate(o.data)}</div>
-          <div class="line">Válido até: ${validadeStr}</div>
+        <div class="pdf-col-c">
+          <div class="pdf-logo">${esc(emp.nome||'SERRALVES DECOR')}</div>
+          <div class="pdf-logo-sub">Cortinas · Calhas · Decoração</div>
         </div>
-      </div>
-      <div class="pdf-parties">
-        <div class="col">
-          <div class="h">Cliente</div>
-          <div class="nome">${esc(cli.nome||'—')}</div>
-          ${cli.empresa?`<div>${esc(cli.empresa)}</div>`:''}
-          ${cli.nifEmpresa?`<div>NIF Empresa: ${esc(cli.nifEmpresa)}</div>`:''}
-          ${cli.tel?`<div>Tel: ${esc(cli.tel)}</div>`:''}
-          ${cli.email?`<div>${esc(cli.email)}</div>`:''}
-          ${cli.morada?`<div>${esc(cli.morada)}</div>`:''}
-          ${cli.nif?`<div>NIF: ${esc(cli.nif)}</div>`:''}
-        </div>
-        <div class="col right">
-          <div class="h">Emitido por</div>
-          <div class="nome">${esc(emp.nome||'Serralves Decor')}</div>
-          ${emp.morada?`<div>${esc(emp.morada)}</div>`:''}
-          ${emp.tel?`<div>${esc(emp.tel)}</div>`:''}
-          ${emp.email?`<div>${esc(emp.email)}</div>`:''}
-          ${emp.nif?`<div>NIF: ${esc(emp.nif)}</div>`:''}
+        <div class="pdf-col-r">
+          <div class="line"><strong>Orçamento</strong> ${esc(o.ref)}</div>
+          <div class="line">${fmtDate(o.data)}</div>
         </div>
       </div>
-      <div class="pdf-items-wrap">
-        <table class="pdf-items">
-          <colgroup>
-            <col class="c-cod"><col><col class="c-tec"><col class="c-med"><col class="c-qtd"><col class="c-pre"><col class="c-tot">
-          </colgroup>
-          <thead><tr><th>Cód.</th><th>Descrição</th><th>Tecido / Cor</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P. Unit.</th><th class="num">Total</th></tr></thead>
-          <tbody>${linhas}</tbody>
-        </table>
+
+      ${(cli.empresa || cli.tel || cli.email || cli.morada || cli.nif) ? `
+      <div class="pdf-cli-extra">
+        ${cli.empresa?`<span>${esc(cli.empresa)}</span>`:''}
+        ${cli.tel?`<span>Tel: ${esc(cli.tel)}</span>`:''}
+        ${cli.email?`<span>${esc(cli.email)}</span>`:''}
+        ${cli.morada?`<span>${esc(cli.morada)}</span>`:''}
+        ${cli.nif?`<span>NIF: ${esc(cli.nif)}</span>`:''}
+      </div>` : ''}
+
+      <table class="pdf-clean-table">
+        <colgroup>
+          <col style="width:90px"><col><col style="width:50px"><col style="width:40px"><col style="width:70px"><col style="width:50px"><col style="width:40px"><col style="width:80px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Artigo</th><th>Descrição</th><th class="num">Qtd</th><th class="center">Un</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">Iva</th><th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>
+
+      <div class="pdf-pagar">
+        <div class="pagar-label">TOTAL A PAGAR</div>
+        <div class="pagar-valor">${fmtEUR(total)}</div>
       </div>
-      <div class="pdf-totals-wrap">
-        <div class="pdf-totals">
-          <div class="row"><span>Subtotal s/ IVA</span><span>${fmtEUR(sub)}</span></div>
-          ${descVal>0?`<div class="row"><span>Desconto${o.descTipo==='pct'?` (${o.descValor}%)`:''}</span><span>-${fmtEUR(descVal)}</span></div>`:''}
-          <div class="row"><span>IVA 23%</span><span>+${fmtEUR(ivaAmt)}</span></div>
-          <div class="row grand"><span>TOTAL</span><span>${fmtEUR(tot)}</span></div>
-        </div>
+
+      ${o.notas ? `<div class="pdf-condicoes-clean">${esc(o.notas).replace(/\n/g,'<br>')}</div>` : ''}
+
+      <div class="pdf-rodape">
+        <div>*Valores com IVA incluído à taxa em vigor. Orçamento válido por ${o.validade||30} dias.</div>
       </div>
-      <div class="pdf-condicoes">
-        <div class="h">Condições</div>
-        <div>${esc(o.notas||'').replace(/\n/g,'<br>')}</div>
-      </div>
-      <div class="pdf-footer">
-        <div><strong>${esc(emp.nome||'Serralves Decor')}</strong><br>${esc(emp.morada||'Porto')} · ${esc(emp.tel||'')}</div>
-        <div class="right">Orçamento válido por ${o.validade||30} dias<br>Preços sujeitos a confirmação após medição</div>
+
+      <div class="pdf-foot-clean">
+        <div>${esc((emp.email||'').replace(/^[^@]+@/, 'www.'))||'www.serralvesdecor.com'}</div>
+        <div>Pag. 1 de 1</div>
+        <div>${esc(emp.morada||'Porto')}</div>
       </div>
     </div>
   `;
