@@ -1,22 +1,18 @@
 // =====================================================================
 // SERRALVES DECOR — CONFIGURAÇÃO FIREBASE
 // =====================================================================
-// Este ficheiro contém as chaves do projecto Firebase.
-// Para activar a sincronização na nuvem, edita os valores abaixo
-// com os dados que o Firebase Console te dá ao criar a app web.
-//
-// Vê o ficheiro firebase/SETUP.md para o guia passo-a-passo.
+// Quando a apiKey deixar de começar por "PASTE", a app passa a usar a
+// nuvem (login, sync entre dispositivos). Caso contrário, modo local.
 // =====================================================================
 
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_AQUI",
-  authDomain: "PASTE_AQUI.firebaseapp.com",
-  projectId: "PASTE_AQUI",
-  storageBucket: "PASTE_AQUI.appspot.com",
-  messagingSenderId: "PASTE_AQUI",
-  appId: "PASTE_AQUI"
+  apiKey: "AIzaSyDSNrnw4CLnIRV9KFHk4si9KyyesSixV9k",
+  authDomain: "serralves-decor.firebaseapp.com",
+  projectId: "serralves-decor",
+  storageBucket: "serralves-decor.firebasestorage.app",
+  messagingSenderId: "607466651313",
+  appId: "1:607466651313:web:18afc8e6ea93359be92c90",
+  measurementId: "G-RFGJMM01F4"
 };
 
-// Quando preencheres acima e fizeres reload, a app passa a usar a nuvem.
-// Enquanto estiver "PASTE_AQUI", a app funciona em modo local (como antes).
 window.FIREBASE_ENABLED = !window.FIREBASE_CONFIG.apiKey.startsWith("PASTE");
