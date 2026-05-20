@@ -990,7 +990,7 @@ function renderItems() {
         orc.itens[i][f] = v;
         if (['nome','tecido','largura','altura','qtd'].includes(f)) {
           const s = computeSuggested(orc.itens[i]);
-          if (s.preco > 0 && (!orc.itens[i].preco || orc.itens[i].preco === 0)) {
+          if (s.preco > 0) {
             orc.itens[i].preco = s.preco;
             const pi = $('[data-fld="preco"]', card); if (pi) pi.value = s.preco.toFixed(2);
           }
@@ -1035,7 +1035,9 @@ function setupProdAutocomplete(card, i) {
     orc.itens[i].codigo = p.codigo;
     orc.itens[i].nome = p.nome;
     orc.itens[i].categoria = p.categoria;
-    if (p.preco > 0 && !orc.itens[i].preco) orc.itens[i].preco = p.preco;
+    const sug = computeSuggested(orc.itens[i]);
+    if (sug.preco > 0) orc.itens[i].preco = sug.preco;
+    else if (p.preco > 0 && !orc.itens[i].preco) orc.itens[i].preco = p.preco;
     list.classList.remove('show');
     renderItems(); recalc(); saveDraft();
   });
