@@ -73,8 +73,8 @@
 
   /* ===== FORM ===== */
   label { display: block; font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
-  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=search], input[type=date], textarea, select {
-    width: 100%; max-width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); font-size: 14px; color: var(--dark); transition: border-color 0.15s; min-width: 0;
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=search], input[type=date], input[type=password], textarea, select {
+    width: 100%; max-width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); font-size: 16px; color: var(--dark); transition: border-color 0.15s; min-width: 0;
   }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--dark); }
   textarea { min-height: 80px; resize: vertical; font-family: inherit; }
@@ -233,11 +233,20 @@
     .mobile-header { display: flex; align-items: center; justify-content: space-between; background: var(--dark); color: var(--creme); padding: 12px 16px; position: sticky; top: 0; z-index: 30; }
     .mobile-header .name { font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 1.5px; }
     .mobile-header .name small { display: block; font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 2px; opacity: 0.6; margin-top: 2px; }
-    .main { padding: 16px 14px 90px; }
-    .page-head h2 { font-size: 22px; }
-    .card { padding: 16px; }
+    .main { padding: 14px 12px 96px; }
+    .page-head { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+    .page-head h2 { font-size: 20px; }
+    .page-head .btn-row { width: 100%; }
+    .page-head .btn-row .btn { flex: 1; }
+    .card { padding: 14px; }
+    .card-head { flex-wrap: wrap; gap: 8px; }
+    .card-head input[type=search] { width: 100% !important; max-width: 100% !important; }
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-    .item-grid-a, .item-grid-b { grid-template-columns: 1fr 1fr; }
+    /* Item card: código+produto na mesma linha, tecido por baixo */
+    .item-grid-a { grid-template-columns: 90px 1fr; }
+    .item-grid-a > :nth-child(3) { grid-column: 1 / -1; }
+    /* Medidas e preço: 2 colunas */
+    .item-grid-b { grid-template-columns: 1fr 1fr; }
     .hist-row, .hist-head { grid-template-columns: 1fr 1fr; gap: 4px; padding: 12px; }
     .hist-row .ref { grid-column: 1; }
     .hist-row .date { grid-column: 2; text-align: right; font-size: 12px; color: var(--muted); }
@@ -246,11 +255,24 @@
     .hist-row .status { grid-column: 2; }
     .hist-row .actions { grid-column: 1 / -1; }
     .hist-head { display: none; }
+    .hist-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+    .hist-toolbar input[type=search] { max-width: 100%; }
+    .hist-toolbar select { max-width: 100%; }
     .totals { max-width: 100%; }
-    .btn { padding: 11px 18px; }
+    .btn { padding: 12px 16px; font-size: 11px; }
+    .btn-row { flex-wrap: wrap; gap: 8px; }
+    /* Auth overlay mobile */
+    #authOverlay { padding: 16px; align-items: flex-start; overflow-y: auto; }
+    #authOverlay .auth-box { padding: 24px 20px; margin-top: auto; margin-bottom: auto; }
   }
   @media (max-width: 480px) {
-    .item-grid-a, .item-grid-b { grid-template-columns: 1fr; }
+    .main { padding: 12px 10px 96px; }
+    .card { padding: 12px; }
+    .item-grid-a { grid-template-columns: 80px 1fr; }
+    .item-grid-b { grid-template-columns: 1fr 1fr; }
+    .btn-row .btn { flex: 1 1 calc(50% - 4px); min-width: 100px; text-align: center; justify-content: center; }
+    .item-card .item-head .line-tot { font-size: 16px; }
+    #authOverlay .auth-box { padding: 20px 16px; }
   }
 
   /* ===== AUTH OVERLAY ===== */
@@ -550,19 +572,19 @@
       <section class="section" id="sec-produtos">
         <div class="page-head">
           <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
-          <div class="btn-row">
-            <input type="search" id="catalogSearch" placeholder="Pesquisar código ou nome..." style="width:260px;max-width:100%;" />
-          </div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <h3>Produtos</h3>
+        <div class="card" style="padding-bottom:8px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+            <input type="search" id="catalogSearch" placeholder="Pesquisar código ou nome..." style="flex:1;min-width:180px;" />
+          </div>
+          <div class="card-head" style="margin-bottom:10px;">
+            <h3 style="margin:0;">Produtos</h3>
             <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
           </div>
-          <div class="tbl-wrap">
-            <table class="t" id="prodTable">
-              <colgroup><col style="width:90px"><col><col style="width:120px"><col style="width:100px"><col style="width:70px"><col style="width:50px"></colgroup>
+          <div class="tbl-wrap" style="overflow-x:auto;">
+            <table class="t" id="prodTable" style="min-width:520px;">
+              <colgroup><col style="width:90px"><col><col style="width:110px"><col style="width:90px"><col style="width:60px"><col style="width:44px"></colgroup>
               <thead><tr><th>Código</th><th>Nome</th><th>Categoria</th><th class="num">Preço</th><th>Unidade</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
@@ -574,9 +596,9 @@
             <h3>Tecidos</h3>
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
-          <div class="tbl-wrap">
-            <table class="t" id="tecTable">
-              <colgroup><col style="width:90px"><col style="width:160px"><col style="width:90px"><col><col style="width:50px"></colgroup>
+          <div class="tbl-wrap" style="overflow-x:auto;">
+            <table class="t" id="tecTable" style="min-width:440px;">
+              <colgroup><col style="width:90px"><col style="width:150px"><col style="width:80px"><col><col style="width:44px"></colgroup>
               <thead><tr><th>Código</th><th>Nome</th><th class="num">€/m²</th><th>Cores</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
