@@ -184,7 +184,7 @@
 
   /* ===== PDF AREA ===== */
   /* Off-screen render container (still rendered, just out of view) */
-  #pdfArea { position: fixed; left: -10000px; top: 0; width: 794px; background: var(--white); pointer-events: none; }
+  #pdfArea { position: absolute; left: -10000px; top: 0; width: 794px; background: var(--white); pointer-events: none; overflow: hidden; }
 
   /* PDF document — strict pixel sizing */
   .pdf-doc { width: 794px; background: var(--white); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 11px; line-height: 1.4; }
@@ -496,10 +496,10 @@
             </table>
           </div>
           <div class="totals">
-            <div class="row"><span>Subtotal</span><span id="subtotal">€0,00</span></div>
+            <div class="row"><span>Subtotal s/ IVA</span><span id="subtotal">€0,00</span></div>
             <div class="row" id="descRow" style="display:none;"><span id="descLabel">Desconto</span><span id="descMostra">-€0,00</span></div>
-            <div class="row total"><span>TOTAL</span><span id="total">€0,00</span></div>
-            <div class="row muted"><span></span><span>Valores com IVA incluído</span></div>
+            <div class="row" id="ivaRow"><span>IVA 23%</span><span id="ivaMostra">€0,00</span></div>
+            <div class="row total"><span>TOTAL c/ IVA</span><span id="total">€0,00</span></div>
           </div>
         </div>
 
@@ -1094,7 +1094,9 @@ function recalc() {
   if (orc.descTipo === 'pct') descVal = sub * (orc.descValor/100);
   else if (orc.descTipo === 'eur') descVal = orc.descValor;
   descVal = Math.max(0, Math.min(descVal, sub));
-  const tot = sub - descVal;
+  const net = sub - descVal;
+  const ivaAmt = Math.round(net * 0.23 * 100) / 100;
+  const tot = Math.round((net + ivaAmt) * 100) / 100;
 
   $('#subtotal').textContent = fmtEUR(sub);
   if (descVal > 0) {
@@ -1102,6 +1104,7 @@ function recalc() {
     $('#descLabel').textContent = orc.descTipo === 'pct' ? `Desconto (${orc.descValor}%)` : 'Desconto';
     $('#descMostra').textContent = '-' + fmtEUR(descVal);
   } else { $('#descRow').style.display = 'none'; }
+  $('#ivaMostra').textContent = fmtEUR(ivaAmt);
   $('#total').textContent = fmtEUR(tot);
   $('#refDisplay').textContent = `Referência: ${orc.ref} · Data: ${fmtDate(orc.data)}`;
 }
@@ -1111,7 +1114,8 @@ function totalOf(o) {
   let d = 0;
   if (o.descTipo === 'pct') d = sub * (o.descValor/100);
   else if (o.descTipo === 'eur') d = o.descValor;
-  return Math.max(0, sub - Math.max(0, Math.min(d, sub)));
+  const net = Math.max(0, sub - Math.max(0, Math.min(d, sub)));
+  return Math.round(net * 1.23 * 100) / 100;
 }
 
 // ============================================================
@@ -1356,7 +1360,9 @@ function pdfHTML(o) {
   if (o.descTipo === 'pct') descVal = sub * (o.descValor/100);
   else if (o.descTipo === 'eur') descVal = o.descValor;
   descVal = Math.max(0, Math.min(descVal, sub));
-  const tot = sub - descVal;
+  const net = sub - descVal;
+  const ivaAmt = Math.round(net * 0.23 * 100) / 100;
+  const tot = Math.round((net + ivaAmt) * 100) / 100;
 
   const dt = new Date(o.data + 'T00:00');
   const vd = new Date(dt); vd.setDate(vd.getDate() + (parseInt(o.validade)||30));
@@ -1425,10 +1431,10 @@ function pdfHTML(o) {
       </div>
       <div class="pdf-totals-wrap">
         <div class="pdf-totals">
-          <div class="row"><span>Subtotal</span><span>${fmtEUR(sub)}</span></div>
+          <div class="row"><span>Subtotal s/ IVA</span><span>${fmtEUR(sub)}</span></div>
           ${descVal>0?`<div class="row"><span>Desconto${o.descTipo==='pct'?` (${o.descValor}%)`:''}</span><span>-${fmtEUR(descVal)}</span></div>`:''}
+          <div class="row"><span>IVA 23%</span><span>+${fmtEUR(ivaAmt)}</span></div>
           <div class="row grand"><span>TOTAL</span><span>${fmtEUR(tot)}</span></div>
-          <div class="iva">Valores com IVA incluído</div>
         </div>
       </div>
       <div class="pdf-condicoes">
