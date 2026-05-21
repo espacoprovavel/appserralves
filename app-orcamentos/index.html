@@ -183,8 +183,8 @@
   .mobile-header { display: none; }
 
   /* ===== PDF AREA ===== */
-  /* Off-screen render container (still rendered, just out of view) */
-  #pdfArea { position: absolute; left: -10000px; top: 0; width: 794px; background: var(--white); pointer-events: none; overflow: hidden; }
+  /* Render container — on-screen but invisible (off-screen positioning quebra html2canvas em mobile) */
+  #pdfArea { position: fixed; top: 0; left: 0; width: 794px; background: var(--white); pointer-events: none; overflow: hidden; opacity: 0; z-index: -1; }
 
   /* PDF document — strict pixel sizing */
   .pdf-doc { width: 794px; background: var(--white); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 11px; line-height: 1.4; }
@@ -1544,22 +1544,38 @@ $('#btnDownloadPDF').addEventListener('click', async () => {
   if (!window.html2pdf) { toast('html2pdf não carregado (offline?). Use Imprimir → Guardar como PDF.', true); return; }
   renderToTargets();
   const el = $('#pdfArea').firstElementChild;
-  if (!el) return;
+  if (!el) { toast('Nada para gerar', true); return; }
   const filename = `Orcamento_${orc.ref}_${(orc.cliente.nome||'cliente').replace(/[^\w]+/g,'_')}.pdf`;
+  const isMobile = window.innerWidth < 700 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
   const opt = {
     margin: [10, 12, 10, 12],
     filename: filename,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, width: 794, windowWidth: 794, backgroundColor: '#ffffff' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.pdf-totals', '.pdf-condicoes'] }
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: {
+      scale: isMobile ? 1.5 : 2,
+      useCORS: true,
+      logging: false,
+      width: 794,
+      windowWidth: 794,
+      backgroundColor: '#ffffff',
+      scrollX: 0, scrollY: 0
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.pdf-pagar', '.pdf-condicoes-clean'] }
   };
   try {
     toast('A gerar PDF...');
+    // Aguardar fonts carregarem antes de capturar — sem isto o canvas sai em branco
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch(_) {}
+    }
+    // Pequeno tick para o browser fazer layout do elemento
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     await html2pdf().set(opt).from(el).save();
     toast('PDF descarregado');
   } catch (err) {
-    console.error(err); toast('Erro ao gerar PDF', true);
+    console.error('PDF error:', err);
+    toast('Erro ao gerar PDF — tenta "Imprimir" e "Guardar como PDF"', true);
   }
 });
 
