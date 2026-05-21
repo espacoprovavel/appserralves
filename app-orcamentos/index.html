@@ -828,6 +828,8 @@ const DEFAULT_CONFIG = {
   printFormat: 'a4'
 };
 const COEFS = { 'Cortina Onda Natural': 2.0, 'Cortina Ilhós': 2.0, 'Cortina Franzido': 2.5, 'Cortina Blackout': 1.5 };
+// Sobra de tecido para acabamento (ourela sup. + ourela inf.) — padrão profissional PT
+const ACABAMENTO_CM = 30;
 
 // ---------- STATE ----------
 let config = { ...DEFAULT_CONFIG, ...load(K.cfg, {}) };
@@ -1113,19 +1115,25 @@ function computeSuggested(it) {
   const coef = COEFS[it.nome];
   const tec = tecidos.find(t => t.nome === it.tecido);
   if (!coef || !tec || !it.largura || !it.altura) return { preco: 0, text: '' };
-  const m2 = (it.largura/100) * coef * (it.altura/100) * (it.qtd||1);
+  const larg_m = it.largura / 100;
+  const alt_m = it.altura / 100;
+  const altTotal_m = (it.altura + ACABAMENTO_CM) / 100; // +30cm acabamento profissional
+  const qtd = it.qtd || 1;
+  const m2 = larg_m * coef * altTotal_m * qtd;
   const precoTec = m2 * tec.preco;
-  // optional calha (default Calha 5000)
   let extraTxt = '';
   let extra = 0;
   const calha = produtos.find(p => p.codigo === 'CLH-50');
   if (calha) {
-    const ml = (it.largura/100) * (it.qtd||1);
+    const ml = larg_m * qtd;
     extra = ml * calha.preco;
-    extraTxt = ` + ${ml.toFixed(2)} m × €${calha.preco}/m (calha)`;
+    extraTxt = ` + ${ml.toFixed(2)}m calha × €${calha.preco}/m`;
   }
   const total = precoTec + extra;
-  return { preco: Math.round(total*100)/100, text: `Sugestão: ${m2.toFixed(2)} m² × ${fmtEUR(tec.preco)}/m²${extraTxt} = ${fmtEUR(total)}` };
+  return {
+    preco: Math.round(total * 100) / 100,
+    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${ACABAMENTO_CM}cm acab.) × ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(tec.preco)}/m²${extraTxt} = ${fmtEUR(total)}`
+  };
 }
 function updateSuggestion(card, i) {
   const el = card.querySelector('.item-suggest');
@@ -1143,7 +1151,7 @@ function recalc() {
   orc.itens.forEach((it, i) => {
     const tot = lineTotal(it);
     total += tot;
-    const med = (it.largura && it.altura) ? `${it.largura}×${it.altura} cm` : '—';
+    const med = (it.largura && it.altura) ? `${(it.largura/100).toFixed(2)}m × ${(it.altura/100).toFixed(2)}m` : '—';
     const tecCor = [it.tecido, it.cor].filter(Boolean).join(' · ');
     const dscTxt = (it.desc||0) > 0 ? `${it.desc}%` : '—';
     const tr = document.createElement('tr');
@@ -1430,7 +1438,7 @@ function pdfHTML(o) {
   let lastDim = '';
   o.itens.forEach((it) => {
     const tot = lineTotal(it);
-    const dim = (it.largura && it.altura) ? `${it.largura}cm largura × ${it.altura}cm altura` : '';
+    const dim = (it.largura && it.altura) ? `${(it.largura/100).toFixed(2)}m larg × ${(it.altura/100).toFixed(2)}m alt` : '';
     if (dim && dim !== lastDim) {
       linhas += `<tr class="janela-row"><td colspan="8"><strong>Janela</strong> (${dim})</td></tr>`;
       lastDim = dim;
@@ -1559,7 +1567,7 @@ $('#btnWhatsApp').addEventListener('click', () => {
   const tot = totalOf(orc);
   const lines = orc.itens.map(it => {
     const d = it.nome || '—';
-    const med = (it.largura&&it.altura) ? ` ${it.largura}×${it.altura}cm` : '';
+    const med = (it.largura&&it.altura) ? ` ${(it.largura/100).toFixed(2)}m×${(it.altura/100).toFixed(2)}m` : '';
     return `• ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR((it.qtd||0)*(it.preco||0))}`;
   }).join('\n');
   const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\n` +
