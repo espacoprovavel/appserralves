@@ -1121,18 +1121,10 @@ function computeSuggested(it) {
   const qtd = it.qtd || 1;
   const m2 = larg_m * coef * altTotal_m * qtd;
   const precoTec = m2 * tec.preco;
-  let extraTxt = '';
-  let extra = 0;
-  const calha = produtos.find(p => p.codigo === 'CLH-50');
-  if (calha) {
-    const ml = larg_m * qtd;
-    extra = ml * calha.preco;
-    extraTxt = ` + ${ml.toFixed(2)}m calha × €${calha.preco}/m`;
-  }
-  const total = precoTec + extra;
+  const total = precoTec;
   return {
     preco: Math.round(total * 100) / 100,
-    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${ACABAMENTO_CM}cm acab.) × ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(tec.preco)}/m²${extraTxt} = ${fmtEUR(total)}`
+    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${ACABAMENTO_CM}cm acab.) × ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(tec.preco)}/m² = ${fmtEUR(total)}`
   };
 }
 function updateSuggestion(card, i) {
@@ -1452,7 +1444,7 @@ function pdfHTML(o) {
       <td class="num">${it.qtd ? (Number.isInteger(it.qtd) ? it.qtd : it.qtd.toString().replace('.', ',')) : '—'}</td>
       <td class="center">${esc(it.un||'UN')}</td>
       <td class="num">${fmtEUR(it.preco||0)}</td>
-      <td class="num">${(it.desc||0) > 0 ? (it.desc + ' %') : '0 %'}</td>
+      <td class="num">${(it.desc||0) > 0 ? (it.desc + ' %') : ''}</td>
       <td class="center">23</td>
       <td class="num">${fmtEUR(tot)}</td>
     </tr>`;
