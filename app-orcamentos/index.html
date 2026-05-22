@@ -231,7 +231,9 @@
   .pdf-footer strong { color: var(--dark); }
 
   /* ===== PDF CLEAN (estilo concorrência) ===== */
-  .pdf-clean { padding: 40px 48px 28px; font-family: 'DM Sans', Arial, sans-serif; color: #1a1a1a; }
+  .pdf-clean { padding: 40px 48px 28px; font-family: 'DM Sans', Arial, sans-serif; color: #1a1a1a; min-height: 1056px; display: flex; flex-direction: column; box-sizing: border-box; }
+  .pdf-clean-body { flex: 1 0 auto; }
+  .pdf-clean-foot { flex-shrink: 0; margin-top: 28px; }
   .pdf-header-clean { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: flex-start; margin-bottom: 28px; }
   .pdf-header-clean .pdf-col-l { font-size: 12px; line-height: 1.7; }
   .pdf-header-clean .pdf-col-r { text-align: right; font-size: 12px; line-height: 1.7; }
@@ -254,7 +256,11 @@
   .pdf-pagar .pagar-valor { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 700; }
   .pdf-condicoes-clean { margin-top: 18px; padding: 10px 12px; font-size: 10.5px; color: #555; line-height: 1.5; background: #f9f8f4; border-left: 2px solid #999; }
   .pdf-rodape { margin-top: 14px; font-size: 9.5px; color: #777; font-style: italic; }
-  .pdf-foot-clean { margin-top: 28px; padding-top: 12px; border-top: 1px solid #bbb; display: flex; justify-content: space-between; font-size: 9.5px; color: #888; letter-spacing: 0.4px; }
+  .pdf-foot-clean { padding-top: 14px; border-top: 1px solid #bbb; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; font-size: 9.5px; color: #888; letter-spacing: 0.3px; }
+  .pdf-foot-clean .col { line-height: 1.45; }
+  .pdf-foot-clean .col.center { text-align: center; }
+  .pdf-foot-clean .col.right { text-align: right; }
+  .pdf-foot-clean .empresa-name { font-weight: 600; color: #444; letter-spacing: 0.8px; text-transform: uppercase; font-size: 9.5px; }
 
   /* Override the dark old PDF styles so the new ones win */
   .pdf-doc.pdf-clean { background: #fff; }
@@ -1499,59 +1505,72 @@ function pdfHTML(o) {
   const emp = config.empresa;
   const vendedor = (window.Cloud && Cloud.user && Cloud.user.email) ? (Cloud.user.email.split('@')[0]) : '—';
 
+  const empSite = (emp.email||'').includes('@') ? 'www.' + emp.email.split('@')[1] : 'www.serralvesdecor.com';
+
   return `
     <div class="pdf-doc pdf-clean">
-      <div class="pdf-header-clean">
-        <div class="pdf-col-l">
-          <div class="line"><strong>Cliente:</strong> ${esc(cli.nome||'—')}</div>
-          <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
+      <div class="pdf-clean-body">
+        <div class="pdf-header-clean">
+          <div class="pdf-col-l">
+            <div class="line"><strong>Cliente:</strong> ${esc(cli.nome||'—')}</div>
+            <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
+          </div>
+          <div class="pdf-col-c">
+            <div class="pdf-logo">${esc(emp.nome||'SERRALVES DECOR')}</div>
+            <div class="pdf-logo-sub">Cortinas · Calhas · Decoração</div>
+          </div>
+          <div class="pdf-col-r">
+            <div class="line"><strong>Orçamento</strong> ${esc(o.ref)}</div>
+            <div class="line">${fmtDate(o.data)}</div>
+          </div>
         </div>
-        <div class="pdf-col-c">
-          <div class="pdf-logo">${esc(emp.nome||'SERRALVES DECOR')}</div>
-          <div class="pdf-logo-sub">Cortinas · Calhas · Decoração</div>
+
+        ${(cli.empresa || cli.tel || cli.email || cli.morada || cli.nif) ? `
+        <div class="pdf-cli-extra">
+          ${cli.empresa?`<span>${esc(cli.empresa)}</span>`:''}
+          ${cli.tel?`<span>Tel: ${esc(cli.tel)}</span>`:''}
+          ${cli.email?`<span>${esc(cli.email)}</span>`:''}
+          ${cli.morada?`<span>${esc(cli.morada)}</span>`:''}
+          ${cli.nif?`<span>NIF: ${esc(cli.nif)}</span>`:''}
+        </div>` : ''}
+
+        <table class="pdf-clean-table">
+          <colgroup>
+            <col style="width:90px"><col><col style="width:50px"><col style="width:40px"><col style="width:70px"><col style="width:50px"><col style="width:40px"><col style="width:80px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Artigo</th><th>Descrição</th><th class="num">Qtd</th><th class="center">Un</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">IVA</th><th class="num">Total</th>
+            </tr>
+          </thead>
+          <tbody>${linhas}</tbody>
+        </table>
+
+        <div class="pdf-pagar">
+          <div class="pagar-label">TOTAL A PAGAR</div>
+          <div class="pagar-valor">${fmtEUR(total)}</div>
         </div>
-        <div class="pdf-col-r">
-          <div class="line"><strong>Orçamento</strong> ${esc(o.ref)}</div>
-          <div class="line">${fmtDate(o.data)}</div>
-        </div>
+
+        ${o.notas ? `<div class="pdf-condicoes-clean">${esc(o.notas).replace(/\n/g,'<br>')}</div>` : ''}
       </div>
 
-      ${(cli.empresa || cli.tel || cli.email || cli.morada || cli.nif) ? `
-      <div class="pdf-cli-extra">
-        ${cli.empresa?`<span>${esc(cli.empresa)}</span>`:''}
-        ${cli.tel?`<span>Tel: ${esc(cli.tel)}</span>`:''}
-        ${cli.email?`<span>${esc(cli.email)}</span>`:''}
-        ${cli.morada?`<span>${esc(cli.morada)}</span>`:''}
-        ${cli.nif?`<span>NIF: ${esc(cli.nif)}</span>`:''}
-      </div>` : ''}
-
-      <table class="pdf-clean-table">
-        <colgroup>
-          <col style="width:90px"><col><col style="width:50px"><col style="width:40px"><col style="width:70px"><col style="width:50px"><col style="width:40px"><col style="width:80px">
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Artigo</th><th>Descrição</th><th class="num">Qtd</th><th class="center">Un</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">Iva</th><th class="num">Total</th>
-          </tr>
-        </thead>
-        <tbody>${linhas}</tbody>
-      </table>
-
-      <div class="pdf-pagar">
-        <div class="pagar-label">TOTAL A PAGAR</div>
-        <div class="pagar-valor">${fmtEUR(total)}</div>
-      </div>
-
-      ${o.notas ? `<div class="pdf-condicoes-clean">${esc(o.notas).replace(/\n/g,'<br>')}</div>` : ''}
-
-      <div class="pdf-rodape">
-        <div>*Valores com IVA incluído à taxa em vigor. Orçamento válido por ${o.validade||30} dias.</div>
-      </div>
-
-      <div class="pdf-foot-clean">
-        <div>${esc((emp.email||'').replace(/^[^@]+@/, 'www.'))||'www.serralvesdecor.com'}</div>
-        <div>Pag. 1 de 1</div>
-        <div>${esc(emp.morada||'Porto')}</div>
+      <div class="pdf-clean-foot">
+        <div class="pdf-rodape">*Valores com IVA incluído à taxa em vigor (23%). Orçamento válido por ${o.validade||30} dias.</div>
+        <div class="pdf-foot-clean">
+          <div class="col">
+            <div class="empresa-name">${esc(emp.nome||'Serralves Decor')}</div>
+            ${emp.morada?`<div>${esc(emp.morada)}</div>`:''}
+            ${emp.nif?`<div>NIF ${esc(emp.nif)}</div>`:''}
+          </div>
+          <div class="col center">
+            ${emp.tel?`<div>${esc(emp.tel)}</div>`:''}
+            ${emp.email?`<div>${esc(emp.email)}</div>`:''}
+          </div>
+          <div class="col right">
+            <div>${esc(empSite)}</div>
+            <div>Obrigado pela preferência.</div>
+          </div>
+        </div>
       </div>
     </div>
   `;
