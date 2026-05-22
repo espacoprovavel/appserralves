@@ -664,6 +664,22 @@
         </div>
 
         <div class="card">
+          <h3>Cálculo de Cortinas</h3>
+          <p class="muted small">Como o preço sugerido é calculado quando escolhes um tecido. Fórmula: <strong>(largura × coef) × (altura + acabamento) × (€/m² tecido + €/m² confecção) = preço cortina pronta</strong>.</p>
+          <div class="grid grid-2 mt-12">
+            <div class="field"><label>Acabamento em altura (cm)</label><input type="number" id="cfgAcabamento" step="1" min="0" /><div class="muted small" style="margin-top:4px;">Padrão 30 cm = 15 ourela sup. + 15 ourela inf.</div></div>
+            <div class="field"><label>Confecção / mão-de-obra (€/m²)</label><input type="number" id="cfgConfeccao" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somado ao €/m² do tecido (vendemos cortina pronta).</div></div>
+          </div>
+          <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Coeficientes (largura de tecido por metro de janela)</h4>
+          <div class="grid grid-2">
+            <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.1" min="1" /></div>
+            <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.1" min="1" /></div>
+            <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.1" min="1" /></div>
+            <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.1" min="1" /></div>
+          </div>
+        </div>
+
+        <div class="card">
           <h3>Condições Padrão</h3>
           <div class="field"><label>Notas (default)</label><textarea id="defNotas" rows="3"></textarea></div>
           <div class="grid grid-2">
@@ -825,15 +841,17 @@ const DEFAULT_CONFIG = {
   svcInstalacao: 60,
   defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
   defValidade: 30,
-  printFormat: 'a4'
+  printFormat: 'a4',
+  // Cálculo da cortina (editável em Config → Cálculo de Cortinas)
+  acabamentoCm: 30,           // ourela sup. + ourela inf.
+  confeccaoM2: 0,              // €/m² mão-de-obra/confecção
+  coefs: { 'Cortina Onda Natural': 2.0, 'Cortina Ilhós': 2.0, 'Cortina Franzido': 2.5, 'Cortina Blackout': 1.5 }
 };
-const COEFS = { 'Cortina Onda Natural': 2.0, 'Cortina Ilhós': 2.0, 'Cortina Franzido': 2.5, 'Cortina Blackout': 1.5 };
-// Sobra de tecido para acabamento (ourela sup. + ourela inf.) — padrão profissional PT
-const ACABAMENTO_CM = 30;
 
 // ---------- STATE ----------
 let config = { ...DEFAULT_CONFIG, ...load(K.cfg, {}) };
 config.empresa = { ...DEFAULT_CONFIG.empresa, ...(config.empresa||{}) };
+config.coefs = { ...DEFAULT_CONFIG.coefs, ...(config.coefs||{}) };
 let produtos = load(K.prod, null) || DEFAULT_PRODUTOS.slice();
 let tecidos = load(K.tec, null) || DEFAULT_TECIDOS.slice();
 let clientes = load(K.cli, []);
@@ -1112,19 +1130,22 @@ function setupProdAutocomplete(card, i) {
 }
 
 function computeSuggested(it) {
-  const coef = COEFS[it.nome];
+  const coef = (config.coefs && config.coefs[it.nome]) || 0;
   const tec = tecidos.find(t => t.nome === it.tecido);
   if (!coef || !tec || !it.largura || !it.altura) return { preco: 0, text: '' };
+  const acab = parseFloat(config.acabamentoCm) || 0;
+  const conf = parseFloat(config.confeccaoM2) || 0;
   const larg_m = it.largura / 100;
   const alt_m = it.altura / 100;
-  const altTotal_m = (it.altura + ACABAMENTO_CM) / 100; // +30cm acabamento profissional
+  const altTotal_m = (it.altura + acab) / 100;
   const qtd = it.qtd || 1;
   const m2 = larg_m * coef * altTotal_m * qtd;
-  const precoTec = m2 * tec.preco;
-  const total = precoTec;
+  const precoM2 = tec.preco + conf;
+  const total = m2 * precoM2;
+  const confTxt = conf > 0 ? ` (tecido ${fmtEUR(tec.preco)} + confecção ${fmtEUR(conf)})` : '';
   return {
     preco: Math.round(total * 100) / 100,
-    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${ACABAMENTO_CM}cm acab.) × ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(tec.preco)}/m² = ${fmtEUR(total)}`
+    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${acab}cm acab.) × coef ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(precoM2)}/m²${confTxt} = ${fmtEUR(total)}`
   };
 }
 function updateSuggestion(card, i) {
@@ -1360,6 +1381,12 @@ function renderConfigForm() {
   $('#defNotas').value = config.defNotas;
   $('#defValidade').value = config.defValidade;
   $('#printFormat').value = config.printFormat || 'a4';
+  $('#cfgAcabamento').value = config.acabamentoCm ?? 30;
+  $('#cfgConfeccao').value = config.confeccaoM2 ?? 0;
+  $('#cfgCoefOnda').value = config.coefs['Cortina Onda Natural'] ?? 2.0;
+  $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.0;
+  $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.5;
+  $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 1.5;
 }
 $('#btnSaveConfig').addEventListener('click', () => {
   config.empresa = {
@@ -1371,6 +1398,14 @@ $('#btnSaveConfig').addEventListener('click', () => {
   config.defNotas = $('#defNotas').value;
   config.defValidade = parseFloat($('#defValidade').value)||30;
   config.printFormat = $('#printFormat').value;
+  config.acabamentoCm = parseFloat($('#cfgAcabamento').value)||0;
+  config.confeccaoM2 = parseFloat($('#cfgConfeccao').value)||0;
+  config.coefs = {
+    'Cortina Onda Natural': parseFloat($('#cfgCoefOnda').value)||2.0,
+    'Cortina Ilhós': parseFloat($('#cfgCoefIlhos').value)||2.0,
+    'Cortina Franzido': parseFloat($('#cfgCoefFranzido').value)||2.5,
+    'Cortina Blackout': parseFloat($('#cfgCoefBlackout').value)||1.5
+  };
   save(K.cfg, config);
   updateFormatoInfo();
   toast('Configurações guardadas');
@@ -1379,6 +1414,7 @@ $('#btnResetConfig').addEventListener('click', () => {
   if (!confirm('Repor todas as configurações para os valores padrão? (não apaga histórico nem clientes)')) return;
   config = { ...DEFAULT_CONFIG };
   config.empresa = { ...DEFAULT_CONFIG.empresa };
+  config.coefs = { ...DEFAULT_CONFIG.coefs };
   save(K.cfg, config); renderConfigForm(); updateFormatoInfo(); toast('Reposto');
 });
 $('#btnExport').addEventListener('click', () => {
@@ -1737,7 +1773,7 @@ function applyRoleUI() {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
