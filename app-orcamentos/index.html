@@ -448,7 +448,10 @@
   <!-- Mobile header -->
   <header class="mobile-header no-print">
     <div class="name">SERRALVES DECOR<small>ORÇAMENTOS</small></div>
-    <div class="net-status"><span class="net-dot" id="netDotM"></span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="net-status"><span class="net-dot" id="netDotM"></span></span>
+      <button id="btnLogoutM" style="display:none;background:transparent;border:1px solid rgba(245,240,230,0.4);color:var(--creme);padding:5px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;">Sair</button>
+    </div>
   </header>
 
   <!-- ============ MAIN ============ -->
@@ -1754,11 +1757,13 @@ if (btnChangePwd) btnChangePwd.addEventListener('click', async () => {
   } finally { btnChangePwd.disabled = false; }
 });
 
-// Logout button (visible only when cloud enabled & signed in)
-$('#btnLogout')?.addEventListener('click', async () => {
+// Logout buttons (visible only when cloud enabled & signed in)
+async function doLogout() {
   if (!confirm('Terminar sessão?')) return;
   try { await Cloud.logout(); } catch (err) { console.warn(err); }
-});
+}
+$('#btnLogout')?.addEventListener('click', doLogout);
+$('#btnLogoutM')?.addEventListener('click', doLogout);
 
 // ============================================================
 // ROLE-BASED UI
@@ -1836,6 +1841,7 @@ function bootApp() {
   if (window.Cloud && window.FIREBASE_ENABLED) {
     document.getElementById('appRoot')?.classList.add('hidden-until-auth');
     const ub = document.getElementById('userBlock'); if (ub) ub.style.display = '';
+    const lm = document.getElementById('btnLogoutM'); if (lm) lm.style.display = '';
     document.addEventListener('cloud:ready', () => {
       isAdmin = Cloud.isOwner();
       init();
