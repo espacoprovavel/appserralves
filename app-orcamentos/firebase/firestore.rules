@@ -1,6 +1,6 @@
 rules_version = '2';
 // =====================================================================
-// SERRALVES DECOR — regras de segurança Firestore
+// LEGADO DECOR — regras de segurança Firestore
 // =====================================================================
 // Copia este ficheiro inteiro para Firebase Console → Firestore Database
 // → Rules → cola por cima do existente → Publicar.

@@ -1,5 +1,5 @@
 // =====================================================================
-// SERRALVES DECOR — CONFIGURAÇÃO FIREBASE
+// LEGADO DECOR — CONFIGURAÇÃO FIREBASE
 // =====================================================================
 // Quando a apiKey deixar de começar por "PASTE", a app passa a usar a
 // nuvem (login, sync entre dispositivos). Caso contrário, modo local.

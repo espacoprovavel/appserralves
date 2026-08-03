@@ -1,4 +1,4 @@
-# Activar a sincronização na nuvem — Serralves Decor
+# Activar a sincronização na nuvem — Legado Decor
 
 **Tempo:** ~5 minutos. **O que vais precisar:** uma conta Google (Gmail ou Google Workspace).
 
@@ -45,7 +45,7 @@
 1. No menu da esquerda: **Project settings** (ícone de roda dentada, em cima).
 2. No separador **General**, rola até **Your apps**.
 3. Clica no ícone **`</>`** (Web).
-4. **App nickname:** `Serralves Decor Orçamentos` → **Register app** (deixa "Firebase Hosting" desligado).
+4. **App nickname:** `Legado Decor Orçamentos` → **Register app** (deixa "Firebase Hosting" desligado).
 5. Aparece um bloco de código com um objecto `firebaseConfig`. Tem este aspecto:
 
 ```js
