@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5" />
-<title>Serralves Decor — Orçamentos</title>
-<meta name="description" content="Sistema de orçamentos Serralves Decor" />
+<title>Legado Decor — Orçamentos</title>
+<meta name="description" content="Sistema de orçamentos Legado Decor" />
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#2A2520" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-<meta name="apple-mobile-web-app-title" content="SD Orçamentos" />
+<meta name="apple-mobile-web-app-title" content="LD Orçamentos" />
 <link rel="apple-touch-icon" href="icons/icon-192.png" />
 <link rel="icon" type="image/png" href="icons/icon-192.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -384,7 +384,7 @@
 <!-- ============ LOGIN OVERLAY (só aparece com Firebase activo) ============ -->
 <div id="authOverlay" style="display:none;">
   <div class="auth-box">
-    <div class="auth-brand">SERRALVES DECOR</div>
+    <div class="auth-brand">LEGADO DECOR</div>
     <div class="auth-sub">Orçamentos</div>
 
     <div class="auth-tabs">
@@ -421,7 +421,7 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar no-print">
     <div class="brand">
-      <div class="name">SERRALVES DECOR</div>
+      <div class="name">LEGADO DECOR</div>
       <div class="sub">ORÇAMENTOS</div>
     </div>
     <nav>
@@ -458,7 +458,7 @@
 
   <!-- Mobile header -->
   <header class="mobile-header no-print">
-    <div class="name">SERRALVES DECOR<small>ORÇAMENTOS</small></div>
+    <div class="name">LEGADO DECOR<small>ORÇAMENTOS</small></div>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="net-status"><span class="net-dot" id="netDotM"></span></span>
       <button id="btnLogoutM" style="display:none;background:transparent;border:1px solid rgba(245,240,230,0.4);color:var(--creme);padding:5px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;">Sair</button>
@@ -800,7 +800,7 @@
 
 <script>
 // ============================================================
-// SERRALVES DECOR — ORÇAMENTOS · v2.0
+// LEGADO DECOR — ORÇAMENTOS · v2.0
 // ============================================================
 'use strict';
 
@@ -850,7 +850,7 @@ const DEFAULT_TECIDOS = [
   { id: 't_vl', codigo: 'TEC-VL', nome: 'Veludo', preco: 52, cores: 'Verde, Bordeaux, Mostarda, Azul' }
 ];
 const DEFAULT_CONFIG = {
-  empresa: { nome: 'Serralves Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@serralvesdecor.com', morada: 'Porto, Portugal' },
+  empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com', morada: 'Porto, Portugal' },
   svcMedicao: 30,
   svcInstalacao: 60,
   defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
@@ -1437,7 +1437,7 @@ $('#btnExport').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `serralves-decor-backup-${todayISO()}.json`;
+  a.download = `legado-decor-backup-${todayISO()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1505,7 +1505,7 @@ function pdfHTML(o) {
   const emp = config.empresa;
   const vendedor = (window.Cloud && Cloud.user && Cloud.user.email) ? (Cloud.user.email.split('@')[0]) : '—';
 
-  const empSite = (emp.email||'').includes('@') ? 'www.' + emp.email.split('@')[1] : 'www.serralvesdecor.com';
+  const empSite = (emp.email||'').includes('@') ? 'www.' + emp.email.split('@')[1] : 'www.legadodecor.com';
 
   return `
     <div class="pdf-doc pdf-clean">
@@ -1516,7 +1516,7 @@ function pdfHTML(o) {
             <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
-            <div class="pdf-logo">${esc(emp.nome||'SERRALVES DECOR')}</div>
+            <div class="pdf-logo">${esc(emp.nome||'LEGADO DECOR')}</div>
             <div class="pdf-logo-sub">Cortinas · Calhas · Decoração</div>
           </div>
           <div class="pdf-col-r">
@@ -1558,7 +1558,7 @@ function pdfHTML(o) {
         <div class="pdf-rodape">*Valores com IVA incluído à taxa em vigor (23%). Orçamento válido por ${o.validade||30} dias.</div>
         <div class="pdf-foot-clean">
           <div class="col">
-            <div class="empresa-name">${esc(emp.nome||'Serralves Decor')}</div>
+            <div class="empresa-name">${esc(emp.nome||'Legado Decor')}</div>
             ${emp.morada?`<div>${esc(emp.morada)}</div>`:''}
             ${emp.nif?`<div>NIF ${esc(emp.nif)}</div>`:''}
           </div>

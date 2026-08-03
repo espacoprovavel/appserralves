@@ -1,5 +1,5 @@
 // =====================================================================
-// SERRALVES DECOR — CLOUD LAYER (Firebase Auth + Firestore)
+// LEGADO DECOR — CLOUD LAYER (Firebase Auth + Firestore)
 // =====================================================================
 // Expõe window.Cloud com toda a lógica de nuvem.
 // O index.html chama Cloud.boot() ao arrancar.
@@ -188,7 +188,7 @@ async function onSignedIn(fbUser) {
     if (!tenantSnap.exists()) {
       await runTransaction(Cloud.db, async (tx) => {
         tx.set(doc(Cloud.db, 'tenants', TENANT_ID), {
-          name: 'Serralves Decor', createdAt: serverTimestamp(), createdBy: fbUser.uid
+          name: 'Legado Decor', createdAt: serverTimestamp(), createdBy: fbUser.uid
         });
         tx.set(doc(Cloud.db, 'tenants', TENANT_ID, 'members', fbUser.uid), {
           email: fbUser.email, role: 'owner', active: true, createdAt: serverTimestamp()

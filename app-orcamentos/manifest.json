@@ -1,7 +1,7 @@
 {
-  "name": "Serralves Decor — Orçamentos",
-  "short_name": "SD Orçamentos",
-  "description": "Sistema de orçamentos Serralves Decor",
+  "name": "Legado Decor — Orçamentos",
+  "short_name": "LD Orçamentos",
+  "description": "Sistema de orçamentos Legado Decor",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
