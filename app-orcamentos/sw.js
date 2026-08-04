@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'sd-orcamentos-v10';
+const CACHE_VERSION = 'sd-orcamentos-v11';
 const ASSETS = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
   './firebase-config.js',
   './cloud.js',
   './icons/icon-192.png',
+  './icons/logo.svg',
   './icons/icon-512.png',
   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
