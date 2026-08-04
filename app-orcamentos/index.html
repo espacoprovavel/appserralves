@@ -402,11 +402,12 @@
     </div>
 
     <div id="authForm-signup" style="display:none;">
+      <div class="field"><label>Nome / Como quer ser chamado</label><input type="text" id="signupName" autocomplete="name" placeholder="Ex: Maria, João..." /></div>
       <div class="field"><label>Email</label><input type="email" id="signupEmail" autocomplete="username" /></div>
       <div class="field"><label>Palavra-passe (mín. 8)</label><input type="password" id="signupPwd" autocomplete="new-password" /></div>
       <div class="field"><label>Confirmar palavra-passe</label><input type="password" id="signupPwd2" autocomplete="new-password" /></div>
       <div class="auth-actions"><button class="btn btn-full" id="btnAuthSignup">Criar conta</button></div>
-      <div class="auth-foot">A primeira conta criada torna-se administradora. Contas seguintes têm de ser criadas pelo administrador na aba Equipa.</div>
+      <div class="auth-foot">A primeira conta criada torna-se Administrador Master. Contas seguintes têm de ser criadas pelo administrador na aba Equipa.</div>
     </div>
 
     <div id="authForm-forgot" style="display:none;">
@@ -440,6 +441,10 @@
       <button data-tab="equipa" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span>Equipa</span>
+      </button>
+      <button data-tab="registo" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        <span>Registo</span>
       </button>
       <button data-tab="config">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
@@ -729,13 +734,15 @@
         <div class="card">
           <h3>Adicionar novo membro</h3>
           <p class="muted small">Cria uma conta para um colega. Recebe email + palavra-passe que tu definires; pode alterá-la depois.</p>
-          <div class="grid grid-3 mt-12">
+          <div class="grid grid-2 mt-12">
+            <div class="field"><label>Nome</label><input type="text" id="newMemberName" placeholder="Como quer ser chamado" /></div>
             <div class="field"><label>Email</label><input type="email" id="newMemberEmail" placeholder="colega@exemplo.pt" /></div>
             <div class="field"><label>Palavra-passe inicial</label><input type="text" id="newMemberPwd" placeholder="Mín. 8 caracteres" /></div>
             <div class="field"><label>Função</label>
               <select id="newMemberRole">
                 <option value="user">Utilizador</option>
                 <option value="owner">Administrador</option>
+                <option value="master" class="master-only" style="display:none;">Administrador Master</option>
               </select>
             </div>
           </div>
@@ -745,9 +752,9 @@
         <div class="card">
           <h3>Membros</h3>
           <div class="tbl-wrap">
-            <table class="t members-table" style="min-width:520px;">
-              <colgroup><col style="min-width:200px"><col style="width:130px"><col style="width:90px"><col style="width:140px"></colgroup>
-              <thead><tr><th>Email</th><th>Função</th><th class="center">Estado</th><th></th></tr></thead>
+            <table class="t members-table" style="min-width:600px;">
+              <colgroup><col style="width:130px"><col><col style="width:150px"><col style="width:90px"><col style="width:140px"></colgroup>
+              <thead><tr><th>Nome</th><th>Email</th><th>Função</th><th class="center">Estado</th><th></th></tr></thead>
               <tbody id="membersBody"></tbody>
             </table>
           </div>
@@ -761,6 +768,24 @@
             <div class="field"><label>Confirmar nova</label><input type="password" id="pwdNew2" autocomplete="new-password" /></div>
           </div>
           <button class="btn mt-12" id="btnChangePwd">Alterar palavra-passe</button>
+        </div>
+      </section>
+
+      <!-- ============ REGISTO DE ATIVIDADE (só master) ============ -->
+      <section class="section" id="sec-registo">
+        <div class="page-head">
+          <div><div class="crumbs">Sistema</div><h2>Registo de Atividade</h2></div>
+          <button class="btn btn-outline" id="btnRefreshRegisto">Actualizar</button>
+        </div>
+        <div class="card">
+          <p class="muted small">Todas as acções realizadas pela equipa ficam registadas aqui. Visível apenas para o Administrador Master.</p>
+          <div class="tbl-wrap">
+            <table class="t" style="min-width:580px;">
+              <colgroup><col style="width:140px"><col style="width:120px"><col style="width:130px"><col></colgroup>
+              <thead><tr><th>Data / Hora</th><th>Utilizador</th><th>Ação</th><th>Detalhe</th></tr></thead>
+              <tbody id="registoBody"><tr><td colspan="4" class="center muted">A carregar...</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -789,6 +814,10 @@
   <button data-tab="equipa" style="display:none;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
     <span>Equipa</span>
+  </button>
+  <button data-tab="registo" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+    <span>Registo</span>
   </button>
   <button data-tab="config">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
@@ -916,6 +945,7 @@ function showTab(tab) {
   if (tab === 'produtos') renderProdutos();
   if (tab === 'config') renderConfigForm();
   if (tab === 'equipa') renderEquipa();
+  if (tab === 'registo') renderRegisto();
   // Hide preview when changing tab
   $('#printPreviewCard').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1244,6 +1274,10 @@ function saveOrc() {
     save(K.ct, contador);
   }
   save(K.hist, historico);
+  if (window.Cloud && Cloud.ready) {
+    const action = orc.id ? 'orcamento_editado' : 'orcamento_criado';
+    Cloud.logAction(action, `${orc.ref} — ${orc.cliente.nome}`);
+  }
   saveDraft();
   return true;
 }
@@ -1296,8 +1330,11 @@ function renderHistorico() {
   wrap.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
     if (!confirm('Apagar este orçamento?')) return;
+    const delOrc = historico.find(o => o.id === b.dataset.del);
     historico = historico.filter(o => o.id !== b.dataset.del);
-    save(K.hist, historico); renderHistorico(); toast('Apagado');
+    save(K.hist, historico);
+    if (window.Cloud && Cloud.ready && delOrc) Cloud.logAction('orcamento_eliminado', `${delOrc.ref} — ${delOrc.cliente.nome}`);
+    renderHistorico(); toast('Apagado');
   }));
   wrap.querySelectorAll('[data-st]').forEach(s => s.addEventListener('change', (e) => {
     const o = historico.find(x => x.id === s.dataset.st); if (!o) return;
@@ -1423,6 +1460,7 @@ $('#btnSaveConfig').addEventListener('click', () => {
   };
   save(K.cfg, config);
   updateFormatoInfo();
+  if (window.Cloud && Cloud.ready) Cloud.logAction('config_alterada', 'Configurações guardadas');
   toast('Configurações guardadas');
 });
 $('#btnResetConfig').addEventListener('click', () => {
@@ -1692,22 +1730,27 @@ window.addEventListener('offline', updateNet);
 // ============================================================
 async function renderEquipa() {
   if (!window.Cloud || !Cloud.ready) {
-    $('#membersBody').innerHTML = '<tr><td colspan="4" class="center muted">Sincronização desactivada. Veja firebase/SETUP.md.</td></tr>';
+    $('#membersBody').innerHTML = '<tr><td colspan="5" class="center muted">Sincronização desactivada. Veja firebase/SETUP.md.</td></tr>';
     return;
   }
   if (!Cloud.isOwner()) {
-    $('#membersBody').innerHTML = '<tr><td colspan="4" class="center muted">Só administradores podem gerir a equipa.</td></tr>';
+    $('#membersBody').innerHTML = '<tr><td colspan="5" class="center muted">Só administradores podem gerir a equipa.</td></tr>';
     return;
   }
+  // Mostrar opção master só se o utilizador atual é master
+  const masterOpt = Cloud.isMaster() ? `<option value="master" ${'{'}m.role==='master'?'selected':''{'}'}>Adm. Master</option>` : '';
   try {
     const members = await Cloud.listMembers();
     members.sort((a, b) => (a.email||'').localeCompare(b.email||''));
     $('#membersBody').innerHTML = members.map(m => {
       const isSelf = m.uid === Cloud.user.uid;
       const inactive = m.active === false;
-      const roleSel = `<select data-role="${m.uid}" ${isSelf?'disabled':''}>
+      // Não permitir alterar função de master por não-master, ou de si próprio
+      const roleDisabled = isSelf || (m.role === 'master' && !Cloud.isMaster());
+      const roleSel = `<select data-role="${m.uid}" ${roleDisabled?'disabled':''}>
         <option value="user" ${m.role==='user'?'selected':''}>Utilizador</option>
         <option value="owner" ${m.role==='owner'?'selected':''}>Administrador</option>
+        ${Cloud.isMaster() ? `<option value="master" ${m.role==='master'?'selected':''}>Adm. Master</option>` : ''}
       </select>`;
       const actBtn = isSelf ? '<span class="muted small">(tu)</span>'
         : inactive
@@ -1715,6 +1758,7 @@ async function renderEquipa() {
           : `<button class="btn btn-xs btn-outline" data-deact="${m.uid}">Desactivar</button>`;
       const delBtn = isSelf ? '' : `<button class="btn btn-xs btn-ghost" data-rm="${m.uid}" title="Remover">✕</button>`;
       return `<tr class="${inactive?'inactive':''}">
+        <td>${esc(m.name||'—')}</td>
         <td>${esc(m.email||'—')}</td>
         <td>${roleSel}</td>
         <td class="center"><span class="role-pill role-${inactive?'user':(m.role||'user')}">${inactive?'Inactivo':'Activo'}</span></td>
@@ -1728,12 +1772,18 @@ async function renderEquipa() {
     }));
     $$('#membersBody [data-deact]').forEach(b => b.addEventListener('click', async () => {
       if (!confirm('Desactivar este utilizador? Não vai conseguir entrar.')) return;
-      try { await Cloud.setMemberActive(b.dataset.deact, false); toast('Desactivado'); renderEquipa(); }
-      catch (err) { toast(err.message || 'Erro', true); }
+      try {
+        await Cloud.setMemberActive(b.dataset.deact, false);
+        Cloud.logAction('membro_desactivado', b.dataset.deact);
+        toast('Desactivado'); renderEquipa();
+      } catch (err) { toast(err.message || 'Erro', true); }
     }));
     $$('#membersBody [data-act]').forEach(b => b.addEventListener('click', async () => {
-      try { await Cloud.setMemberActive(b.dataset.act, true); toast('Reactivado'); renderEquipa(); }
-      catch (err) { toast(err.message || 'Erro', true); }
+      try {
+        await Cloud.setMemberActive(b.dataset.act, true);
+        Cloud.logAction('membro_reactivado', b.dataset.act);
+        toast('Reactivado'); renderEquipa();
+      } catch (err) { toast(err.message || 'Erro', true); }
     }));
     $$('#membersBody [data-rm]').forEach(b => b.addEventListener('click', async () => {
       if (!confirm('Remover este utilizador? Não vai conseguir entrar mais. (A conta de login fica no Firebase mas sem acesso.)')) return;
@@ -1749,15 +1799,18 @@ async function renderEquipa() {
 const btnInvite = $('#btnInviteMember');
 if (btnInvite) btnInvite.addEventListener('click', async () => {
   if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const name = ($('#newMemberName').value||'').trim();
   const email = ($('#newMemberEmail').value||'').trim();
   const pwd = $('#newMemberPwd').value || '';
   const role = $('#newMemberRole').value;
+  if (!name) return toast('Indica o nome do colega', true);
   if (!email || !pwd) return toast('Indica email e palavra-passe', true);
   if (pwd.length < 8) return toast('Palavra-passe muito curta (mínimo 8)', true);
   btnInvite.disabled = true;
   try {
-    await Cloud.inviteMember(email, pwd, role);
-    $('#newMemberEmail').value = ''; $('#newMemberPwd').value = '';
+    await Cloud.inviteMember(email, pwd, role, name);
+    $('#newMemberName').value = ''; $('#newMemberEmail').value = ''; $('#newMemberPwd').value = '';
+    Cloud.logAction('membro_convidado', `${name} (${email}) — ${role}`);
     toast('Conta criada. Comunica ao colega as credenciais.');
     renderEquipa();
   } catch (err) {
@@ -1795,9 +1848,14 @@ $('#btnLogoutM')?.addEventListener('click', doLogout);
 // ============================================================
 function applyRoleUI() {
   const admin = isAdmin;
-  // Equipa tab: só admins (quando cloud está activa)
+  const master = window.Cloud && Cloud.isMaster && Cloud.isMaster();
+  // Equipa tab: só admins
   const showEquipa = !window.FIREBASE_ENABLED || admin;
   $$('[data-tab="equipa"]').forEach(b => b.style.display = showEquipa ? '' : 'none');
+  // Registo tab: só master
+  $$('[data-tab="registo"]').forEach(b => b.style.display = master ? '' : 'none');
+  // Opção master no dropdown do convite
+  $$('.master-only').forEach(el => { el.style.display = master ? '' : 'none'; });
   // Configurações: botões de escrita só para admin
   ['btnSaveConfig','btnExport','btnImport','btnResetConfig'].forEach(id => {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
@@ -1812,9 +1870,50 @@ function applyRoleUI() {
   ['btnAddProduto','btnAddTecido'].forEach(id => {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
-  // Re-render produtos se a secção estiver activa
   if ($('#sec-produtos')?.classList.contains('active')) renderProdutos();
 }
+
+// ============================================================
+// REGISTO DE ATIVIDADE (só master)
+// ============================================================
+async function renderRegisto() {
+  const body = $('#registoBody');
+  if (!body) return;
+  if (!window.Cloud || !Cloud.ready || !Cloud.isMaster()) {
+    body.innerHTML = '<tr><td colspan="4" class="center muted">Acesso restrito ao Administrador Master.</td></tr>';
+    return;
+  }
+  body.innerHTML = '<tr><td colspan="4" class="center muted">A carregar...</td></tr>';
+  try {
+    const entries = await Cloud.getAuditLog(200);
+    if (!entries.length) {
+      body.innerHTML = '<tr><td colspan="4" class="center muted">Sem registos ainda.</td></tr>';
+      return;
+    }
+    const actionLabel = {
+      orcamento_criado: 'Orçamento criado',
+      orcamento_editado: 'Orçamento editado',
+      orcamento_eliminado: 'Orçamento eliminado',
+      config_alterada: 'Config. alterada',
+      membro_convidado: 'Membro convidado',
+      membro_desactivado: 'Membro desactivado',
+      membro_reactivado: 'Membro reactivado'
+    };
+    body.innerHTML = entries.map(e => {
+      const ts = e.ts && e.ts.toDate ? e.ts.toDate() : new Date();
+      const dtStr = ts.toLocaleDateString('pt-PT') + ' ' + ts.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+      return `<tr>
+        <td class="muted small">${dtStr}</td>
+        <td>${esc(e.userName||'—')}</td>
+        <td><span class="role-pill">${esc(actionLabel[e.action] || e.action)}</span></td>
+        <td>${esc(e.detail||'')}</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    body.innerHTML = `<tr><td colspan="4" class="center muted">Erro: ${esc(err.message||'')}</td></tr>`;
+  }
+}
+$('#btnRefreshRegisto')?.addEventListener('click', renderRegisto);
 
 // ============================================================
 // INIT
