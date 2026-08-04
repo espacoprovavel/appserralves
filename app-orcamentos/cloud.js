@@ -124,8 +124,14 @@ function bindAuthUI() {
     if (pwd !== pwd2) return setAuthErr('As palavras-passe não coincidem.');
     setAuthBusy(true);
     try {
-      const tenantSnap = await getDoc(doc(Cloud.db, 'tenants', TENANT_ID));
-      if (tenantSnap.exists()) {
+      // Check if tenant already exists — wrapped in try/catch because unauthenticated
+      // reads are blocked by rules; if we can't read, assume tenant doesn't exist yet.
+      let tenantExists = false;
+      try {
+        const tenantSnap = await getDoc(doc(Cloud.db, 'tenants', TENANT_ID));
+        tenantExists = tenantSnap.exists();
+      } catch (_) { tenantExists = false; }
+      if (tenantExists) {
         setAuthErr('Já existe uma conta. Pede ao administrador para criar o teu acesso.');
         setAuthBusy(false);
         return;
