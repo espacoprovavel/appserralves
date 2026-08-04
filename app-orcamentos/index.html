@@ -6,7 +6,7 @@
 <title>Legado Decor — Orçamentos</title>
 <meta name="description" content="Sistema de orçamentos Legado Decor" />
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#2A2520" />
+<meta name="theme-color" content="#1B5B4A" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="LD Orçamentos" />
@@ -20,15 +20,16 @@
 <script type="module" src="cloud.js"></script>
 <style>
   :root {
-    --dark: #2A2520;
+    --dark: #1B5B4A;
+    --gold: #B8973A;
     --creme: #F5F0E6;
     --white: #FFFFFF;
-    --muted: #6B645B;
-    --border: #D4CFC5;
-    --soft: #FAF7F1;
-    --wa: #2D4A3E;
+    --muted: #5A6E68;
+    --border: #C8D4CF;
+    --soft: #F2F7F5;
+    --wa: #1B5B4A;
     --err: #A83232;
-    --ok: #2D4A3E;
+    --ok: #1B5B4A;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; max-width: 100%; overflow-x: hidden; }
@@ -46,9 +47,8 @@
   /* ===== LAYOUT ===== */
   .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; max-width: 100%; }
   .sidebar { background: var(--dark); color: var(--creme); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
-  .sidebar .brand { padding: 22px 22px 18px; border-bottom: 1px solid rgba(245,240,230,0.1); }
-  .sidebar .brand .name { font-family: 'Playfair Display', serif; font-size: 18px; letter-spacing: 1.6px; font-weight: 600; }
-  .sidebar .brand .sub { font-size: 9px; letter-spacing: 2px; opacity: 0.6; margin-top: 4px; text-transform: uppercase; }
+  .sidebar .brand { padding: 18px 22px 16px; border-bottom: 1px solid rgba(245,240,230,0.1); }
+  .sidebar .brand svg { width: 100%; height: auto; max-height: 80px; display: block; }
   .sidebar nav { flex: 1; padding: 14px 0; display: flex; flex-direction: column; }
   .sidebar nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 22px; background: transparent; border: 0; color: rgba(245,240,230,0.65); text-align: left; cursor: pointer; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; border-left: 3px solid transparent; transition: color 0.15s, background 0.15s; }
   .sidebar nav button:hover { color: var(--creme); }
@@ -155,7 +155,7 @@
   .hist-row .total { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
   .hist-row .status select { padding: 6px 26px 6px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
   .status-rascunho { color: var(--muted); }
-  .status-enviado { color: #8C6B30; }
+  .status-enviado { color: var(--gold); }
   .status-aprovado { color: var(--ok); }
   .status-rejeitado { color: var(--err); }
   .hist-head { display: grid; grid-template-columns: 90px 90px 1fr 110px 110px 90px; gap: 12px; padding: 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); background: var(--soft); font-weight: 600; }
@@ -275,8 +275,7 @@
     .sidebar { display: none; }
     .mobile-nav { display: flex; }
     .mobile-header { display: flex; align-items: center; justify-content: space-between; background: var(--dark); color: var(--creme); padding: 12px 16px; position: sticky; top: 0; z-index: 30; }
-    .mobile-header .name { font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 1.5px; }
-    .mobile-header .name small { display: block; font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 2px; opacity: 0.6; margin-top: 2px; }
+    .mobile-header .brand-svg { height: 40px; width: auto; display: block; }
     .main { padding: 14px 12px 96px; }
     .page-head { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
     .page-head h2 { font-size: 20px; }
@@ -323,8 +322,8 @@
   .hidden-until-auth { visibility: hidden; }
   #authOverlay { position: fixed; inset: 0; background: var(--dark); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 24px; }
   #authOverlay .auth-box { background: var(--creme); width: 100%; max-width: 380px; padding: 32px 28px; border-radius: 2px; box-shadow: 0 12px 48px rgba(0,0,0,0.3); }
-  #authOverlay .auth-brand { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 2px; text-align: center; margin-bottom: 4px; font-weight: 700; }
-  #authOverlay .auth-sub { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; text-align: center; color: var(--muted); margin-bottom: 22px; }
+  #authOverlay .auth-logo { display: flex; justify-content: center; margin-bottom: 22px; }
+  #authOverlay .auth-logo svg { height: 90px; width: auto; }
   #authOverlay .auth-tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
   #authOverlay .auth-tab { flex: 1; background: transparent; border: 0; padding: 10px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
   #authOverlay .auth-tab.active { color: var(--dark); border-bottom-color: var(--dark); }
@@ -341,7 +340,7 @@
 
   /* ===== EQUIPA ===== */
   .members-table .role-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-  .members-table .role-owner { background: #2D4A3E; color: #fff; }
+  .members-table .role-owner { background: var(--dark); color: #fff; }
   .members-table .role-user { background: var(--soft); color: var(--muted); }
   .members-table .inactive { opacity: 0.5; }
   .invite-card { background: var(--soft); padding: 16px; margin-bottom: 16px; border-left: 3px solid var(--dark); }
@@ -384,8 +383,35 @@
 <!-- ============ LOGIN OVERLAY (só aparece com Firebase activo) ============ -->
 <div id="authOverlay" style="display:none;">
   <div class="auth-box">
-    <div class="auth-brand">LEGADO DECOR</div>
-    <div class="auth-sub">Orçamentos</div>
+    <div class="auth-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 110" role="img" aria-label="Legado Decor">
+        <!-- Gold sun/flower icon -->
+        <g transform="translate(100,38)">
+          <!-- 12 petals -->
+          <g fill="#B8973A">
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(0)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(30)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(60)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(90)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(120)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(150)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(180)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(210)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(240)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(270)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(300)"/>
+            <ellipse cx="0" cy="-22" rx="4.5" ry="10" transform="rotate(330)"/>
+          </g>
+          <!-- Center circle -->
+          <circle cx="0" cy="0" r="9" fill="#B8973A"/>
+          <circle cx="0" cy="0" r="5.5" fill="#F5F0E6"/>
+        </g>
+        <!-- Brand name -->
+        <text x="100" y="82" font-family="'Playfair Display', Georgia, serif" font-size="18" font-weight="700" letter-spacing="3" fill="#1B5B4A" text-anchor="middle">LEGADO DECOR</text>
+        <!-- Subtitle -->
+        <text x="100" y="96" font-family="'DM Sans', Arial, sans-serif" font-size="6.5" letter-spacing="2.5" fill="#5A6E68" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
+      </svg>
+    </div>
 
     <div class="auth-tabs">
       <button class="auth-tab active" data-auth="login">Entrar</button>
@@ -422,8 +448,28 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar no-print">
     <div class="brand">
-      <div class="name">LEGADO DECOR</div>
-      <div class="sub">ORÇAMENTOS</div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 176 80" role="img" aria-label="Legado Decor">
+        <g transform="translate(88,28)">
+          <g fill="#B8973A">
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(0)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(30)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(60)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(90)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(120)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(150)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(180)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(210)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(240)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(270)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(300)"/>
+            <ellipse cx="0" cy="-18" rx="4" ry="8.5" transform="rotate(330)"/>
+          </g>
+          <circle cx="0" cy="0" r="7.5" fill="#B8973A"/>
+          <circle cx="0" cy="0" r="4.5" fill="rgba(245,240,230,0.3)"/>
+        </g>
+        <text x="88" y="60" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="700" letter-spacing="2.5" fill="#F5F0E6" text-anchor="middle">LEGADO DECOR</text>
+        <text x="88" y="72" font-family="'DM Sans', Arial, sans-serif" font-size="5.5" letter-spacing="2" fill="rgba(245,240,230,0.55)" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
+      </svg>
     </div>
     <nav>
       <button data-tab="novo" class="active">
@@ -463,7 +509,28 @@
 
   <!-- Mobile header -->
   <header class="mobile-header no-print">
-    <div class="name">LEGADO DECOR<small>ORÇAMENTOS</small></div>
+    <svg class="brand-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" role="img" aria-label="Legado Decor">
+      <g transform="translate(18,22)">
+        <g fill="#B8973A">
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(30)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(60)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(90)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(120)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(150)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(210)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(240)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(270)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(300)"/>
+          <ellipse cx="0" cy="-13" rx="3" ry="6" transform="rotate(330)"/>
+        </g>
+        <circle cx="0" cy="0" r="5.5" fill="#B8973A"/>
+        <circle cx="0" cy="0" r="3.2" fill="rgba(245,240,230,0.3)"/>
+      </g>
+      <text x="38" y="18" font-family="'Playfair Display', Georgia, serif" font-size="13" font-weight="700" letter-spacing="2" fill="#F5F0E6">LEGADO DECOR</text>
+      <text x="38" y="31" font-family="'DM Sans', Arial, sans-serif" font-size="6" letter-spacing="2" fill="rgba(245,240,230,0.55)">O SEU LAR À SUA MEDIDA</text>
+    </svg>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="net-status"><span class="net-dot" id="netDotM"></span></span>
       <button id="btnLogoutM" style="display:none;background:transparent;border:1px solid rgba(245,240,230,0.4);color:var(--creme);padding:5px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;">Sair</button>
@@ -1554,8 +1621,28 @@ function pdfHTML(o) {
             <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
-            <div class="pdf-logo">${esc(emp.nome||'LEGADO DECOR')}</div>
-            <div class="pdf-logo-sub">Cortinas · Calhas · Decoração</div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 68" style="width:120px;height:auto;display:block;margin:0 auto;">
+              <g transform="translate(60,24)">
+                <g fill="#B8973A">
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(0)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(30)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(60)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(90)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(120)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(150)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(180)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(210)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(240)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(270)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(300)"/>
+                  <ellipse cx="0" cy="-15" rx="3.5" ry="7" transform="rotate(330)"/>
+                </g>
+                <circle cx="0" cy="0" r="6.5" fill="#B8973A"/>
+                <circle cx="0" cy="0" r="4" fill="#fff"/>
+              </g>
+              <text x="60" y="48" font-family="'Playfair Display',Georgia,serif" font-size="11" font-weight="700" letter-spacing="2" fill="#1B5B4A" text-anchor="middle">${esc(emp.nome||'LEGADO DECOR')}</text>
+              <text x="60" y="60" font-family="'DM Sans',Arial,sans-serif" font-size="5.5" letter-spacing="1.5" fill="#5A6E68" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
+            </svg>
           </div>
           <div class="pdf-col-r">
             <div class="line"><strong>Orçamento</strong> ${esc(o.ref)}</div>
