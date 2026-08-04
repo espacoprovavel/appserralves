@@ -15,25 +15,26 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot,
-  collection, getDocs, query, where, serverTimestamp, runTransaction
+  doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, addDoc,
+  collection, getDocs, query, orderBy, limit, serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-const FB_VERSION = "10.13.2";
-// Fixed single-tenant ID. This app serves a single company; one tenant is enough
-// and lets the Firestore rules use a stricter `tid == 'main'` constraint.
 const TENANT_ID = 'main';
 
 const Cloud = window.Cloud = {
   enabled: !!window.FIREBASE_ENABLED,
   ready: false,
   app: null, auth: null, db: null,
-  user: null,          // { uid, email, role, tenantId, name }
+  // user: { uid, email, name, role, tenantId }
+  // roles: master > owner > user
+  user: null,
   tenantId: null,
-  isOwner: () => Cloud.user && Cloud.user.role === 'owner',
-  // listeners registered by index.html — called when remote data changes
+  // master: vê tudo, pode gerir funções incluindo master
+  // owner: administrador normal, gere equipa e config
+  // user: utilizador, cria orçamentos mas não altera config
+  isMaster: () => Cloud.user && Cloud.user.role === 'master',
+  isOwner: () => Cloud.user && (Cloud.user.role === 'owner' || Cloud.user.role === 'master'),
   onChange: { config: null, produtos: null, tecidos: null, clientes: null, historico: null, contador: null },
-  // unsubscribe handles
   _unsubs: [],
   _writeQueue: new Map(),
   _writeTimer: null,
@@ -42,14 +43,12 @@ const Cloud = window.Cloud = {
 // ---------- public boot ----------
 Cloud.boot = async function () {
   if (!Cloud.enabled) {
-    // hide auth UI, app loads as local-only
     document.getElementById('authOverlay')?.remove();
     document.getElementById('btnLogout')?.remove();
     document.querySelectorAll('[data-tab="equipa"]').forEach(b => b.style.display = 'none');
     return false;
   }
 
-  // Init Firebase
   Cloud.app = getApps()[0] || initializeApp(window.FIREBASE_CONFIG);
   Cloud.db = initializeFirestore(Cloud.app, {
     localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
@@ -57,10 +56,8 @@ Cloud.boot = async function () {
   Cloud.auth = getAuth(Cloud.app);
   try { await setPersistence(Cloud.auth, browserLocalPersistence); } catch {}
 
-  // Bind auth screen handlers
   bindAuthUI();
 
-  // Watch auth state
   onAuthStateChanged(Cloud.auth, async (fbUser) => {
     if (fbUser) {
       try {
@@ -117,23 +114,25 @@ function bindAuthUI() {
   });
 
   $('#btnAuthSignup')?.addEventListener('click', async () => {
+    const name = ($('#signupName').value || '').trim();
     const email = ($('#signupEmail').value || '').trim();
     const pwd = $('#signupPwd').value || '';
     const pwd2 = $('#signupPwd2').value || '';
+    if (!name) return setAuthErr('Indica o teu nome.');
     if (!email || !pwd) return setAuthErr('Indica email e palavra-passe.');
     if (pwd.length < 8) return setAuthErr('Palavra-passe muito curta (mínimo 8).');
     if (pwd !== pwd2) return setAuthErr('As palavras-passe não coincidem.');
     setAuthBusy(true);
     try {
-      // First user becomes owner; subsequent signups blocked unless invited by owner.
       const tenantSnap = await getDoc(doc(Cloud.db, 'tenants', TENANT_ID));
       if (tenantSnap.exists()) {
         setAuthErr('Já existe uma conta. Pede ao administrador para criar o teu acesso.');
         setAuthBusy(false);
         return;
       }
+      // Bridge name to onSignedIn which fires via auth state change
+      window._pendingSignupName = name;
       await createUserWithEmailAndPassword(Cloud.auth, email, pwd);
-      // onAuthStateChanged will fire onSignedIn which provisions the tenant
     } catch (e) { setAuthErr(humanAuthErr(e)); }
     finally { setAuthBusy(false); }
   });
@@ -174,87 +173,86 @@ function humanAuthErr(e) {
 
 // ---------- POST-LOGIN ----------
 async function onSignedIn(fbUser) {
-  // Look up user doc — has tenantId + role
   const userRef = doc(Cloud.db, 'users', fbUser.uid);
   let userSnap = await getDoc(userRef);
   let userDoc = userSnap.exists() ? userSnap.data() : null;
 
   if (!userDoc) {
-    // No user record. Two cases:
-    //  (a) Brand-new install — this user is the first signup. Provision tenant + owner.
-    //  (b) Account exists but wasn't properly provisioned (e.g. self-signup on
-    //      an already-bootstrapped system). Refuse — owner must invite them.
     const tenantSnap = await getDoc(doc(Cloud.db, 'tenants', TENANT_ID));
     if (!tenantSnap.exists()) {
+      // First user → master (acima de owner, vê tudo)
+      const firstName = window._pendingSignupName || fbUser.email.split('@')[0];
+      window._pendingSignupName = null;
       await runTransaction(Cloud.db, async (tx) => {
         tx.set(doc(Cloud.db, 'tenants', TENANT_ID), {
           name: 'Legado Decor', createdAt: serverTimestamp(), createdBy: fbUser.uid
         });
         tx.set(doc(Cloud.db, 'tenants', TENANT_ID, 'members', fbUser.uid), {
-          email: fbUser.email, role: 'owner', active: true, createdAt: serverTimestamp()
+          email: fbUser.email, name: firstName, role: 'master', active: true, createdAt: serverTimestamp()
         });
         tx.set(doc(Cloud.db, 'users', fbUser.uid), {
-          tenantId: TENANT_ID, email: fbUser.email, role: 'owner', createdAt: serverTimestamp()
+          tenantId: TENANT_ID, email: fbUser.email, name: firstName, role: 'master', createdAt: serverTimestamp()
         });
       });
-      userDoc = { tenantId: TENANT_ID, email: fbUser.email, role: 'owner' };
+      userDoc = { tenantId: TENANT_ID, email: fbUser.email, name: firstName, role: 'master' };
     } else {
       throw new Error('Conta sem permissão. O administrador tem de criar o teu acesso na secção Equipa.');
     }
   }
 
   Cloud.tenantId = userDoc.tenantId;
-  Cloud.user = { uid: fbUser.uid, email: fbUser.email, role: userDoc.role || 'user', tenantId: userDoc.tenantId };
+  Cloud.user = {
+    uid: fbUser.uid,
+    email: fbUser.email,
+    name: userDoc.name || '',
+    role: userDoc.role || 'user',
+    tenantId: userDoc.tenantId
+  };
 
-  // Check membership is active
+  // Check membership is active and get latest role + name
   const memSnap = await getDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', fbUser.uid));
   if (memSnap.exists()) {
     const m = memSnap.data();
     if (m.active === false) throw new Error('Conta desactivada. Contacta o administrador.');
     Cloud.user.role = m.role || Cloud.user.role;
+    Cloud.user.name = m.name || Cloud.user.name;
   }
 
   // Show app
   hideAuthScreen();
   document.getElementById('appRoot')?.classList.remove('hidden-until-auth');
-  document.getElementById('userBadge') && (document.getElementById('userBadge').textContent = Cloud.user.email);
+  const badge = document.getElementById('userBadge');
+  if (badge) badge.textContent = Cloud.user.name || Cloud.user.email;
   document.querySelectorAll('[data-tab="equipa"]').forEach(b => b.style.display = Cloud.isOwner() ? '' : 'none');
+  document.querySelectorAll('[data-tab="registo"]').forEach(b => b.style.display = Cloud.isMaster() ? '' : 'none');
 
-  // Initial load: pull cloud data; if absent, push local data (migration).
   await initialSyncAndAttach();
   Cloud.ready = true;
-  // Tell the app the first paint can happen
   document.dispatchEvent(new CustomEvent('cloud:ready'));
 }
 
 // ---------- DATA SYNC ----------
-// Mapping localStorage key → Firestore doc path under /tenants/{tid}/data/
 const KEYS = ['config', 'produtos', 'tecidos', 'clientes', 'historico', 'contador'];
 const localKey = (k) => 'sd_' + k;
 const dataRef = (k) => doc(Cloud.db, 'tenants', Cloud.tenantId, 'data', k);
 
 async function initialSyncAndAttach() {
-  // Read each doc; if missing, push the local copy (one-time migration).
   for (const k of KEYS) {
     const ref = dataRef(k);
     const snap = await getDoc(ref);
     if (!snap.exists()) {
-      // Migrate from localStorage if present
       const raw = localStorage.getItem(localKey(k));
       const value = raw != null ? safeParse(raw) : null;
       if (value != null) {
         await setDoc(ref, { value, updatedAt: serverTimestamp(), updatedBy: Cloud.user.uid });
       }
     } else {
-      // Cloud wins on startup — overwrite local cache
       const v = snap.data().value;
       try { localStorage.setItem(localKey(k), JSON.stringify(v)); } catch {}
-      // Notify the app to refresh its in-memory state
       try { Cloud.onChange[k] && Cloud.onChange[k](v); } catch (e) { console.warn(e); }
     }
   }
 
-  // Attach realtime listeners
   for (const k of KEYS) {
     const u = onSnapshot(dataRef(k), (snap) => {
       if (!snap.exists()) return;
@@ -274,7 +272,6 @@ function detachListeners() {
 function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
 
 // ---------- WRITE (debounced) ----------
-// Called by the app whenever local state changes.
 Cloud.push = function (key, value) {
   if (!Cloud.ready || !KEYS.includes(key)) return;
   Cloud._writeQueue.set(key, value);
@@ -290,12 +287,31 @@ async function flushQueue() {
     try {
       await setDoc(dataRef(k), { value, updatedAt: serverTimestamp(), updatedBy: Cloud.user.uid }, { merge: true });
     } catch (err) {
-      // Firestore SDK queues writes offline automatically; this catch is for
-      // permission/network shape errors. Keep the local copy and warn.
       console.warn('Cloud write failed', k, err);
     }
   }
 }
+
+// ---------- AUDIT LOG ----------
+Cloud.logAction = async function (action, detail) {
+  if (!Cloud.ready) return;
+  try {
+    await addDoc(collection(Cloud.db, 'tenants', Cloud.tenantId, 'auditLog'), {
+      action,
+      detail: detail || '',
+      userId: Cloud.user.uid,
+      userName: Cloud.user.name || Cloud.user.email,
+      ts: serverTimestamp()
+    });
+  } catch (e) { console.warn('auditLog write failed', e); }
+};
+
+Cloud.getAuditLog = async function (n) {
+  const col = collection(Cloud.db, 'tenants', Cloud.tenantId, 'auditLog');
+  const q = query(col, orderBy('ts', 'desc'), limit(n || 200));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
 
 // ---------- SESSION ----------
 Cloud.logout = async function () {
@@ -311,38 +327,54 @@ Cloud.changePassword = async function (currentPwd, newPwd) {
   await updatePassword(user, newPwd);
 };
 
-// ---------- MEMBERS (owner only) ----------
+// ---------- MEMBERS ----------
 Cloud.listMembers = async function () {
   const col = collection(Cloud.db, 'tenants', Cloud.tenantId, 'members');
   const snap = await getDocs(col);
   return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
 };
 
-Cloud.inviteMember = async function (email, password, role) {
-  // Create a *secondary* Firebase app instance so we don't lose the owner session.
+Cloud.inviteMember = async function (email, password, role, name) {
   const secApp = initializeApp(window.FIREBASE_CONFIG, 'secondary-' + Date.now());
   const secAuth = getAuth(secApp);
+  let newUid;
   try {
-    const cred = await createUserWithEmailAndPassword(secAuth, email, password);
-    const newUid = cred.user.uid;
+    try {
+      const cred = await createUserWithEmailAndPassword(secAuth, email, password);
+      newUid = cred.user.uid;
+    } catch (err) {
+      if (err && err.code === 'auth/email-already-in-use') {
+        try {
+          const cred = await signInWithEmailAndPassword(secAuth, email, password);
+          newUid = cred.user.uid;
+        } catch {
+          throw new Error('Este email já tem conta Firebase. Indica a palavra-passe atual desse utilizador para o re-adicionar à equipa, ou usa outro email.');
+        }
+      } else { throw err; }
+    }
+    const memberName = name || email.split('@')[0];
     await Promise.all([
       setDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', newUid), {
-        email, role: role || 'user', active: true, createdAt: serverTimestamp(), createdBy: Cloud.user.uid
-      }),
+        email, name: memberName, role: role || 'user', active: true,
+        createdAt: serverTimestamp(), createdBy: Cloud.user.uid
+      }, { merge: true }),
       setDoc(doc(Cloud.db, 'users', newUid), {
-        tenantId: Cloud.tenantId, email, role: role || 'user', createdAt: serverTimestamp()
-      })
+        tenantId: Cloud.tenantId, email, name: memberName, role: role || 'user', createdAt: serverTimestamp()
+      }, { merge: true })
     ]);
     try { await signOut(secAuth); } catch {}
     return newUid;
   } finally {
-    // Clean up the secondary app (it's leaked otherwise)
     try { await secApp.delete(); } catch {}
   }
 };
 
 Cloud.setMemberRole = async function (uid, role) {
-  if (uid === Cloud.user.uid && role !== 'owner') throw new Error('Não te podes despromover a ti próprio.');
+  // Só master pode atribuir/alterar para o papel master
+  if (role === 'master' && !Cloud.isMaster())
+    throw new Error('Só o Administrador Master pode atribuir esse papel.');
+  if (uid === Cloud.user.uid && role !== Cloud.user.role)
+    throw new Error('Não te podes alterar o papel a ti próprio.');
   await Promise.all([
     updateDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', uid), { role }),
     updateDoc(doc(Cloud.db, 'users', uid), { role })
@@ -356,14 +388,10 @@ Cloud.setMemberActive = async function (uid, active) {
 
 Cloud.removeMember = async function (uid) {
   if (uid === Cloud.user.uid) throw new Error('Não te podes remover a ti próprio.');
-  // Note: this only removes Firestore records. To delete the actual Auth user
-  // requires the Firebase Admin SDK (server side). We leave them as "inactive".
   await Promise.all([
     deleteDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', uid)),
     deleteDoc(doc(Cloud.db, 'users', uid))
   ]);
 };
 
-// ---------- boot ----------
-// Don't auto-boot here — index.html calls Cloud.boot() after DOM ready
-// to give the auth overlay time to render.
+// Don't auto-boot here — index.html calls Cloud.boot() after DOM ready.
