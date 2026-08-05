@@ -262,6 +262,10 @@
   .pdf-foot-clean .col.center { text-align: center; }
   .pdf-foot-clean .col.right { text-align: right; }
   .pdf-foot-clean .empresa-name { font-weight: 600; color: #444; letter-spacing: 0.8px; text-transform: uppercase; font-size: 9.5px; }
+  .pdf-social { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .pdf-social-item { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+  .pdf-social-item svg { flex-shrink: 0; }
+  .pdf-social-item span { color: #555; }
 
   /* Override the dark old PDF styles so the new ones win */
   .pdf-doc.pdf-clean { background: #fff; }
@@ -723,6 +727,9 @@
             <div class="field"><label>Telefone</label><input type="tel" id="empTel" /></div>
             <div class="field"><label>Email</label><input type="email" id="empEmail" /></div>
             <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="empMorada" /></div>
+            <div class="field"><label>Instagram</label><input type="text" id="empInsta" placeholder="@utilizador" /></div>
+            <div class="field"><label>Facebook</label><input type="text" id="empFacebook" placeholder="facebook.com/pagina" /></div>
+            <div class="field" style="grid-column: 1 / -1;"><label>Website</label><input type="text" id="empSite" placeholder="www.exemplo.com" /></div>
           </div>
         </div>
 
@@ -931,7 +938,7 @@ const DEFAULT_TECIDOS = [
   { id: 't_vl', codigo: 'TEC-VL', nome: 'Veludo', preco: 52, cores: 'Verde, Bordeaux, Mostarda, Azul' }
 ];
 const DEFAULT_CONFIG = {
-  empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com', morada: 'Porto, Portugal' },
+  empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com', morada: 'Porto, Portugal', insta: '@legadodecor.pt', facebook: '', site: 'www.legadodecor.com' },
   svcMedicao: 30,
   svcInstalacao: 60,
   defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
@@ -1492,6 +1499,9 @@ function renderConfigForm() {
   $('#empTel').value = config.empresa.tel || '';
   $('#empEmail').value = config.empresa.email || '';
   $('#empMorada').value = config.empresa.morada || '';
+  $('#empInsta').value = config.empresa.insta || '';
+  $('#empFacebook').value = config.empresa.facebook || '';
+  $('#empSite').value = config.empresa.site || '';
   $('#svcMedicao').value = config.svcMedicao;
   $('#svcInstalacao').value = config.svcInstalacao;
   $('#defNotas').value = config.defNotas;
@@ -1507,7 +1517,8 @@ function renderConfigForm() {
 $('#btnSaveConfig').addEventListener('click', () => {
   config.empresa = {
     nome: $('#empNome').value, nif: $('#empNif').value, tel: $('#empTel').value,
-    email: $('#empEmail').value, morada: $('#empMorada').value
+    email: $('#empEmail').value, morada: $('#empMorada').value,
+    insta: $('#empInsta').value, facebook: $('#empFacebook').value, site: $('#empSite').value
   };
   config.svcMedicao = parseFloat($('#svcMedicao').value)||0;
   config.svcInstalacao = parseFloat($('#svcInstalacao').value)||0;
@@ -1608,8 +1619,6 @@ function pdfHTML(o) {
   const vendedor = (window.Cloud && Cloud.user && Cloud.user.name) ? Cloud.user.name
     : (Cloud.user && Cloud.user.email) ? Cloud.user.email.split('@')[0] : '—';
 
-  const empSite = (emp.email||'').includes('@') ? 'www.' + emp.email.split('@')[1] : 'www.legadodecor.com';
-
   return `
     <div class="pdf-doc pdf-clean">
       <div class="pdf-clean-body">
@@ -1680,9 +1689,19 @@ function pdfHTML(o) {
             ${emp.tel?`<div>${esc(emp.tel)}</div>`:''}
             ${emp.email?`<div>${esc(emp.email)}</div>`:''}
           </div>
-          <div class="col right">
-            <div>${esc(empSite)}</div>
-            <div>Obrigado pela preferência.</div>
+          <div class="col right pdf-social">
+            ${emp.insta?`<div class="pdf-social-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B5B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>${esc(emp.insta)}</span>
+            </div>`:''}
+            ${emp.facebook?`<div class="pdf-social-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B5B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              <span>${esc(emp.facebook)}</span>
+            </div>`:''}
+            ${emp.site?`<div class="pdf-social-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B5B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>${esc(emp.site)}</span>
+            </div>`:''}
           </div>
         </div>
       </div>
@@ -1937,7 +1956,7 @@ function applyRoleUI() {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
