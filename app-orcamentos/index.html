@@ -1605,7 +1605,8 @@ function pdfHTML(o) {
 
   const cli = o.cliente;
   const emp = config.empresa;
-  const vendedor = (window.Cloud && Cloud.user && Cloud.user.email) ? (Cloud.user.email.split('@')[0]) : '—';
+  const vendedor = (window.Cloud && Cloud.user && Cloud.user.name) ? Cloud.user.name
+    : (Cloud.user && Cloud.user.email) ? Cloud.user.email.split('@')[0] : '—';
 
   const empSite = (emp.email||'').includes('@') ? 'www.' + emp.email.split('@')[1] : 'www.legadodecor.com';
 
@@ -1618,7 +1619,7 @@ function pdfHTML(o) {
             <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" style="width:140px;height:auto;display:block;margin:0 auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" style="width:140px;height:auto;display:block;margin:0 auto;">
               <g transform="translate(80,30)">
                 <g fill="#B8973A">
                   <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(0)"/>
@@ -1631,8 +1632,8 @@ function pdfHTML(o) {
                 </g>
                 <circle cx="0" cy="0" r="5.2" fill="#B8973A"/>
               </g>
-              <text x="80" y="68" font-family="'Playfair Display',Georgia,serif" font-size="13" font-weight="700" letter-spacing="2.5" fill="#1B5B4A" text-anchor="middle">${esc(emp.nome||'LEGADO DECOR')}</text>
-              <text x="80" y="82" font-family="'DM Sans',Arial,sans-serif" font-size="6" letter-spacing="2" fill="#5A6E68" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
+              <text x="80" y="76" font-family="'Playfair Display',Georgia,serif" font-size="13" font-weight="700" letter-spacing="2.5" fill="#1B5B4A" text-anchor="middle">${esc(emp.nome||'LEGADO DECOR')}</text>
+              <text x="80" y="92" font-family="'DM Sans',Arial,sans-serif" font-size="6" letter-spacing="2" fill="#5A6E68" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
             </svg>
           </div>
           <div class="pdf-col-r">
@@ -1641,12 +1642,9 @@ function pdfHTML(o) {
           </div>
         </div>
 
-        ${(cli.empresa || cli.tel || cli.email || cli.morada || cli.nif) ? `
+        ${(cli.empresa || cli.nif) ? `
         <div class="pdf-cli-extra">
           ${cli.empresa?`<span>${esc(cli.empresa)}</span>`:''}
-          ${cli.tel?`<span>Tel: ${esc(cli.tel)}</span>`:''}
-          ${cli.email?`<span>${esc(cli.email)}</span>`:''}
-          ${cli.morada?`<span>${esc(cli.morada)}</span>`:''}
           ${cli.nif?`<span>NIF: ${esc(cli.nif)}</span>`:''}
         </div>` : ''}
 
