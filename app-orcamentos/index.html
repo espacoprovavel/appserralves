@@ -59,6 +59,9 @@
 
   .main { padding: 28px 36px 36px; max-width: 100%; min-width: 0; overflow-x: hidden; }
   .container { max-width: 1100px; margin: 0 auto; min-width: 0; }
+  .container.full-width { max-width: 100%; }
+  .cfg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .cfg-row > .card { margin-bottom: 0; }
   .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
   .page-head .crumbs { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px; }
   .page-head h2 { font-size: 26px; }
@@ -290,6 +293,7 @@
     .card-head { flex-wrap: wrap; gap: 8px; }
     .card-head input[type=search] { width: 100% !important; max-width: 100% !important; }
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .cfg-row { grid-template-columns: 1fr; }
     /* Item card: código+produto na mesma linha, tecido por baixo */
     .item-grid-a { grid-template-columns: 90px 1fr; }
     .item-grid-a > :nth-child(3) { grid-column: 1 / -1; }
@@ -424,15 +428,15 @@
 
     <div id="authForm-login">
       <div class="field"><label>Email</label><input type="email" id="loginEmail" autocomplete="username" /></div>
-      <div class="field"><label>Palavra-passe</label><div class="pw-wrap"><input type="password" id="loginPwd" autocomplete="current-password" /><button type="button" class="pw-eye" onclick="togglePw('loginPwd',this)" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="field"><label>Palavra-passe</label><div class="pw-wrap"><input type="password" id="loginPwd" autocomplete="current-password" /><button type="button" class="pw-eye" onclick="togglePw('loginPwd',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <div class="auth-actions"><button class="btn btn-full" id="btnAuthLogin">Entrar</button></div>
     </div>
 
     <div id="authForm-signup" style="display:none;">
       <div class="field"><label>Nome / Como quer ser chamado</label><input type="text" id="signupName" autocomplete="name" placeholder="Ex: Maria, João..." /></div>
       <div class="field"><label>Email</label><input type="email" id="signupEmail" autocomplete="username" /></div>
-      <div class="field"><label>Palavra-passe (mín. 8)</label><div class="pw-wrap"><input type="password" id="signupPwd" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('signupPwd',this)" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
-      <div class="field"><label>Confirmar palavra-passe</label><div class="pw-wrap"><input type="password" id="signupPwd2" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('signupPwd2',this)" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="field"><label>Palavra-passe (mín. 8)</label><div class="pw-wrap"><input type="password" id="signupPwd" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('signupPwd',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="field"><label>Confirmar palavra-passe</label><div class="pw-wrap"><input type="password" id="signupPwd2" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('signupPwd2',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <div class="auth-actions"><button class="btn btn-full" id="btnAuthSignup">Criar conta</button></div>
       <div class="auth-foot">A primeira conta criada torna-se Administrador Master. Contas seguintes têm de ser criadas pelo administrador na aba Equipa.</div>
     </div>
@@ -718,67 +722,71 @@
           <div><div class="crumbs">Sistema</div><h2>Configurações</h2></div>
         </div>
 
-        <div class="card">
-          <h3>Dados da Empresa</h3>
-          <p class="muted small">Aparecem no cabeçalho do PDF e no rodapé.</p>
-          <div class="grid grid-2 mt-12">
-            <div class="field"><label>Nome</label><input type="text" id="empNome" /></div>
-            <div class="field"><label>NIF</label><input type="text" id="empNif" /></div>
-            <div class="field"><label>Telefone</label><input type="tel" id="empTel" /></div>
-            <div class="field"><label>Email</label><input type="email" id="empEmail" /></div>
-            <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="empMorada" /></div>
-            <div class="field"><label>Instagram</label><input type="text" id="empInsta" placeholder="@utilizador" /></div>
-            <div class="field"><label>Facebook</label><input type="text" id="empFacebook" placeholder="facebook.com/pagina" /></div>
-            <div class="field" style="grid-column: 1 / -1;"><label>Website</label><input type="text" id="empSite" placeholder="www.exemplo.com" /></div>
+        <div class="cfg-row">
+          <div class="card">
+            <h3>Dados da Empresa</h3>
+            <p class="muted small">Aparecem no cabeçalho do PDF e no rodapé.</p>
+            <div class="grid grid-2 mt-12">
+              <div class="field"><label>Nome</label><input type="text" id="empNome" /></div>
+              <div class="field"><label>NIF</label><input type="text" id="empNif" /></div>
+              <div class="field"><label>Telefone</label><input type="tel" id="empTel" /></div>
+              <div class="field"><label>Email</label><input type="email" id="empEmail" /></div>
+              <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="empMorada" /></div>
+              <div class="field"><label>Instagram</label><input type="text" id="empInsta" placeholder="@utilizador" /></div>
+              <div class="field"><label>Facebook</label><input type="text" id="empFacebook" placeholder="facebook.com/pagina" /></div>
+              <div class="field" style="grid-column: 1 / -1;"><label>Website</label><input type="text" id="empSite" placeholder="www.exemplo.com" /></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Serviços</h3>
+            <div class="grid grid-2">
+              <div class="field"><label>Medição profissional (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
+              <div class="field"><label>Instalação por janela (€)</label><input type="number" id="svcInstalacao" step="0.01" /></div>
+            </div>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Serviços</h3>
-          <div class="grid grid-2">
-            <div class="field"><label>Medição profissional (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
-            <div class="field"><label>Instalação por janela (€)</label><input type="number" id="svcInstalacao" step="0.01" /></div>
+        <div class="cfg-row">
+          <div class="card">
+            <h3>Cálculo de Cortinas</h3>
+            <p class="muted small">Como o preço sugerido é calculado quando escolhes um tecido. Fórmula: <strong>(largura × coef) × (altura + acabamento) × (€/m² tecido + €/m² confecção) = preço cortina pronta</strong>.</p>
+            <div class="grid grid-2 mt-12">
+              <div class="field"><label>Acabamento em altura (cm)</label><input type="number" id="cfgAcabamento" step="1" min="0" /><div class="muted small" style="margin-top:4px;">Padrão 30 cm = 15 ourela sup. + 15 ourela inf.</div></div>
+              <div class="field"><label>Confecção / mão-de-obra (€/m²)</label><input type="number" id="cfgConfeccao" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somado ao €/m² do tecido (vendemos cortina pronta).</div></div>
+            </div>
+            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Coeficientes (largura de tecido por metro de janela)</h4>
+            <div class="grid grid-2">
+              <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.1" min="1" /></div>
+              <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.1" min="1" /></div>
+              <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.1" min="1" /></div>
+              <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.1" min="1" /></div>
+            </div>
           </div>
-        </div>
 
-        <div class="card">
-          <h3>Cálculo de Cortinas</h3>
-          <p class="muted small">Como o preço sugerido é calculado quando escolhes um tecido. Fórmula: <strong>(largura × coef) × (altura + acabamento) × (€/m² tecido + €/m² confecção) = preço cortina pronta</strong>.</p>
-          <div class="grid grid-2 mt-12">
-            <div class="field"><label>Acabamento em altura (cm)</label><input type="number" id="cfgAcabamento" step="1" min="0" /><div class="muted small" style="margin-top:4px;">Padrão 30 cm = 15 ourela sup. + 15 ourela inf.</div></div>
-            <div class="field"><label>Confecção / mão-de-obra (€/m²)</label><input type="number" id="cfgConfeccao" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somado ao €/m² do tecido (vendemos cortina pronta).</div></div>
-          </div>
-          <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Coeficientes (largura de tecido por metro de janela)</h4>
-          <div class="grid grid-2">
-            <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.1" min="1" /></div>
-            <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.1" min="1" /></div>
-            <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.1" min="1" /></div>
-            <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.1" min="1" /></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Condições Padrão</h3>
-          <div class="field"><label>Notas (default)</label><textarea id="defNotas" rows="3"></textarea></div>
-          <div class="grid grid-2">
-            <div class="field"><label>Validade default (dias)</label><input type="number" id="defValidade" /></div>
-            <div class="field"><label>Formato de impressão</label>
-              <select id="printFormat">
-                <option value="a4">A4 Normal</option>
-                <option value="receipt">Recibo 80mm</option>
-              </select>
+          <div class="card">
+            <h3>Condições Padrão</h3>
+            <div class="field"><label>Notas (predefinição)</label><textarea id="defNotas" rows="3"></textarea></div>
+            <div class="grid grid-2">
+              <div class="field"><label>Validade (dias)</label><input type="number" id="defValidade" /></div>
+              <div class="field"><label>Formato de impressão</label>
+                <select id="printFormat">
+                  <option value="a4">A4 Normal</option>
+                  <option value="receipt">Recibo 80mm</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <h3>Dados / Backup</h3>
+          <h3>Dados / Cópia de segurança</h3>
           <p class="muted small">Tudo é guardado localmente neste dispositivo. Exporta para criares uma cópia de segurança.</p>
           <div class="btn-row mt-12">
             <button class="btn" id="btnSaveConfig">Guardar Configurações</button>
             <button class="btn btn-outline" id="btnExport">Exportar dados (JSON)</button>
             <button class="btn btn-outline" id="btnImport">Importar dados</button>
-            <button class="btn btn-danger" id="btnResetConfig">Repor defaults</button>
+            <button class="btn btn-danger" id="btnResetConfig">Repor predefinições</button>
           </div>
           <input type="file" id="fileImport" accept="application/json" style="display:none;" />
         </div>
@@ -1012,6 +1020,7 @@ function showTab(tab) {
   $$('.section').forEach(s => s.classList.remove('active'));
   const sec = $('#sec-' + tab); if (sec) sec.classList.add('active');
   $$('.sidebar nav button, .mobile-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $('.container')?.classList.toggle('full-width', tab === 'config');
   if (tab === 'historico') renderHistorico();
   if (tab === 'produtos') renderProdutos();
   if (tab === 'config') renderConfigForm();
