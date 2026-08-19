@@ -399,7 +399,9 @@ Cloud.inviteMember = async function (email, password, role, name) {
           const cred = await signInWithEmailAndPassword(secAuth, email, password);
           newUid = cred.user.uid;
         } catch {
-          throw new Error('Este email já tem conta Firebase. Indica a palavra-passe atual desse utilizador para o re-adicionar à equipa, ou usa outro email.');
+          const e = new Error('Este email já tem uma conta de login. Para o readicionar, escreve a palavra-passe atual dessa pessoa — ou usa o botão "Enviar link de recuperação" para ela definir uma nova.');
+          e.code = 'member-exists';
+          throw e;
         }
       } else { throw err; }
     }
@@ -443,6 +445,13 @@ Cloud.removeMember = async function (uid) {
     deleteDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', uid)),
     deleteDoc(doc(Cloud.db, 'users', uid))
   ]);
+};
+
+// Envia email de recuperação de palavra-passe (não afeta a sessão do admin).
+Cloud.sendReset = async function (email) {
+  const e = (email || '').trim();
+  if (!e) throw new Error('Indica o email.');
+  await sendPasswordResetEmail(Cloud.auth, e);
 };
 
 // Don't auto-boot here — index.html calls Cloud.boot() after DOM ready.

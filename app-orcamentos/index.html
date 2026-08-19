@@ -874,7 +874,17 @@
               </select>
             </div>
           </div>
-          <button class="btn mt-12" id="btnInviteMember">Criar conta</button>
+          <div class="btn-row mt-12">
+            <button class="btn" id="btnInviteMember">Criar conta</button>
+            <button class="btn btn-outline" id="btnResetMember">Enviar link de recuperação</button>
+          </div>
+          <p class="muted small mt-12" style="line-height:1.6;">
+            <strong>Já foi funcionário e foi removido?</strong> A conta de login dele continua a existir.
+            Para o readicionar, escreve a <strong>palavra-passe atual</strong> dele em cima e carrega em <em>Criar conta</em>.
+            Se ninguém souber a palavra-passe, escreve o email dele e carrega em
+            <em>Enviar link de recuperação</em>: ele define uma nova, diz-te qual é, e depois adicionas com essa.
+          </p>
+          <p class="muted small">Dica: para afastar alguém temporariamente, usa <strong>Desativar</strong> (na lista abaixo) em vez de Remover — assim reativas com um clique, sem complicações.</p>
         </div>
 
         <div class="card">
@@ -1981,7 +1991,7 @@ async function renderEquipa() {
       } catch (err) { toast(err.message || 'Erro', true); }
     }));
     $$('#membersBody [data-rm]').forEach(b => b.addEventListener('click', async () => {
-      if (!confirm('Remover este utilizador? Não vai conseguir entrar mais. (A conta de login fica no Firebase mas sem acesso.)')) return;
+      if (!confirm('Remover este utilizador?\n\nAtenção: a conta de LOGIN dele continua a existir no Firebase. Se um dia quiseres readicioná-lo, vais precisar da palavra-passe dele ou de enviar um link de recuperação.\n\nSe é só uma saída temporária, cancela e usa antes "Desativar".')) return;
       try { await Cloud.removeMember(b.dataset.rm); toast('Removido'); renderEquipa(); }
       catch (err) { toast(err.message || 'Erro', true); }
     }));
@@ -2009,8 +2019,23 @@ if (btnInvite) btnInvite.addEventListener('click', async () => {
     toast('Conta criada. Comunica ao colega as credenciais.');
     renderEquipa();
   } catch (err) {
-    toast(err.message || 'Erro ao criar conta', true);
+    if (err.code === 'member-exists') { toast(err.message, true); $('#newMemberPwd').focus(); }
+    else toast(err.message || 'Erro ao criar conta', true);
   } finally { btnInvite.disabled = false; }
+});
+
+const btnResetMember = $('#btnResetMember');
+if (btnResetMember) btnResetMember.addEventListener('click', async () => {
+  if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const email = ($('#newMemberEmail').value||'').trim();
+  if (!email) return toast('Escreve o email do funcionário no campo Email', true);
+  btnResetMember.disabled = true;
+  try {
+    await Cloud.sendReset(email);
+    toast('Link de recuperação enviado para ' + email + '. Peça-lhe a nova palavra-passe e depois adicione com ela.');
+  } catch (err) {
+    toast(err.code === 'auth/invalid-email' ? 'Email inválido' : (err.message||'Erro ao enviar'), true);
+  } finally { btnResetMember.disabled = false; }
 });
 
 const btnChangePwd = $('#btnChangePwd');
