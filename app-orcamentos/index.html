@@ -365,15 +365,15 @@
   @media print {
     @page { size: A4; margin: 14mm 16mm; }
     body { background: var(--white); }
-    .sidebar, .mobile-nav, .mobile-header, .toast, .no-print, .btn, .btn-row, .page-head { display: none !important; }
-    .layout { display: block; }
-    .main { padding: 0; }
-    .container { max-width: none; }
+    .sidebar, .mobile-nav, .mobile-header, .toast, .no-print, .btn, .btn-row, .page-head, #pdfArea { display: none !important; }
+    .layout { display: block !important; grid-template-columns: none !important; }
+    .main { padding: 0 !important; overflow: visible !important; }
+    .container { max-width: none !important; margin: 0 !important; }
     .section:not(.active) { display: none !important; }
     .section.active .card { border: 0; padding: 0; margin: 0; box-shadow: none; }
     .section.active > *:not(#printPreviewCard) { display: none !important; }
-    #printPreviewCard { display: block !important; }
-    #printPreviewCard .pdf-doc { width: 100% !important; }
+    #printPreviewCard { display: block !important; overflow: visible !important; }
+    #printPreviewCard .pdf-doc { width: 100% !important; max-width: 100% !important; min-height: 0 !important; padding: 0 !important; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
   @media print and (max-width: 80mm) {
