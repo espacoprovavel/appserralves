@@ -11,7 +11,8 @@ import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13
 import {
   getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  sendPasswordResetEmail, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential
+  sendPasswordResetEmail, signOut, updatePassword, updateEmail, verifyBeforeUpdateEmail,
+  EmailAuthProvider, reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
@@ -331,6 +332,50 @@ Cloud.changePassword = async function (currentPwd, newPwd) {
   const cred = EmailAuthProvider.credential(user.email, currentPwd);
   await reauthenticateWithCredential(user, cred);
   await updatePassword(user, newPwd);
+};
+
+// Alterar o próprio nome (apenas Firestore). Requer owner/master pelas regras.
+Cloud.updateMyName = async function (newName) {
+  const name = (newName || '').trim();
+  if (!name) throw new Error('Indica um nome.');
+  if (!Cloud.user) throw new Error('Sem sessão.');
+  await Promise.all([
+    updateDoc(doc(Cloud.db, 'users', Cloud.user.uid), { name }),
+    updateDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', Cloud.user.uid), { name })
+  ]);
+  Cloud.user.name = name;
+  const badge = document.getElementById('userBadge');
+  if (badge) badge.textContent = name;
+  return name;
+};
+
+// Alterar o próprio email de acesso. Reautentica com a palavra-passe atual.
+// Se o projeto exigir verificação, envia link para o novo email (verify-sent).
+Cloud.updateMyEmail = async function (currentPwd, newEmail) {
+  const email = (newEmail || '').trim();
+  const user = Cloud.auth.currentUser;
+  if (!user) throw new Error('Sem sessão.');
+  if (!email) throw new Error('Indica o novo email.');
+  const cred = EmailAuthProvider.credential(user.email, currentPwd);
+  await reauthenticateWithCredential(user, cred);
+  try {
+    await updateEmail(user, email);
+  } catch (e) {
+    if (e && e.code === 'auth/operation-not-allowed') {
+      // Proteção contra enumeração de email ativa → tem de verificar primeiro
+      await verifyBeforeUpdateEmail(user, email);
+      const err = new Error('Enviámos um link de confirmação para ' + email + '. Abre esse email e confirma para concluir a alteração.');
+      err.code = 'verify-sent';
+      throw err;
+    }
+    throw e;
+  }
+  await Promise.all([
+    updateDoc(doc(Cloud.db, 'users', Cloud.user.uid), { email }),
+    updateDoc(doc(Cloud.db, 'tenants', Cloud.tenantId, 'members', Cloud.user.uid), { email })
+  ]);
+  Cloud.user.email = email;
+  return email;
 };
 
 // ---------- MEMBERS ----------

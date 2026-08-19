@@ -737,6 +737,38 @@
           <div><div class="crumbs">Sistema</div><h2>Configurações</h2></div>
         </div>
 
+        <div class="card" id="cardMinhaConta">
+          <h3>A Minha Conta</h3>
+          <p class="muted small">Os teus próprios dados de acesso. Qualquer utilizador pode alterar aqui.</p>
+          <div class="sub-head" style="margin-top:12px;border-top:0;padding-top:0;">Dados de acesso</div>
+          <div class="grid grid-2">
+            <div class="field"><label>Nome</label><input type="text" id="myName" placeholder="O teu nome" /></div>
+            <div class="field"><label>Email de acesso</label><input type="email" id="myEmail" autocomplete="username" /></div>
+          </div>
+          <div class="field" style="max-width:420px;">
+            <label>Palavra-passe atual <span class="muted">(confirma alterações)</span></label>
+            <div class="pw-wrap">
+              <input type="password" id="myCurrentPwd" autocomplete="current-password" placeholder="Necessária para mudar email ou palavra-passe" />
+              <button type="button" class="pw-eye" onclick="togglePw('myCurrentPwd',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-sm" id="btnSaveName">Guardar nome</button>
+            <button class="btn btn-outline btn-sm" id="btnChangeEmail">Alterar email</button>
+          </div>
+
+          <div class="sub-head">Nova palavra-passe</div>
+          <div class="grid grid-2" style="max-width:560px;">
+            <div class="field"><label>Nova (mín. 8)</label>
+              <div class="pw-wrap"><input type="password" id="pwdNew" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('pwdNew',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+            </div>
+            <div class="field"><label>Confirmar nova</label>
+              <div class="pw-wrap"><input type="password" id="pwdNew2" autocomplete="new-password" /><button type="button" class="pw-eye" onclick="togglePw('pwdNew2',this)" aria-label="Mostrar palavra-passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+            </div>
+          </div>
+          <button class="btn btn-sm mt-12" id="btnChangePwd">Alterar palavra-passe</button>
+        </div>
+
         <div class="cfg-row">
           <div class="card">
             <h3>Dados da Empresa</h3>
@@ -856,15 +888,7 @@
           </div>
         </div>
 
-        <div class="card">
-          <h3>Mudar a minha palavra-passe</h3>
-          <div class="grid grid-3">
-            <div class="field"><label>Actual</label><input type="password" id="pwdCurrent" autocomplete="current-password" /></div>
-            <div class="field"><label>Nova (mín. 8)</label><input type="password" id="pwdNew" autocomplete="new-password" /></div>
-            <div class="field"><label>Confirmar nova</label><input type="password" id="pwdNew2" autocomplete="new-password" /></div>
-          </div>
-          <button class="btn mt-12" id="btnChangePwd">Alterar palavra-passe</button>
-        </div>
+        <p class="muted small">Para alterares o <strong>teu</strong> nome, email ou palavra-passe, vai a <strong>Configurações → A Minha Conta</strong>.</p>
       </section>
 
       <!-- ============ REGISTO DE ATIVIDADE (só master) ============ -->
@@ -1580,6 +1604,13 @@ function renderConfigForm() {
   $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.0;
   $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.5;
   $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 1.5;
+  // A Minha Conta — só faz sentido com Firebase ativo e sessão iniciada
+  const conta = $('#cardMinhaConta');
+  if (conta) {
+    const on = !!(window.Cloud && Cloud.ready && Cloud.user);
+    conta.style.display = on ? '' : 'none';
+    if (on) { $('#myName').value = Cloud.user.name || ''; $('#myEmail').value = Cloud.user.email || ''; }
+  }
 }
 $('#empCp')?.addEventListener('input', (e) => { e.target.value = fmtCP(e.target.value); });
 $('#btnSaveConfig').addEventListener('click', () => {
@@ -1903,8 +1934,6 @@ async function renderEquipa() {
     $('#membersBody').innerHTML = '<tr><td colspan="5" class="center muted">Só administradores podem gerir a equipa.</td></tr>';
     return;
   }
-  // Mostrar opção master só se o utilizador atual é master
-  const masterOpt = Cloud.isMaster() ? `<option value="master" ${'{'}m.role==='master'?'selected':''{'}'}>Adm. Master</option>` : '';
   try {
     const members = await Cloud.listMembers();
     members.sort((a, b) => (a.email||'').localeCompare(b.email||''));
@@ -1987,18 +2016,57 @@ if (btnInvite) btnInvite.addEventListener('click', async () => {
 const btnChangePwd = $('#btnChangePwd');
 if (btnChangePwd) btnChangePwd.addEventListener('click', async () => {
   if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
-  const cur = $('#pwdCurrent').value, nw = $('#pwdNew').value, nw2 = $('#pwdNew2').value;
-  if (!cur || !nw) return toast('Preenche todos os campos', true);
+  const cur = $('#myCurrentPwd').value, nw = $('#pwdNew').value, nw2 = $('#pwdNew2').value;
+  if (!cur || !nw) return toast('Preenche a palavra-passe atual e a nova', true);
   if (nw.length < 8) return toast('Nova palavra-passe demasiado curta', true);
   if (nw !== nw2) return toast('Confirmação não coincide', true);
   btnChangePwd.disabled = true;
   try {
     await Cloud.changePassword(cur, nw);
-    $('#pwdCurrent').value=''; $('#pwdNew').value=''; $('#pwdNew2').value='';
+    $('#myCurrentPwd').value=''; $('#pwdNew').value=''; $('#pwdNew2').value='';
     toast('Palavra-passe alterada');
   } catch (err) {
-    toast(err.code === 'auth/invalid-credential' ? 'Palavra-passe actual incorrecta' : (err.message||'Erro'), true);
+    toast(err.code === 'auth/invalid-credential' ? 'Palavra-passe atual incorrecta' : (err.message||'Erro'), true);
   } finally { btnChangePwd.disabled = false; }
+});
+
+const btnSaveName = $('#btnSaveName');
+if (btnSaveName) btnSaveName.addEventListener('click', async () => {
+  if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const name = ($('#myName').value||'').trim();
+  if (!name) return toast('Indica o teu nome', true);
+  btnSaveName.disabled = true;
+  try {
+    await Cloud.updateMyName(name);
+    Cloud.logAction('conta_nome_alterado', name);
+    toast('Nome actualizado');
+  } catch (err) {
+    toast(err.code === 'permission-denied' ? 'Sem permissão para alterar o nome. Pede a um administrador.' : (err.message||'Erro'), true);
+  } finally { btnSaveName.disabled = false; }
+});
+
+const btnChangeEmail = $('#btnChangeEmail');
+if (btnChangeEmail) btnChangeEmail.addEventListener('click', async () => {
+  if (!window.Cloud || !Cloud.ready) return toast('Sincronização desactivada', true);
+  const email = ($('#myEmail').value||'').trim();
+  const cur = $('#myCurrentPwd').value;
+  if (!email) return toast('Indica o novo email', true);
+  if (!cur) return toast('Escreve a palavra-passe atual para confirmar', true);
+  if (email === (Cloud.user && Cloud.user.email)) return toast('Esse já é o teu email atual', true);
+  btnChangeEmail.disabled = true;
+  try {
+    await Cloud.updateMyEmail(cur, email);
+    Cloud.logAction('conta_email_alterado', email);
+    $('#myCurrentPwd').value='';
+    toast('Email actualizado');
+  } catch (err) {
+    if (err.code === 'verify-sent') { $('#myCurrentPwd').value=''; toast(err.message); }
+    else if (err.code === 'auth/invalid-credential') toast('Palavra-passe atual incorrecta', true);
+    else if (err.code === 'auth/email-already-in-use') toast('Esse email já está a ser usado noutra conta', true);
+    else if (err.code === 'auth/invalid-email') toast('Email inválido', true);
+    else if (err.code === 'permission-denied') toast('Email de login alterado, mas sem permissão para atualizar o perfil. Contacta um administrador.', true);
+    else toast(err.message||'Erro', true);
+  } finally { btnChangeEmail.disabled = false; }
 });
 
 // Logout buttons (visible only when cloud enabled & signed in)
