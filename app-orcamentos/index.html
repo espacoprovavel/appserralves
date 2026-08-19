@@ -176,6 +176,7 @@
   .mb-0 { margin-bottom: 0; }
   .mb-12 { margin-bottom: 12px; }
   .mt-12 { margin-top: 12px; }
+  .sub-head { margin: 20px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
   .mt-16 { margin-top: 16px; }
   .pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: var(--soft); color: var(--muted); }
   .net-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; }
@@ -557,19 +558,33 @@
           <div class="field">
             <label>Pesquisar cliente existente</label>
             <div class="autocomplete">
-              <input type="search" id="cliSearch" placeholder="Procurar por nome, telefone, email ou empresa..." autocomplete="off" />
+              <input type="search" id="cliSearch" placeholder="Procurar por nome, telefone, email, NIF ou morada..." autocomplete="off" />
               <div class="autocomplete-list" id="cliList"></div>
             </div>
           </div>
           <div class="grid grid-2">
             <div class="field"><label>Nome *</label><input type="text" id="cliNome" placeholder="Nome do cliente" /></div>
             <div class="field"><label>Empresa</label><input type="text" id="cliEmpresa" placeholder="Empresa (se aplicável)" /></div>
-            <div class="field"><label>Telefone</label><input type="tel" id="cliTel" placeholder="+351 9XX XXX XXX" /></div>
+            <div class="field"><label>Telefone</label><input type="tel" id="cliTel" placeholder="+351 2XX XXX XXX" /></div>
+            <div class="field"><label>Telemóvel</label><input type="tel" id="cliTelemovel" placeholder="+351 9XX XXX XXX" /></div>
             <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="email@exemplo.pt" /></div>
             <div class="field"><label>NIF pessoal</label><input type="text" id="cliNif" placeholder="123 456 789" /></div>
             <div class="field"><label>NIF empresa</label><input type="text" id="cliNifEmpresa" placeholder="500 000 000" /></div>
-            <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="cliMorada" placeholder="Rua, número, código postal, localidade" /></div>
           </div>
+
+          <div class="sub-head">Morada</div>
+          <div class="grid grid-2">
+            <div class="field" style="grid-column: 1 / -1;"><label>Rua e número</label><input type="text" id="cliMorada" placeholder="Rua das Flores, 123" /></div>
+            <div class="field"><label>Andar / Fração</label><input type="text" id="cliAndar" placeholder="3.º Esq." /></div>
+            <div class="field"><label>Código postal</label><input type="text" id="cliCp" placeholder="4000-123" inputmode="numeric" maxlength="8" /></div>
+            <div class="field"><label>Localidade</label><input type="text" id="cliLocalidade" placeholder="Porto" /></div>
+            <div class="field"><label>Concelho</label><input type="text" id="cliConcelho" placeholder="Porto" /></div>
+            <div class="field"><label>Distrito</label><input type="text" id="cliDistrito" placeholder="Porto" /></div>
+            <div class="field"><label>País</label><input type="text" id="cliPais" placeholder="Portugal" /></div>
+          </div>
+
+          <div class="sub-head">Notas internas</div>
+          <div class="field"><label>Observações sobre o cliente</label><textarea id="cliObs" rows="2" placeholder="Acessos, horários de visita, preferências..."></textarea><div class="muted small" style="margin-top:4px;">Uso interno — não aparece no orçamento.</div></div>
         </div>
 
         <!-- Itens -->
@@ -731,7 +746,21 @@
               <div class="field"><label>NIF</label><input type="text" id="empNif" /></div>
               <div class="field"><label>Telefone</label><input type="tel" id="empTel" /></div>
               <div class="field"><label>Email</label><input type="email" id="empEmail" /></div>
-              <div class="field" style="grid-column: 1 / -1;"><label>Morada</label><input type="text" id="empMorada" /></div>
+            </div>
+
+            <div class="sub-head">Morada</div>
+            <div class="grid grid-2">
+              <div class="field" style="grid-column: 1 / -1;"><label>Rua e número</label><input type="text" id="empMorada" placeholder="Rua das Flores, 123" /></div>
+              <div class="field"><label>Andar / Fração</label><input type="text" id="empAndar" placeholder="Loja A" /></div>
+              <div class="field"><label>Código postal</label><input type="text" id="empCp" placeholder="4000-123" inputmode="numeric" maxlength="8" /></div>
+              <div class="field"><label>Localidade</label><input type="text" id="empLocalidade" placeholder="Porto" /></div>
+              <div class="field"><label>Concelho</label><input type="text" id="empConcelho" placeholder="Porto" /></div>
+              <div class="field"><label>Distrito</label><input type="text" id="empDistrito" placeholder="Porto" /></div>
+              <div class="field"><label>País</label><input type="text" id="empPais" placeholder="Portugal" /></div>
+            </div>
+
+            <div class="sub-head">Redes sociais e website</div>
+            <div class="grid grid-2">
               <div class="field"><label>Instagram</label><input type="text" id="empInsta" placeholder="@utilizador" /></div>
               <div class="field"><label>Facebook</label><input type="text" id="empFacebook" placeholder="facebook.com/pagina" /></div>
               <div class="field" style="grid-column: 1 / -1;"><label>Website</label><input type="text" id="empSite" placeholder="www.exemplo.com" /></div>
@@ -908,6 +937,24 @@ const todayISO = () => new Date().toISOString().slice(0,10);
 const fmtDate = (iso) => { if (!iso) return '--/--/----'; const p=iso.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
 const esc = (s) => String(s==null?'':s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = (s) => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+// Código postal português: 4 dígitos + hífen + 3 dígitos
+const fmtCP = (v) => { const d = String(v||'').replace(/\D/g,'').slice(0,7); return d.length > 4 ? d.slice(0,4)+'-'+d.slice(4) : d; };
+// Monta a morada em linhas a partir dos campos separados.
+// Concelho/distrito só entram quando acrescentam algo à localidade (evita "Porto, Porto, Porto").
+function addrLines(o) {
+  if (!o) return [];
+  const vistos = new Set([norm(o.localidade||'')].filter(Boolean));
+  const regiao = [o.concelho, o.distrito].filter(Boolean).filter(v => {
+    const k = norm(v); if (vistos.has(k)) return false; vistos.add(k); return true;
+  }).join(', ');
+  return [
+    [o.morada, o.andar].filter(Boolean).join(', '),
+    [o.cp, o.localidade].filter(Boolean).join(' '),
+    regiao,
+    o.pais || ''
+  ].filter(Boolean);
+}
+const addrOneLine = (o) => addrLines(o).join(', ');
 
 // ---------- STORAGE ----------
 const K = { cfg: 'sd_config', cli: 'sd_clientes', prod: 'sd_produtos', tec: 'sd_tecidos', hist: 'sd_historico', draft: 'sd_draft', ct: 'sd_contador' };
@@ -946,7 +993,9 @@ const DEFAULT_TECIDOS = [
   { id: 't_vl', codigo: 'TEC-VL', nome: 'Veludo', preco: 52, cores: 'Verde, Bordeaux, Mostarda, Azul' }
 ];
 const DEFAULT_CONFIG = {
-  empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com', morada: 'Porto, Portugal', insta: '@legadodecor.pt', facebook: '', site: 'www.legadodecor.com' },
+  empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com',
+             morada: 'Porto, Portugal', andar: '', cp: '', localidade: '', concelho: '', distrito: '', pais: '',
+             insta: '@legadodecor.pt', facebook: '', site: 'www.legadodecor.com' },
   svcMedicao: 30,
   svcInstalacao: 60,
   defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
@@ -982,7 +1031,8 @@ function newOrc() {
     id: null,
     ref: nextRef(),
     data: todayISO(),
-    cliente: { id: null, nome: '', empresa: '', tel: '', email: '', morada: '', nif: '', nifEmpresa: '' },
+    cliente: { id: null, nome: '', empresa: '', tel: '', telemovel: '', email: '', nif: '', nifEmpresa: '',
+               morada: '', andar: '', cp: '', localidade: '', concelho: '', distrito: '', pais: 'Portugal', obs: '' },
     itens: [newItem()],
     descTipo: 'none',
     descValor: 0,
@@ -1037,11 +1087,14 @@ $$('.sidebar nav button, .mobile-nav button').forEach(b => b.addEventListener('c
 // ============================================================
 function bindClienteForm() {
   const m = [
-    ['#cliNome','nome'],['#cliEmpresa','empresa'],['#cliTel','tel'],['#cliEmail','email'],
-    ['#cliMorada','morada'],['#cliNif','nif'],['#cliNifEmpresa','nifEmpresa']
+    ['#cliNome','nome'],['#cliEmpresa','empresa'],['#cliTel','tel'],['#cliTelemovel','telemovel'],
+    ['#cliEmail','email'],['#cliNif','nif'],['#cliNifEmpresa','nifEmpresa'],
+    ['#cliMorada','morada'],['#cliAndar','andar'],['#cliCp','cp'],['#cliLocalidade','localidade'],
+    ['#cliConcelho','concelho'],['#cliDistrito','distrito'],['#cliPais','pais'],['#cliObs','obs']
   ];
   m.forEach(([sel, key]) => {
     $(sel).addEventListener('input', (e) => {
+      if (key === 'cp') e.target.value = fmtCP(e.target.value);
       orc.cliente[key] = e.target.value;
       orc.cliente.id = null; // editing breaks reference to existing cliente
       updateCliBadge();
@@ -1050,13 +1103,14 @@ function bindClienteForm() {
   });
 }
 function applyClienteToForm() {
-  $('#cliNome').value = orc.cliente.nome || '';
-  $('#cliEmpresa').value = orc.cliente.empresa || '';
-  $('#cliTel').value = orc.cliente.tel || '';
-  $('#cliEmail').value = orc.cliente.email || '';
-  $('#cliMorada').value = orc.cliente.morada || '';
-  $('#cliNif').value = orc.cliente.nif || '';
-  $('#cliNifEmpresa').value = orc.cliente.nifEmpresa || '';
+  const c = orc.cliente;
+  const map = {
+    cliNome: 'nome', cliEmpresa: 'empresa', cliTel: 'tel', cliTelemovel: 'telemovel',
+    cliEmail: 'email', cliNif: 'nif', cliNifEmpresa: 'nifEmpresa',
+    cliMorada: 'morada', cliAndar: 'andar', cliCp: 'cp', cliLocalidade: 'localidade',
+    cliConcelho: 'concelho', cliDistrito: 'distrito', cliPais: 'pais', cliObs: 'obs'
+  };
+  Object.entries(map).forEach(([id, key]) => { const el = $('#'+id); if (el) el.value = c[key] || ''; });
   updateCliBadge();
 }
 function updateCliBadge() {
@@ -1074,7 +1128,7 @@ cliSearch.addEventListener('input', () => {
   const q = norm(cliSearch.value).trim();
   if (q.length < 2) { cliList.classList.remove('show'); return; }
   const matches = clientes.filter(c => {
-    const hay = norm([c.nome,c.empresa,c.tel,c.email].join(' '));
+    const hay = norm([c.nome,c.empresa,c.tel,c.telemovel,c.email,c.nif,c.morada,c.cp,c.localidade].join(' '));
     return hay.includes(q);
   }).slice(0, 8);
   if (!matches.length) {
@@ -1083,7 +1137,7 @@ cliSearch.addEventListener('input', () => {
     cliList.innerHTML = matches.map((c, i) => `
       <div class="ac-item" data-id="${c.id}">
         <div><strong>${esc(c.nome)}</strong>${c.empresa?` <span class="muted">· ${esc(c.empresa)}</span>`:''}</div>
-        <div class="ac-meta">${[c.tel, c.email, c.morada].filter(Boolean).map(esc).join(' · ') || '—'}</div>
+        <div class="ac-meta">${[c.tel || c.telemovel, c.email, addrOneLine(c)].filter(Boolean).map(esc).join(' · ') || '—'}</div>
       </div>`).join('');
   }
   cliList.classList.add('show');
@@ -1092,7 +1146,12 @@ cliSearch.addEventListener('input', () => {
 cliList.addEventListener('click', (e) => {
   const it = e.target.closest('.ac-item'); if (!it) return;
   const c = clientes.find(x => x.id === it.dataset.id); if (!c) return;
-  orc.cliente = { id: c.id, nome: c.nome||'', empresa: c.empresa||'', tel: c.tel||'', email: c.email||'', morada: c.morada||'', nif: c.nif||'', nifEmpresa: c.nifEmpresa||'' };
+  orc.cliente = {
+    id: c.id, nome: c.nome||'', empresa: c.empresa||'', tel: c.tel||'', telemovel: c.telemovel||'',
+    email: c.email||'', nif: c.nif||'', nifEmpresa: c.nifEmpresa||'',
+    morada: c.morada||'', andar: c.andar||'', cp: c.cp||'', localidade: c.localidade||'',
+    concelho: c.concelho||'', distrito: c.distrito||'', pais: c.pais||'Portugal', obs: c.obs||''
+  };
   applyClienteToForm();
   cliList.classList.remove('show'); cliSearch.value = '';
   saveDraft(); toast('Cliente carregado');
@@ -1503,14 +1562,13 @@ $('#btnAddTecido').addEventListener('click', () => {
 // CONFIG UI
 // ============================================================
 function renderConfigForm() {
-  $('#empNome').value = config.empresa.nome || '';
-  $('#empNif').value = config.empresa.nif || '';
-  $('#empTel').value = config.empresa.tel || '';
-  $('#empEmail').value = config.empresa.email || '';
-  $('#empMorada').value = config.empresa.morada || '';
-  $('#empInsta').value = config.empresa.insta || '';
-  $('#empFacebook').value = config.empresa.facebook || '';
-  $('#empSite').value = config.empresa.site || '';
+  const empMap = {
+    empNome: 'nome', empNif: 'nif', empTel: 'tel', empEmail: 'email',
+    empMorada: 'morada', empAndar: 'andar', empCp: 'cp', empLocalidade: 'localidade',
+    empConcelho: 'concelho', empDistrito: 'distrito', empPais: 'pais',
+    empInsta: 'insta', empFacebook: 'facebook', empSite: 'site'
+  };
+  Object.entries(empMap).forEach(([id, key]) => { const el = $('#'+id); if (el) el.value = config.empresa[key] || ''; });
   $('#svcMedicao').value = config.svcMedicao;
   $('#svcInstalacao').value = config.svcInstalacao;
   $('#defNotas').value = config.defNotas;
@@ -1523,10 +1581,14 @@ function renderConfigForm() {
   $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.5;
   $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 1.5;
 }
+$('#empCp')?.addEventListener('input', (e) => { e.target.value = fmtCP(e.target.value); });
 $('#btnSaveConfig').addEventListener('click', () => {
   config.empresa = {
     nome: $('#empNome').value, nif: $('#empNif').value, tel: $('#empTel').value,
-    email: $('#empEmail').value, morada: $('#empMorada').value,
+    email: $('#empEmail').value,
+    morada: $('#empMorada').value, andar: $('#empAndar').value, cp: $('#empCp').value,
+    localidade: $('#empLocalidade').value, concelho: $('#empConcelho').value,
+    distrito: $('#empDistrito').value, pais: $('#empPais').value,
     insta: $('#empInsta').value, facebook: $('#empFacebook').value, site: $('#empSite').value
   };
   config.svcMedicao = parseFloat($('#svcMedicao').value)||0;
@@ -1691,7 +1753,7 @@ function pdfHTML(o) {
         <div class="pdf-foot-clean">
           <div class="col">
             <div class="empresa-name">${esc(emp.nome||'Legado Decor')}</div>
-            ${emp.morada?`<div>${esc(emp.morada)}</div>`:''}
+            ${addrLines(emp).map(l => `<div>${esc(l)}</div>`).join('')}
             ${emp.nif?`<div>NIF ${esc(emp.nif)}</div>`:''}
           </div>
           <div class="col center">
@@ -1787,7 +1849,7 @@ $('#btnWhatsApp').addEventListener('click', () => {
   const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\n` +
     `Cliente: ${orc.cliente.nome}${orc.cliente.empresa?` (${orc.cliente.empresa})`:''}\n` +
     `Data: ${fmtDate(orc.data)}\n\n${lines}\n\n*Total: ${fmtEUR(tot)}*\nIVA incluído · Válido ${orc.validade||30} dias\n\n${config.empresa.nome} · ${config.empresa.tel}`;
-  const tel = (orc.cliente.tel||'').replace(/[^\d+]/g,'').replace(/^\+/,'');
+  const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
   const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 });
@@ -1965,7 +2027,7 @@ function applyRoleUI() {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
