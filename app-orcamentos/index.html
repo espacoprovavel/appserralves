@@ -205,6 +205,12 @@
   .mobile-nav button svg { width: 22px; height: 22px; }
   .mobile-header { display: none; }
 
+  /* ===== INSTALL BUTTON ===== */
+  .install-fab { position: fixed; right: 18px; bottom: 20px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; background: var(--gold); color: #fff; border: 0; border-radius: 30px; padding: 12px 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.22); }
+  .install-fab:hover { opacity: 0.92; }
+  .install-fab svg { width: 18px; height: 18px; }
+  @media (max-width: 860px) { .install-fab { bottom: 78px; right: 14px; padding: 11px 18px; } }
+
   /* ===== PDF AREA ===== */
   /* Render container — on-screen but invisible (off-screen positioning quebra html2canvas em mobile) */
   #pdfArea { position: fixed; top: 0; left: 0; width: 794px; background: var(--white); pointer-events: none; overflow: hidden; opacity: 0; z-index: -1; }
@@ -543,6 +549,12 @@
       <button id="btnLogoutM" style="display:none;background:transparent;border:1px solid rgba(245,240,230,0.4);color:var(--creme);padding:5px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;">Sair</button>
     </div>
   </header>
+
+  <!-- Botão instalar app (aparece quando instalável) -->
+  <button id="btnInstall" class="install-fab no-print" style="display:none;" aria-label="Instalar aplicação">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Instalar app
+  </button>
 
   <!-- ============ MAIN ============ -->
   <main class="main">
@@ -1974,13 +1986,14 @@ async function renderEquipa() {
         : inactive
           ? `<button class="btn btn-xs btn-outline" data-act="${m.uid}">Reactivar</button>`
           : `<button class="btn btn-xs btn-outline" data-deact="${m.uid}">Desactivar</button>`;
+      const pwdBtn = `<button class="btn btn-xs btn-outline" data-pwd="${esc(m.email||'')}" title="Enviar link para a pessoa definir nova palavra-passe">Repor senha</button>`;
       const delBtn = isSelf ? '' : `<button class="btn btn-xs btn-ghost" data-rm="${m.uid}" title="Remover">✕</button>`;
       return `<tr class="${inactive?'inactive':''}">
         <td>${esc(m.name||'—')}</td>
         <td>${esc(m.email||'—')}</td>
         <td>${roleSel}</td>
         <td class="center"><span class="role-pill role-${inactive?'user':(m.role||'user')}">${inactive?'Inactivo':'Activo'}</span></td>
-        <td>${actBtn} ${delBtn}</td>
+        <td style="white-space:nowrap;">${actBtn} ${pwdBtn} ${delBtn}</td>
       </tr>`;
     }).join('');
 
@@ -2007,6 +2020,19 @@ async function renderEquipa() {
       if (!confirm('Remover este utilizador?\n\nAtenção: a conta de LOGIN dele continua a existir no Firebase. Se um dia quiseres readicioná-lo, vais precisar da palavra-passe dele ou de enviar um link de recuperação.\n\nSe é só uma saída temporária, cancela e usa antes "Desativar".')) return;
       try { await Cloud.removeMember(b.dataset.rm); toast('Removido'); renderEquipa(); }
       catch (err) { toast(err.message || 'Erro', true); }
+    }));
+    $$('#membersBody [data-pwd]').forEach(b => b.addEventListener('click', async () => {
+      const email = b.dataset.pwd;
+      if (!email) return toast('Membro sem email', true);
+      if (!confirm('Enviar um link de recuperação de palavra-passe para ' + email + '?\n\nA pessoa recebe um email e define a nova palavra-passe.')) return;
+      b.disabled = true;
+      try {
+        await Cloud.sendReset(email);
+        Cloud.logAction('membro_reset_senha', email);
+        toast('Link enviado para ' + email);
+      } catch (err) {
+        toast(err.code === 'auth/invalid-email' ? 'Email inválido' : (err.message||'Erro ao enviar'), true);
+      } finally { b.disabled = false; }
     }));
   } catch (err) {
     console.error(err);
@@ -2257,6 +2283,48 @@ if (document.readyState === 'loading') {
 } else {
   bootApp();
 }
+
+// ============================================================
+// INSTALAR APP (PWA)
+// ============================================================
+(function () {
+  const btn = document.getElementById('btnInstall');
+  if (!btn) return;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
+  let deferredPrompt = null;
+
+  if (isStandalone) return; // já instalada
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    btn.style.display = '';
+  });
+
+  // iOS não dispara beforeinstallprompt — mostramos o botão com instruções
+  if (isIOS) btn.style.display = '';
+
+  btn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try { await deferredPrompt.userChoice; } catch {}
+      deferredPrompt = null;
+      btn.style.display = 'none';
+    } else if (isIOS) {
+      alert('Para instalar no iPhone/iPad:\n\n1. Toca no botão Partilhar (o quadrado com a seta para cima), em baixo no Safari\n2. Escolhe "Adicionar ao ecrã principal"\n3. Confirma em "Adicionar"');
+    } else {
+      alert('Para instalar:\n\nAbre o menu do navegador (⋮) e escolhe "Instalar aplicação" ou "Adicionar ao ecrã principal".');
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    btn.style.display = 'none';
+    try { toast('Aplicação instalada!'); } catch {}
+  });
+})();
 
 // ============================================================
 // SERVICE WORKER

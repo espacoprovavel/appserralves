@@ -1,15 +1,20 @@
 {
   "name": "Legado Decor — Orçamentos",
-  "short_name": "LD Orçamentos",
+  "short_name": "Legado Decor",
   "description": "Sistema de orçamentos Legado Decor",
-  "start_url": "./index.html",
+  "start_url": "./index.html?src=pwa",
+  "id": "/",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1B5B4A",
   "theme_color": "#1B5B4A",
+  "lang": "pt-PT",
+  "categories": ["business", "productivity"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
