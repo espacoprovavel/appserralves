@@ -30,7 +30,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="firebase-config.js"></script>
 <script type="module" src="cloud.js"></script>
 <style>
@@ -1867,43 +1866,14 @@ $('#btnImprimir').addEventListener('click', () => {
   setTimeout(() => { window.print(); }, 150);
 });
 
-$('#btnDownloadPDF').addEventListener('click', async () => {
-  if (!window.html2pdf) { toast('html2pdf não carregado (offline?). Use Imprimir → Guardar como PDF.', true); return; }
+$('#btnDownloadPDF').addEventListener('click', () => {
+  // Usa o motor de impressão nativo do browser (fiável em todos os dispositivos,
+  // funciona offline). O antigo html2canvas cortava o lado esquerdo do documento.
   renderToTargets();
-  const el = $('#pdfArea').firstElementChild;
-  if (!el) { toast('Nada para gerar', true); return; }
-  const filename = `Orcamento_${orc.ref}_${(orc.cliente.nome||'cliente').replace(/[^\w]+/g,'_')}.pdf`;
-  const isMobile = window.innerWidth < 700 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  const opt = {
-    margin: [10, 12, 10, 12],
-    filename: filename,
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: {
-      scale: isMobile ? 1.5 : 2,
-      useCORS: true,
-      logging: false,
-      width: 794,
-      windowWidth: 794,
-      backgroundColor: '#ffffff',
-      scrollX: 0, scrollY: 0
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-    pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.pdf-pagar', '.pdf-condicoes-clean'] }
-  };
-  try {
-    toast('A gerar PDF...');
-    // Aguardar fonts carregarem antes de capturar — sem isto o canvas sai em branco
-    if (document.fonts && document.fonts.ready) {
-      try { await document.fonts.ready; } catch(_) {}
-    }
-    // Pequeno tick para o browser fazer layout do elemento
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    await html2pdf().set(opt).from(el).save();
-    toast('PDF descarregado');
-  } catch (err) {
-    console.error('PDF error:', err);
-    toast('Erro ao gerar PDF — tenta "Imprimir" e "Guardar como PDF"', true);
-  }
+  $('#printPreviewCard').style.display = 'block';
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  toast(isIOS ? 'Toca em Partilhar → Guardar em Ficheiros (PDF)' : 'Na janela de impressão, escolhe "Guardar como PDF"');
+  setTimeout(() => { window.print(); }, 200);
 });
 
 $('#btnWhatsApp').addEventListener('click', () => {

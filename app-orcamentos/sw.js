@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'sd-orcamentos-v21';
+const CACHE_VERSION = 'sd-orcamentos-v22';
 const ASSETS = [
   './',
   './index.html',
@@ -11,8 +11,7 @@ const ASSETS = [
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
