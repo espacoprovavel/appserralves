@@ -822,13 +822,20 @@
           <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
         </div>
 
-        <!-- ===== CATÁLOGO (por categoria) ===== -->
-        <div class="card">
-          <div class="card-head">
+        <!-- ===== TAB BAR (always visible) ===== -->
+        <div class="card" style="padding-bottom:14px;">
+          <div class="card-head" style="margin-bottom:8px;">
             <h3>Catálogo</h3>
-            <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
           </div>
           <div class="cat-tabs" id="catTabs"></div>
+        </div>
+
+        <!-- ===== CATÁLOGO (por categoria) ===== -->
+        <div class="card" id="cardCatalogo">
+          <div class="card-head">
+            <div></div>
+            <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
+          </div>
           <div class="sec-filters">
             <input type="search" id="catSearch" placeholder="Pesquisar nome ou código..." />
             <input type="search" id="catForn" placeholder="🔒 Filtrar por fornecedor..." />
@@ -2273,7 +2280,7 @@ function renderCatalog() {
     tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); }));
   }
   const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
-  const cardCat = $('#prodTable')?.closest('.card');
+  const cardCat = $('#cardCatalogo');
   if (cardCat) cardCat.style.display = isSection ? 'none' : '';
   const cardCalha = $('#cardCalhaGrid');
   if (cardCalha) cardCalha.style.display = isCalha ? '' : 'none';
