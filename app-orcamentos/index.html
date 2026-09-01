@@ -747,9 +747,9 @@
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
           <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="tecTable" style="min-width:440px;">
-              <colgroup><col style="width:90px"><col style="width:150px"><col style="width:80px"><col><col style="width:44px"></colgroup>
-              <thead><tr><th>Código</th><th>Nome</th><th class="num">€/m²</th><th>Cores</th><th></th></tr></thead>
+            <table class="t" id="tecTable" style="min-width:520px;">
+              <colgroup><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:90px"><col><col style="width:44px"></colgroup>
+              <thead><tr><th>Código</th><th>Nome</th><th class="num">Custo €/m</th><th class="num">Confecção €/ml</th><th>Cor</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -827,26 +827,31 @@
           <div class="card">
             <h3>Serviços</h3>
             <div class="grid grid-2">
-              <div class="field"><label>Medição profissional (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
+              <div class="field"><label>Medição por visita (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
               <div class="field"><label>Instalação por janela (€)</label><input type="number" id="svcInstalacao" step="0.01" /></div>
             </div>
+            <p class="muted small" style="margin-top:8px;">Linhas fixas do orçamento. Adiciona-as como itens (Medição, Instalação) na criação do orçamento.</p>
           </div>
         </div>
 
         <div class="cfg-row">
           <div class="card">
-            <h3>Cálculo de Cortinas</h3>
-            <p class="muted small">Como o preço sugerido é calculado quando escolhes um tecido. Fórmula: <strong>(largura × coef) × (altura + acabamento) × (€/m² tecido + €/m² confecção) = preço cortina pronta</strong>.</p>
+            <h3>Margem de Lucro</h3>
+            <p class="muted small">Aplica-se ao <strong>tecido + confecção</strong> da cortina. A calha nunca entra na margem (cobra sempre ao preço de mercado).</p>
             <div class="grid grid-2 mt-12">
-              <div class="field"><label>Acabamento em altura (cm)</label><input type="number" id="cfgAcabamento" step="1" min="0" /><div class="muted small" style="margin-top:4px;">Padrão 30 cm = 15 ourela sup. + 15 ourela inf.</div></div>
-              <div class="field"><label>Confecção / mão-de-obra (€/m²)</label><input type="number" id="cfgConfeccao" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somado ao €/m² do tecido (vendemos cortina pronta).</div></div>
+              <div class="field"><label>Margem (%)</label><input type="number" id="cfgMargem" step="1" min="40" max="95" /><div class="muted small" style="margin-top:4px;">Mínimo 40%. Padrão Legado Decor: 60%. Ao guardar, os preços do orçamento atual são recalculados.</div></div>
             </div>
-            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Coeficientes (largura de tecido por metro de janela)</h4>
+            <div class="muted small" style="margin-top:6px;line-height:1.6;">
+              Fórmula: <strong>PVP c/IVA = (custo tecido c/IVA + confecção) ÷ (1 − margem)</strong><br>
+              60% → ÷ 0,40 · 50% → ÷ 0,50 · 40% → ÷ 0,60
+            </div>
+
+            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Multiplicador de tecido (largura da janela × coef = metros de tecido)</h4>
             <div class="grid grid-2">
-              <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.1" min="1" /></div>
-              <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.1" min="1" /></div>
-              <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.1" min="1" /></div>
-              <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.1" min="1" /></div>
+              <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.01" min="1" /></div>
+              <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.01" min="1" /></div>
+              <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.01" min="1" /></div>
+              <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.01" min="1" /></div>
             </div>
           </div>
 
@@ -1028,43 +1033,135 @@ const save = (k, v) => {
 
 // ---------- DEFAULTS ----------
 const DEFAULT_PRODUTOS = [
-  { id: 'p_crton', codigo: 'CRT-ON', nome: 'Cortina Onda Natural', categoria: 'Cortinas', preco: 0, unidade: 'm²' },
-  { id: 'p_crtil', codigo: 'CRT-IL', nome: 'Cortina Ilhós', categoria: 'Cortinas', preco: 0, unidade: 'm²' },
-  { id: 'p_crtfr', codigo: 'CRT-FR', nome: 'Cortina Franzido', categoria: 'Cortinas', preco: 0, unidade: 'm²' },
-  { id: 'p_crtbk', codigo: 'CRT-BK', nome: 'Cortina Blackout', categoria: 'Cortinas', preco: 0, unidade: 'm²' },
-  { id: 'p_clh15', codigo: 'CLH-15', nome: 'Calha 1500', categoria: 'Calhas', preco: 15, unidade: 'ml' },
-  { id: 'p_clh50', codigo: 'CLH-50', nome: 'Calha 5000', categoria: 'Calhas', preco: 25, unidade: 'ml' },
-  { id: 'p_clh9m', codigo: 'CLH-9M', nome: 'Calha 9500M Motorizada', categoria: 'Calhas', preco: 85, unidade: 'ml' },
-  { id: 'p_clhks', codigo: 'CLH-KS', nome: 'Calha KS', categoria: 'Calhas', preco: 20, unidade: 'ml' },
-  { id: 'p_clhdx', codigo: 'CLH-DX', nome: 'Calha DSXL', categoria: 'Calhas', preco: 35, unidade: 'ml' },
-  { id: 'p_var01', codigo: 'VAR-01', nome: 'Varão simples', categoria: 'Varões', preco: 30, unidade: 'ml' },
-  { id: 'p_var02', codigo: 'VAR-02', nome: 'Varão duplo', categoria: 'Varões', preco: 45, unidade: 'ml' },
-  { id: 'p_est01', codigo: 'EST-01', nome: 'Estore', categoria: 'Estores', preco: 0, unidade: 'm²' },
-  { id: 'p_srvmd', codigo: 'SRV-MD', nome: 'Medição profissional', categoria: 'Serviços', preco: 30, unidade: 'un' },
-  { id: 'p_srvin', codigo: 'SRV-IN', nome: 'Instalação', categoria: 'Serviços', preco: 60, unidade: 'un' }
+  { id: 'crt_on', codigo: 'CRT-ON', nome: "Cortina Onda Natural", categoria: 'Cortinas', tipo: 'cortina', preco: 0, unidade: 'un' },
+  { id: 'crt_il', codigo: 'CRT-IL', nome: "Cortina Ilhós", categoria: 'Cortinas', tipo: 'cortina', preco: 0, unidade: 'un' },
+  { id: 'crt_fr', codigo: 'CRT-FR', nome: "Cortina Franzido", categoria: 'Cortinas', tipo: 'cortina', preco: 0, unidade: 'un' },
+  { id: 'crt_bk', codigo: 'CRT-BK', nome: "Cortina Blackout", categoria: 'Cortinas', tipo: 'cortina', preco: 0, unidade: 'un' },
+  { id: 'ld_c50', codigo: 'LD-C50', nome: "Calha 5000", categoria: 'Calhas', tipo: 'calha', motor: false, preco: 32.47, unidade: 'un', tamanhos: [{m:1.6,p:32.47}, {m:1.8,p:35.33}, {m:2.0,p:37.91}, {m:2.2,p:49.0}, {m:2.4,p:44.7}, {m:2.6,p:47.23}, {m:3.0,p:52.84}, {m:3.5,p:60.25}, {m:4.0,p:66.15}, {m:5.0,p:82.63}] },
+  { id: 'ld_cks', codigo: 'LD-CKS', nome: "Calha KS", categoria: 'Calhas', tipo: 'calha', motor: false, preco: 32.62, unidade: 'un', tamanhos: [{m:1.6,p:32.62}, {m:2.0,p:39.7}, {m:2.4,p:47.6}, {m:3.0,p:57.2}, {m:4.0,p:75.28}] },
+  { id: 'ld_cds', codigo: 'LD-CDS', nome: "Calha DS", categoria: 'Calhas', tipo: 'calha', motor: false, preco: 45.17, unidade: 'un', tamanhos: [{m:2.0,p:45.17}, {m:2.4,p:54.05}, {m:3.0,p:64.87}, {m:4.0,p:81.01}] },
+  { id: 'ld_cdx', codigo: 'LD-CDX', nome: "Calha DS XL", categoria: 'Calhas', tipo: 'calha', motor: false, preco: 106.49, unidade: 'un', tamanhos: [{m:2.0,p:106.49}, {m:2.4,p:122.31}, {m:3.0,p:144.75}, {m:4.0,p:181.33}] },
+  { id: 'ld_crv', codigo: 'LD-CRV', nome: "Calha Reva", categoria: 'Calhas', tipo: 'calha', motor: false, preco: 48.93, unidade: 'un', tamanhos: [{m:2.0,p:48.93}, {m:2.4,p:56.46}, {m:3.0,p:66.76}, {m:4.0,p:84.23}] },
+  { id: 'ld_cm9', codigo: 'LD-CM9', nome: "Calha CM950 Motorizada", categoria: 'Calhas', tipo: 'calha', motor: true, preco: 545.33, unidade: 'un', tamanhos: [{m:1.5,p:545.33}, {m:2.0,p:558.54}, {m:2.5,p:581.89}, {m:3.0,p:603.59}, {m:4.0,p:645.85}, {m:5.0,p:689.32}, {m:6.0,p:748.11}] },
+  { id: 'ld_cmd24', codigo: 'LD-CMD24', nome: 'Comando Motorizada 2/4 canais', categoria: 'Comandos', tipo: 'fixo', preco: 23.8, unidade: 'un' },
+  { id: 'ld_cmd20', codigo: 'LD-CMD20', nome: 'Comando Motorizada 20 canais', categoria: 'Comandos', tipo: 'fixo', preco: 34.2, unidade: 'un' },
+  { id: 'ld_srvmd', codigo: 'LD-SRVMD', nome: 'Medição', categoria: 'Serviços', tipo: 'fixo', preco: 30, unidade: 'visita' },
+  { id: 'ld_srvin', codigo: 'LD-SRVIN', nome: 'Instalação', categoria: 'Serviços', tipo: 'fixo', preco: 35, unidade: 'janela' }
 ];
 const DEFAULT_TECIDOS = [
-  { id: 't_vo', codigo: 'TEC-VO', nome: 'Voile', preco: 18, cores: 'Branco, Cru, Linho, Cinza' },
-  { id: 't_al', codigo: 'TEC-AL', nome: 'Alinhado', preco: 24, cores: 'Cru, Linho, Pedra, Areia' },
-  { id: 't_cl', codigo: 'TEC-CL', nome: 'Corta-Luz', preco: 32, cores: 'Cru, Pedra, Cinza, Castanho' },
-  { id: 't_bk', codigo: 'TEC-BK', nome: 'Blackout', preco: 38, cores: 'Branco, Cinza, Antracite, Castanho' },
-  { id: 't_ch', codigo: 'TEC-CH', nome: 'Chenille', preco: 45, cores: 'Cru, Areia, Pedra, Cinza, Tabaco' },
-  { id: 't_vl', codigo: 'TEC-VL', nome: 'Veludo', preco: 52, cores: 'Verde, Bordeaux, Mostarda, Azul' }
+  { id: 'ld_vl01', codigo: 'LD-VL01', nome: "Safira Real", tipo: "Veludo", cores: "Azul Petróleo", preco: 25.95, conf: 18.5 },
+  { id: 'ld_vl02', codigo: 'LD-VL02', nome: "Névoa Régia", tipo: "Veludo", cores: "Cinzento", preco: 25.95, conf: 18.5 },
+  { id: 'ld_vl03', codigo: 'LD-VL03', nome: "Rosé Palácio", tipo: "Veludo", cores: "Rosa Velho", preco: 25.95, conf: 18.5 },
+  { id: 'ld_vl04', codigo: 'LD-VL04', nome: "Ouro Majestade", tipo: "Veludo", cores: "Dourado", preco: 25.95, conf: 18.5 },
+  { id: 'ld_vl05', codigo: 'LD-VL05', nome: "Veludo Sublime Amarelo Torrado", tipo: "Veludo", cores: "Amarelo Torrado", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl06', codigo: 'LD-VL06', nome: "Veludo Sublime Azul Celeste", tipo: "Veludo", cores: "Azul Celeste", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl07', codigo: 'LD-VL07', nome: "Veludo Sublime Azul Escuro", tipo: "Veludo", cores: "Azul Escuro", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl08', codigo: 'LD-VL08', nome: "Veludo Sublime Azul Marinho", tipo: "Veludo", cores: "Azul Marinho", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl09', codigo: 'LD-VL09', nome: "Veludo Sublime Bordeaux", tipo: "Veludo", cores: "Bordeaux", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl10', codigo: 'LD-VL10', nome: "Veludo Sublime Camel", tipo: "Veludo", cores: "Camel", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl11', codigo: 'LD-VL11', nome: "Veludo Sublime Castanho", tipo: "Veludo", cores: "Castanho", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl12', codigo: 'LD-VL12', nome: "Veludo Sublime Cinzento Claro", tipo: "Veludo", cores: "Cinzento Claro", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl13', codigo: 'LD-VL13', nome: "Veludo Sublime Cinzento Escuro", tipo: "Veludo", cores: "Cinzento Escuro", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl14', codigo: 'LD-VL14', nome: "Veludo Sublime Cinzento Médio", tipo: "Veludo", cores: "Cinzento Médio", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl15', codigo: 'LD-VL15', nome: "Veludo Sublime Creme", tipo: "Veludo", cores: "Creme", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl16', codigo: 'LD-VL16', nome: "Veludo Sublime Laranja Ocre", tipo: "Veludo", cores: "Laranja Ocre", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl17', codigo: 'LD-VL17', nome: "Veludo Sublime Preto", tipo: "Veludo", cores: "Preto", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl18', codigo: 'LD-VL18', nome: "Veludo Sublime Pérola", tipo: "Veludo", cores: "Pérola", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl19', codigo: 'LD-VL19', nome: "Veludo Sublime Rosa Velho", tipo: "Veludo", cores: "Rosa Velho", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl20', codigo: 'LD-VL20', nome: "Veludo Sublime Verde", tipo: "Veludo", cores: "Verde", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl21', codigo: 'LD-VL21', nome: "Veludo Sublime Verde Lima", tipo: "Veludo", cores: "Verde Lima", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl22', codigo: 'LD-VL22', nome: "Veludo Sublime Verde Petróleo", tipo: "Veludo", cores: "Verde Petróleo", preco: 19.95, conf: 18.5 },
+  { id: 'ld_vl23', codigo: 'LD-VL23', nome: "Veludo Sublime Vermelho", tipo: "Veludo", cores: "Vermelho", preco: 19.95, conf: 18.5 },
+  { id: 'ld_al01', codigo: 'LD-AL01', nome: "Brisa de Linho Pérola", tipo: "Cortinado Alinhado", cores: "Pérola", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al02', codigo: 'LD-AL02', nome: "Brisa de Linho Cinzento", tipo: "Cortinado Alinhado", cores: "Cinzento", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al03', codigo: 'LD-AL03', nome: "Brisa de Linho Bege", tipo: "Cortinado Alinhado", cores: "Bege", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al04', codigo: 'LD-AL04', nome: "Luz Serena Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al05', codigo: 'LD-AL05', nome: "Luz Serena Pérola", tipo: "Cortinado Alinhado", cores: "Pérola", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al06', codigo: 'LD-AL06', nome: "Luz Serena Cinza", tipo: "Cortinado Alinhado", cores: "Cinza", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al07', codigo: 'LD-AL07', nome: "Véu Privé Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al08', codigo: 'LD-AL08', nome: "Véu Privé Bege", tipo: "Cortinado Alinhado", cores: "Bege", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al09', codigo: 'LD-AL09', nome: "Véu Privé Cinza", tipo: "Cortinado Alinhado", cores: "Cinza", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al10', codigo: 'LD-AL10', nome: "Linho Toscano Pérola", tipo: "Cortinado Alinhado", cores: "Pérola", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al11', codigo: 'LD-AL11', nome: "Linho Toscano Cinza", tipo: "Cortinado Alinhado", cores: "Cinza", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al12', codigo: 'LD-AL12', nome: "Terra Nobre Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al13', codigo: 'LD-AL13', nome: "Terra Nobre Natural", tipo: "Cortinado Alinhado", cores: "Natural", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al14', codigo: 'LD-AL14', nome: "Terra Nobre Camel", tipo: "Cortinado Alinhado", cores: "Camel", preco: 19.95, conf: 9.5 },
+  { id: 'ld_al15', codigo: 'LD-AL15', nome: "Sopro Etéreo Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al16', codigo: 'LD-AL16', nome: "Aura de Luz Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al17', codigo: 'LD-AL17', nome: "Bruma Toscana Bege", tipo: "Cortinado Alinhado", cores: "Bege", preco: 17.95, conf: 9.5 },
+  { id: 'ld_al18', codigo: 'LD-AL18', nome: "Vento Claro Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al19', codigo: 'LD-AL19', nome: "Lago Sereno Bege", tipo: "Cortinado Alinhado", cores: "Bege", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al20', codigo: 'LD-AL20', nome: "Lago Sereno Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al21', codigo: 'LD-AL21', nome: "Pluma Leve Castanho", tipo: "Cortinado Alinhado", cores: "Castanho", preco: 12.95, conf: 9.5 },
+  { id: 'ld_al22', codigo: 'LD-AL22', nome: "Pluma Leve Cinzento", tipo: "Cortinado Alinhado", cores: "Cinzento", preco: 12.95, conf: 9.5 },
+  { id: 'ld_al23', codigo: 'LD-AL23', nome: "Pluma Leve Rosa", tipo: "Cortinado Alinhado", cores: "Rosa", preco: 12.95, conf: 9.5 },
+  { id: 'ld_al24', codigo: 'LD-AL24', nome: "Costa Serena Bege", tipo: "Cortinado Alinhado", cores: "Bege", preco: 15.95, conf: 9.5 },
+  { id: 'ld_al25', codigo: 'LD-AL25', nome: "Costa Serena Branco", tipo: "Cortinado Alinhado", cores: "Branco", preco: 15.95, conf: 9.5 },
+  { id: 'ld_bk01', codigo: 'LD-BK01', nome: "Noite Total Branco", tipo: "Blackout", cores: "Branco", preco: 24.95, conf: 7.5 },
+  { id: 'ld_bk02', codigo: 'LD-BK02', nome: "Noite Total Pérola", tipo: "Blackout", cores: "Pérola", preco: 24.95, conf: 7.5 },
+  { id: 'ld_bk03', codigo: 'LD-BK03', nome: "Noite Segura FR Branco", tipo: "Blackout", cores: "Branco", preco: 29.95, conf: 7.5 },
+  { id: 'ld_bk04', codigo: 'LD-BK04', nome: "Noite Segura FR Pérola", tipo: "Blackout", cores: "Pérola", preco: 29.95, conf: 7.5 },
+  { id: 'ld_bk05', codigo: 'LD-BK05', nome: "Escuro Absoluto Bege", tipo: "Blackout", cores: "Bege", preco: 24.95, conf: 7.5 },
+  { id: 'ld_bk06', codigo: 'LD-BK06', nome: "Escuro Absoluto Bege Escuro", tipo: "Blackout", cores: "Bege Escuro", preco: 24.95, conf: 7.5 },
+  { id: 'ld_bk07', codigo: 'LD-BK07', nome: "Escuro Absoluto Cinzento", tipo: "Blackout", cores: "Cinzento", preco: 24.95, conf: 7.5 },
+  { id: 'ld_bk08', codigo: 'LD-BK08', nome: "Escuro Absoluto Preto", tipo: "Blackout", cores: "Preto", preco: 24.95, conf: 7.5 },
+  { id: 'ld_cl01', codigo: 'LD-CL01', nome: "Sombra Colónia Bege", tipo: "Corta-Luz", cores: "Bege", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl02', codigo: 'LD-CL02', nome: "Sombra Colónia Bege Escuro", tipo: "Corta-Luz", cores: "Bege Escuro", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl03', codigo: 'LD-CL03', nome: "Sombra Colónia Branco", tipo: "Corta-Luz", cores: "Branco", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl04', codigo: 'LD-CL04', nome: "Sombra Colónia Camel", tipo: "Corta-Luz", cores: "Camel", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl05', codigo: 'LD-CL05', nome: "Sombra Colónia Castanho", tipo: "Corta-Luz", cores: "Castanho", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl06', codigo: 'LD-CL06', nome: "Sombra Colónia Cinzento", tipo: "Corta-Luz", cores: "Cinzento", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl07', codigo: 'LD-CL07', nome: "Sombra Colónia Preto", tipo: "Corta-Luz", cores: "Preto", preco: 16.95, conf: 7.5 },
+  { id: 'ld_cl08', codigo: 'LD-CL08', nome: "Brilho Noturno Bege", tipo: "Corta-Luz", cores: "Bege", preco: 24.95, conf: 7.5 },
+  { id: 'ld_cl09', codigo: 'LD-CL09', nome: "Brilho Noturno Cinzento", tipo: "Corta-Luz", cores: "Cinzento", preco: 24.95, conf: 7.5 },
+  { id: 'ld_cl10', codigo: 'LD-CL10', nome: "Brilho Noturno Cinzento Escuro", tipo: "Corta-Luz", cores: "Cinzento Escuro", preco: 24.95, conf: 7.5 },
+  { id: 'ld_cl11', codigo: 'LD-CL11', nome: "Brilho Noturno Pérola", tipo: "Corta-Luz", cores: "Pérola", preco: 24.95, conf: 7.5 },
+  { id: 'ld_ot01', codigo: 'LD-OT01', nome: "Canelado Nobre Preto", tipo: "Ottoman (canelado)", cores: "Preto", preco: 15.95, conf: 18.5 },
+  { id: 'ld_ot02', codigo: 'LD-OT02', nome: "Canelado Nobre Vermelho", tipo: "Ottoman (canelado)", cores: "Vermelho", preco: 15.95, conf: 18.5 },
+  { id: 'ld_ot03', codigo: 'LD-OT03', nome: "Canelado Nobre Pérola", tipo: "Ottoman (canelado)", cores: "Pérola", preco: 15.95, conf: 18.5 },
+  { id: 'ld_ot04', codigo: 'LD-OT04', nome: "Canelado Nobre Dourado", tipo: "Ottoman (canelado)", cores: "Dourado", preco: 15.95, conf: 18.5 },
+  { id: 'ld_vo01', codigo: 'LD-VO01', nome: "Véu de Luz Branco", tipo: "Cortinado Voile", cores: "Branco", preco: 6.95, conf: 7.0 },
+  { id: 'ld_vo02', codigo: 'LD-VO02', nome: "Véu de Luz Azul", tipo: "Cortinado Voile", cores: "Azul", preco: 6.95, conf: 7.0 },
+  { id: 'ld_vo03', codigo: 'LD-VO03', nome: "Véu de Luz Pérola", tipo: "Cortinado Voile", cores: "Pérola", preco: 6.95, conf: 7.0 },
+  { id: 'ld_vo04', codigo: 'LD-VO04', nome: "Véu de Luz Rosa", tipo: "Cortinado Voile", cores: "Rosa", preco: 6.95, conf: 7.0 }
 ];
 const DEFAULT_CONFIG = {
   empresa: { nome: 'Legado Decor', nif: '', tel: '+351 930 476 602', email: 'contacto@legadodecor.com',
              morada: 'Porto, Portugal', andar: '', cp: '', localidade: '', concelho: '', distrito: '', pais: '',
              insta: '@legadodecor.pt', facebook: '', site: 'www.legadodecor.com' },
   svcMedicao: 30,
-  svcInstalacao: 60,
+  svcInstalacao: 35,
   defNotas: 'Valores com IVA incluído. Prazo de produção: 10 a 15 dias úteis. Entrega no Grande Porto incluída. Orçamento válido por 30 dias.',
   defValidade: 30,
   printFormat: 'a4',
-  // Cálculo da cortina (editável em Config → Cálculo de Cortinas)
-  acabamentoCm: 30,           // ourela sup. + ourela inf.
-  confeccaoM2: 0,              // €/m² mão-de-obra/confecção
-  coefs: { 'Cortina Onda Natural': 2.0, 'Cortina Ilhós': 2.0, 'Cortina Franzido': 2.5, 'Cortina Blackout': 1.5 }
+  // Margem de lucro aplicada ao tecido + confecção (mínimo 40%). Padrão Legado = 60%.
+  margemPct: 60,
+  // Multiplicador de tecido por metro de largura de janela (folga p/ franzir/ondular).
+  // Cálculo cortina: PVP c/IVA = (largura×coef) × (custo tecido c/IVA + confecção €/ml) ÷ (1 − margem)
+  coefs: { 'Cortina Onda Natural': 2.77, 'Cortina Ilhós': 2.77, 'Cortina Franzido': 2.77, 'Cortina Blackout': 2.77 }
 };
+const CATALOG_VERSION = 2;
+
+// Substitui os dados de catálogo pelos reais quando a versão está desatualizada,
+// e migra o modelo de cálculo antigo (m²) para o novo (metros lineares).
+// Chamada depois de o config/produtos/tecidos estarem carregados (local ou nuvem).
+let _catalogMigrated = false;
+function migrateCatalog() {
+  if (_catalogMigrated) return;
+  if ((config.catalogVersion || 0) >= CATALOG_VERSION) { _catalogMigrated = true; return; }
+  _catalogMigrated = true;
+  // Substitui os dados de demonstração pelos reais.
+  produtos = DEFAULT_PRODUTOS.slice();
+  tecidos = DEFAULT_TECIDOS.slice();
+  // Modelo antigo (m²) → novo (metros lineares): remove chaves obsoletas e repõe multiplicadores.
+  delete config.acabamentoCm; delete config.confeccaoM2;
+  config.coefs = { ...DEFAULT_CONFIG.coefs };
+  if (config.margemPct == null) config.margemPct = 60;
+  config.catalogVersion = CATALOG_VERSION;
+  save(K.prod, produtos);
+  save(K.tec, tecidos);
+  save(K.cfg, config);
+}
 
 // ---------- STATE ----------
 let config = { ...DEFAULT_CONFIG, ...load(K.cfg, {}) };
@@ -1315,6 +1412,14 @@ function renderItems() {
         let v = el.value;
         if (['largura','altura','qtd','preco','desc'].includes(f)) v = parseFloat(v) || 0;
         orc.itens[i][f] = v;
+        // Ao escolher o tecido, preenche a cor automaticamente a partir do catálogo.
+        if (f === 'tecido') {
+          const tsel = tecidos.find(t => t.nome === v);
+          if (tsel && tsel.cores) {
+            orc.itens[i].cor = tsel.cores;
+            const ci = $('[data-fld="cor"]', card); if (ci) ci.value = tsel.cores;
+          }
+        }
         if (['nome','tecido','largura','altura','qtd'].includes(f)) {
           const s = computeSuggested(orc.itens[i]);
           if (s.preco > 0) {
@@ -1371,23 +1476,54 @@ function setupProdAutocomplete(card, i) {
   });
 }
 
+// Margem de lucro (fração) com mínimo bloqueado de 40%.
+function getMargem() {
+  let pct = parseFloat(config.margemPct);
+  if (!isFinite(pct)) pct = 60;
+  if (pct < 40) pct = 40;   // mínimo Legado Decor — nunca abaixo de 40%
+  if (pct > 95) pct = 95;   // divisor não pode ser 0/negativo
+  return pct / 100;
+}
+
+// Encontra o produto de catálogo correspondente ao item (por nome ou código).
+function findProduto(it) {
+  return produtos.find(p => p.nome === it.nome) || produtos.find(p => p.codigo === it.codigo) || null;
+}
+
+// Preço UNITÁRIO sugerido (sem qtd — o qtd é aplicado em lineTotal).
 function computeSuggested(it) {
-  const coef = (config.coefs && config.coefs[it.nome]) || 0;
+  const prod = findProduto(it);
+
+  // ----- CALHA: preço de catálogo × 1,23 (já incluído nos dados). Seleção automática
+  // do tamanho imediatamente ≥ largura da janela. A calha NÃO entra na margem. -----
+  if (prod && prod.tipo === 'calha' && Array.isArray(prod.tamanhos) && prod.tamanhos.length) {
+    if (!it.largura) return { preco: 0, text: 'Indica a largura da janela para escolher o tamanho da calha.' };
+    const w = it.largura / 100;
+    const sizes = prod.tamanhos.slice().sort((a, b) => a.m - b.m);
+    const pick = sizes.find(s => s.m >= w) || sizes[sizes.length - 1];
+    const aviso = (w > sizes[sizes.length - 1].m) ? ' ⚠ largura acima do maior tamanho — confirmar com Giferant' : '';
+    return {
+      preco: Math.round(pick.p * 100) / 100,
+      text: `${prod.nome}: janela ${w.toFixed(2)}m → tamanho ${pick.m.toFixed(2)}m = ${fmtEUR(pick.p)}${aviso}`
+    };
+  }
+
+  // ----- CORTINA: PVP c/IVA = (largura×coef) × (custo tecido c/IVA + confecção €/ml) ÷ (1−margem) -----
+  const isCortina = prod ? prod.tipo === 'cortina' : (config.coefs && config.coefs[it.nome]);
+  if (!isCortina) return { preco: 0, text: '' };
+  const coef = (config.coefs && config.coefs[it.nome]) || 2.77;
   const tec = tecidos.find(t => t.nome === it.tecido);
-  if (!coef || !tec || !it.largura || !it.altura) return { preco: 0, text: '' };
-  const acab = parseFloat(config.acabamentoCm) || 0;
-  const conf = parseFloat(config.confeccaoM2) || 0;
+  if (!tec || !it.largura) return { preco: 0, text: 'Escolhe o tecido e indica a largura da janela.' };
   const larg_m = it.largura / 100;
-  const alt_m = it.altura / 100;
-  const altTotal_m = (it.altura + acab) / 100;
-  const qtd = it.qtd || 1;
-  const m2 = larg_m * coef * altTotal_m * qtd;
-  const precoM2 = tec.preco + conf;
-  const total = m2 * precoM2;
-  const confTxt = conf > 0 ? ` (tecido ${fmtEUR(tec.preco)} + confecção ${fmtEUR(conf)})` : '';
+  const metros = larg_m * coef;                       // metros lineares de tecido
+  const custoTec = parseFloat(tec.preco) || 0;        // €/m fornecedor (c/ IVA)
+  const custoConf = parseFloat(tec.conf) || 0;        // €/ml confecção
+  const margem = getMargem();
+  const base = metros * (custoTec + custoConf);        // custo tecido + confecção
+  const pvp = base / (1 - margem);                     // aplica a margem
   return {
-    preco: Math.round(total * 100) / 100,
-    text: `Sugestão: ${larg_m.toFixed(2)}m × ${alt_m.toFixed(2)}m (+${acab}cm acab.) × coef ${coef} = ${m2.toFixed(2)}m² × ${fmtEUR(precoM2)}/m²${confTxt} = ${fmtEUR(total)}`
+    preco: Math.round(pvp * 100) / 100,
+    text: `${larg_m.toFixed(2)}m × ${coef} = ${metros.toFixed(2)}m tecido × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${Math.round(margem*100)}%) = ${fmtEUR(pvp)} c/IVA`
   };
 }
 function updateSuggestion(card, i) {
@@ -1589,15 +1725,16 @@ function renderProdutos() {
       <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo)}" ${dis} /></td>
       <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome)}" ${dis} /></td>
       <td><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco}" class="num" ${dis} /></td>
+      <td><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? 0}" class="num" ${dis} /></td>
       <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
       <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>
     `;
     tb.appendChild(tr);
   });
-  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="5" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
+  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="6" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
   tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
-    tecidos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
+    tecidos[i][f] = (f === 'preco' || f === 'conf') ? (parseFloat(el.value)||0) : el.value;
     save(K.tec, tecidos);
   }));
   tb.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
@@ -1613,7 +1750,7 @@ $('#btnAddProduto').addEventListener('click', () => {
 });
 $('#btnAddTecido').addEventListener('click', () => {
   if (!isAdmin) return;
-  tecidos.push({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', preco: 0, cores: '' });
+  tecidos.push({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', tipo: '', preco: 0, conf: 0, cores: '' });
   save(K.tec, tecidos); renderProdutos();
 });
 
@@ -1633,12 +1770,11 @@ function renderConfigForm() {
   $('#defNotas').value = config.defNotas;
   $('#defValidade').value = config.defValidade;
   $('#printFormat').value = config.printFormat || 'a4';
-  $('#cfgAcabamento').value = config.acabamentoCm ?? 30;
-  $('#cfgConfeccao').value = config.confeccaoM2 ?? 0;
-  $('#cfgCoefOnda').value = config.coefs['Cortina Onda Natural'] ?? 2.0;
-  $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.0;
-  $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.5;
-  $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 1.5;
+  $('#cfgMargem').value = config.margemPct ?? 60;
+  $('#cfgCoefOnda').value = config.coefs['Cortina Onda Natural'] ?? 2.77;
+  $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.77;
+  $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.77;
+  $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 2.77;
   // A Minha Conta — só faz sentido com Firebase ativo e sessão iniciada
   const conta = $('#cardMinhaConta');
   if (conta) {
@@ -1662,19 +1798,40 @@ $('#btnSaveConfig').addEventListener('click', () => {
   config.defNotas = $('#defNotas').value;
   config.defValidade = parseFloat($('#defValidade').value)||30;
   config.printFormat = $('#printFormat').value;
-  config.acabamentoCm = parseFloat($('#cfgAcabamento').value)||0;
-  config.confeccaoM2 = parseFloat($('#cfgConfeccao').value)||0;
+  // Margem — bloqueio de mínimo 40%
+  let mg = parseFloat($('#cfgMargem').value);
+  if (!isFinite(mg)) mg = 60;
+  let avisoMargem = '';
+  if (mg < 40) { mg = 40; avisoMargem = ' (ajustada para o mínimo de 40%)'; }
+  if (mg > 95) mg = 95;
+  config.margemPct = mg;
+  $('#cfgMargem').value = mg;
   config.coefs = {
-    'Cortina Onda Natural': parseFloat($('#cfgCoefOnda').value)||2.0,
-    'Cortina Ilhós': parseFloat($('#cfgCoefIlhos').value)||2.0,
-    'Cortina Franzido': parseFloat($('#cfgCoefFranzido').value)||2.5,
-    'Cortina Blackout': parseFloat($('#cfgCoefBlackout').value)||1.5
+    'Cortina Onda Natural': parseFloat($('#cfgCoefOnda').value)||2.77,
+    'Cortina Ilhós': parseFloat($('#cfgCoefIlhos').value)||2.77,
+    'Cortina Franzido': parseFloat($('#cfgCoefFranzido').value)||2.77,
+    'Cortina Blackout': parseFloat($('#cfgCoefBlackout').value)||2.77
   };
   save(K.cfg, config);
   updateFormatoInfo();
-  if (window.Cloud && Cloud.ready) Cloud.logAction('config_alterada', 'Configurações guardadas');
-  toast('Configurações guardadas');
+  recalcCortinasAtual();  // recalcula os preços das cortinas do orçamento atual com a nova margem
+  if (window.Cloud && Cloud.ready) Cloud.logAction('config_alterada', 'Configurações guardadas · margem ' + mg + '%');
+  toast('Configurações guardadas' + avisoMargem);
 });
+
+// Recalcula o PVP das cortinas do orçamento atual (usado quando a margem muda).
+function recalcCortinasAtual() {
+  if (!orc || !Array.isArray(orc.itens)) return;
+  let mudou = false;
+  orc.itens.forEach(it => {
+    const prod = findProduto(it);
+    if (prod && prod.tipo === 'cortina') {
+      const s = computeSuggested(it);
+      if (s.preco > 0) { it.preco = s.preco; mudou = true; }
+    }
+  });
+  if (mudou) { renderItems(); recalc(); saveDraft(); }
+}
 $('#btnResetConfig').addEventListener('click', () => {
   if (!confirm('Repor todas as configurações para os valores padrão? (não apaga histórico nem clientes)')) return;
   config = { ...DEFAULT_CONFIG };
@@ -2130,7 +2287,7 @@ function applyRoleUI() {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgAcabamento','cfgConfeccao','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgMargem','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
@@ -2188,6 +2345,7 @@ $('#btnRefreshRegisto')?.addEventListener('click', renderRegisto);
 // INIT
 // ============================================================
 function init() {
+  migrateCatalog();   // garante os dados reais (tecidos/calhas) e o modelo de cálculo novo
   loadDraft();
   if (!orc) orc = newOrc();
   // Make sure ref reflects current counter for fresh drafts
