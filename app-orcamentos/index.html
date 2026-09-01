@@ -2163,8 +2163,14 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // ============================================================
 // PRODUTOS / TECIDOS UI
 // ============================================================
-const CAT_ORDER = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
-const SECTION_TABS = ['Tecidos','Confecção','Decoração','Acessórios'];
+const CAT_ORDER_DEFAULT = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
+const SECTION_TABS_DEFAULT = ['Tecidos','Confecção','Decoração','Acessórios'];
+function getTabOrder() {
+  const saved = config.tabOrder;
+  if (Array.isArray(saved) && saved.length) return saved;
+  return [...CAT_ORDER_DEFAULT, ...SECTION_TABS_DEFAULT];
+}
+const SECTION_TABS = SECTION_TABS_DEFAULT;
 let catAtiva = 'Cortinas';
 const disAttr = () => !isAdmin ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
 const fornOptsHTML = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
@@ -2263,24 +2269,44 @@ function renderCalhaGrid() {
 
 function renderCatalog() {
   const ativas = config.categoriasAtivas || {};
-  const cats = CAT_ORDER.filter(c => ativas[c] !== false && produtos.some(p => p.categoria === c));
-  produtos.forEach(p => { if (p.categoria && !cats.includes(p.categoria) && ativas[p.categoria] !== false) cats.push(p.categoria); });
-  const allTabs = [...cats, ...SECTION_TABS];
+  const order = getTabOrder();
+  const catSet = new Set(CAT_ORDER_DEFAULT.filter(c => ativas[c] !== false && produtos.some(p => p.categoria === c)));
+  produtos.forEach(p => { if (p.categoria && !catSet.has(p.categoria) && ativas[p.categoria] !== false) catSet.add(p.categoria); });
+  const allValid = new Set([...catSet, ...SECTION_TABS]);
+  const allTabs = order.filter(t => allValid.has(t));
+  allValid.forEach(t => { if (!allTabs.includes(t)) allTabs.push(t); });
   if (!allTabs.includes(catAtiva)) catAtiva = allTabs[0] || '';
   const isSection = SECTION_TABS.includes(catAtiva);
   const tabs = $('#catTabs');
   if (tabs) {
-    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('')
-      + '<span style="width:8px;"></span>'
-      + SECTION_TABS.map(s => {
-        let cnt = '';
-        if (s === 'Tecidos') cnt = ` (${tecidos.length})`;
-        else if (s === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
-        else if (s === 'Decoração') cnt = ` (${(config.decoracao||[]).length})`;
-        else if (s === 'Acessórios') cnt = ` (${(config.acessorios||[]).length})`;
-        return `<button data-cat="${esc(s)}" class="${s===catAtiva?'active':''}" style="border-style:dashed;">${esc(s)}${cnt}</button>`;
-      }).join('');
-    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); }));
+    tabs.innerHTML = allTabs.map(t => {
+      let cnt = '';
+      if (SECTION_TABS.includes(t)) {
+        if (t === 'Tecidos') cnt = ` (${tecidos.length})`;
+        else if (t === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
+        else if (t === 'Decoração') cnt = ` (${(config.decoracao||[]).length})`;
+        else if (t === 'Acessórios') cnt = ` (${(config.acessorios||[]).length})`;
+        return `<button draggable="true" data-cat="${esc(t)}" class="${t===catAtiva?'active':''}" style="border-style:dashed;">${esc(t)}${cnt}</button>`;
+      }
+      cnt = ` (${produtos.filter(p=>p.categoria===t).length})`;
+      return `<button draggable="true" data-cat="${esc(t)}" class="${t===catAtiva?'active':''}">${esc(t)}${cnt}</button>`;
+    }).join('');
+    tabs.querySelectorAll('[data-cat]').forEach(b => {
+      b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); });
+      b.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', b.dataset.cat); b.style.opacity = '0.4'; });
+      b.addEventListener('dragend', () => { b.style.opacity = ''; });
+      b.addEventListener('dragover', e => { e.preventDefault(); b.style.borderColor = 'var(--gold)'; });
+      b.addEventListener('dragleave', () => { b.style.borderColor = ''; });
+      b.addEventListener('drop', e => {
+        e.preventDefault(); b.style.borderColor = '';
+        const from = e.dataTransfer.getData('text/plain'), to = b.dataset.cat;
+        if (from === to) return;
+        const btns = [...tabs.querySelectorAll('[data-cat]')].map(x => x.dataset.cat);
+        const fi = btns.indexOf(from); btns.splice(fi, 1);
+        const ti = btns.indexOf(to); btns.splice(ti, 0, from);
+        config.tabOrder = btns; save(K.cfg, config); renderCatalog();
+      });
+    });
   }
   const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
   const cardCat = $('#cardCatalogo');
@@ -2326,6 +2352,7 @@ function renderCatalog() {
 }
 
 const _tecCollapsed = {};
+const _fornCollapsed = {};
 function renderTecidosTable() {
   const area = $('#tecGroupArea'); if (!area) return;
   const dis = disAttr();
@@ -2340,7 +2367,13 @@ function renderTecidosTable() {
     if (fq && !norm(forn).includes(fq)) return;
     const block = document.createElement('div');
     block.className = 'forn-block';
-    let html = `<div class="forn-block-header">FORNECEDOR: ${esc(forn)}</div>`;
+    const fornKey = 'forn|' + forn;
+    const fornColl = _fornCollapsed[fornKey];
+    let html = `<div class="forn-block-header" data-fornkey="${esc(fornKey)}" style="cursor:pointer;display:flex;align-items:center;gap:8px;">
+      <span class="forn-arrow" style="transition:transform 0.2s;${fornColl ? 'transform:rotate(-90deg);' : ''}">▼</span>
+      <span style="flex:1;">FORNECEDOR: ${esc(forn)} (${byForn[forn].length})</span>
+    </div>`;
+    html += `<div class="forn-block-body" ${fornColl ? 'style="display:none;"' : ''}>`;
     const byTipo = {};
     byForn[forn].forEach(t => { const tp = t.tipo || 'Sem tipo'; (byTipo[tp] = byTipo[tp] || []).push(t); });
     Object.keys(byTipo).sort().forEach(tipo => {
@@ -2359,22 +2392,36 @@ function renderTecidosTable() {
           <div class="tci-field" style="flex:0 0 80px;"><label>SKU LD</label><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></div>
           <div class="tci-field" style="flex:1 1 140px;"><label>Nome</label><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></div>
           <div class="tci-field" style="flex:0 0 90px;"><label>Cor</label><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Nome Orig.</label><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 110px;"><label>🔒 Fornecedor</label><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></div>
-          <div class="tci-field int" style="flex:0 0 80px;"><label>🔒 Tipo</label><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 100px;"><label>🔒 SKU Fornec.</label><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 90px;"><label>🔒 Composição</label><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 75px;"><label>🔒 Custo €/m</label><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" ${dis} /></div>
-          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Confecção</label><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></div>
-          <div class="tci-field int" style="flex:0 0 70px;"><label>🔒 €/ml</label><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>Nome Orig.</label><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 110px;"><label>Fornecedor</label><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 80px;"><label>Tipo</label><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 100px;"><label>SKU Fornec.</label><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 90px;"><label>Composição</label><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 75px;"><label>Custo €/m</label><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>Confecção</label><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 70px;"><label>€/ml</label><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" ${dis} /></div>
           ${isAdmin ? `<div class="tci-field" style="flex:0 0 30px;align-self:center;"><button class="btn btn-ghost btn-icon" data-rmt="${i}" style="min-height:36px;">✕</button></div>` : ''}
         </div>`;
       });
       html += '</div></div>';
     });
+    html += '</div>';
     block.innerHTML = html;
     area.appendChild(block);
   });
+  area.querySelectorAll('.forn-block-header[data-fornkey]').forEach(h => h.addEventListener('click', () => {
+    const key = h.dataset.fornkey;
+    _fornCollapsed[key] = !_fornCollapsed[key];
+    const arrow = h.querySelector('.forn-arrow');
+    const body = h.nextElementSibling;
+    if (_fornCollapsed[key]) {
+      arrow.style.transform = 'rotate(-90deg)';
+      body.style.display = 'none';
+    } else {
+      arrow.style.transform = '';
+      body.style.display = '';
+    }
+  }));
   area.querySelectorAll('.tipo-group-head').forEach(h => h.addEventListener('click', () => {
     const key = h.dataset.tgkey;
     _tecCollapsed[key] = !_tecCollapsed[key];
@@ -2475,24 +2522,28 @@ function renderDecAce(kind, tableId, searchId, fornId) {
 $('#btnAddProduto').addEventListener('click', () => {
   if (!isAdmin) return;
   produtos.unshift({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: catAtiva || '', tipo: 'fixo', preco: 0, unidade: 'uni', fornecedor: '', refFornecedor: '' });
-  save(K.prod, produtos); renderCatalog(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  save(K.prod, produtos); renderCatalog();
+  const el = $('#cardCatalogo'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 $('#btnAddTecido').addEventListener('click', () => {
   if (!isAdmin) return;
   tecidos.unshift({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', nomeOriginal: '', fornecedor: 'Feira dos Tecidos', skuFornecedor: '', tipo: '', cores: '', composicao: '', preco: 0, confTipo: '', conf: 0 });
-  save(K.tec, tecidos); renderTecidosTable(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  save(K.tec, tecidos); renderTecidosTable();
+  const el = $('#cardTecidos'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 $('#btnAddConf')?.addEventListener('click', () => {
   if (!isAdmin) return;
   config.confeccoes = config.confeccoes || [];
   config.confeccoes.unshift({ id: 'cf_'+uid(), nome: 'Nova confecção', preco: 0, un: '€/ml', cat: '', fornecedor: 'Mónica Confecções', obs: '' });
-  save(K.cfg, config); renderConfeccoesTable(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  save(K.cfg, config); renderConfeccoesTable();
+  const el = $('#cardConfeccao'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 function addDecAce(kind, tableId, searchId, fornId) {
   if (!isAdmin) return;
   config[kind] = config[kind] || [];
   config[kind].unshift({ id: (kind==='decoracao'?'dec_':'ace_')+uid(), nome: 'Novo', nomeFornecedor: '', fornecedor: '', codFornecedor: '', tipo: '', cor: '', sku: '', descricao: '', custoBase: '', margem: '' });
-  save(K.cfg, config); renderDecAce(kind, tableId, searchId, fornId); window.scrollTo({ top: 0, behavior: 'smooth' });
+  save(K.cfg, config); renderDecAce(kind, tableId, searchId, fornId);
+  const el = $('#card'+(kind==='decoracao'?'Decoracao':'Acessorios')); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 $('#btnAddDec')?.addEventListener('click', () => addDecAce('decoracao','decTable','decSearch','decForn'));
 $('#btnAddAce')?.addEventListener('click', () => addDecAce('acessorios','aceTable','aceSearch','aceForn'));
