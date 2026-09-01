@@ -843,7 +843,7 @@
         </div>
 
         <!-- ===== EDITOR DE CALHAS — Tamanhos × Preços (3C) ===== -->
-        <div class="card" id="cardCalhaGrid">
+        <div class="card" id="cardCalhaGrid" style="display:none;">
           <div class="card-head">
             <h3>Editor de Calhas — Tamanhos × Preços</h3>
           </div>
@@ -852,7 +852,7 @@
         </div>
 
         <!-- ===== TECIDOS ===== -->
-        <div class="card">
+        <div class="card" id="cardTecidos" style="display:none;">
           <div class="card-head">
             <h3>Tecidos</h3>
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
@@ -866,7 +866,7 @@
         </div>
 
         <!-- ===== CONFECÇÃO ===== -->
-        <div class="card">
+        <div class="card" id="cardConfeccao" style="display:none;">
           <div class="card-head">
             <h3>Confecção (Mónica Confecções)</h3>
             <button class="btn btn-sm" id="btnAddConf">+ Nova confecção</button>
@@ -885,7 +885,7 @@
         </div>
 
         <!-- ===== DECORAÇÃO ===== -->
-        <div class="card">
+        <div class="card" id="cardDecoracao" style="display:none;">
           <div class="card-head">
             <h3>Decoração</h3>
             <button class="btn btn-sm" id="btnAddDec">+ Novo produto</button>
@@ -905,7 +905,7 @@
         </div>
 
         <!-- ===== ACESSÓRIOS ===== -->
-        <div class="card">
+        <div class="card" id="cardAcessorios" style="display:none;">
           <div class="card-head">
             <h3>Acessórios Gerais</h3>
             <button class="btn btn-sm" id="btnAddAce">+ Novo acessório</button>
@@ -2154,6 +2154,7 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // PRODUTOS / TECIDOS UI
 // ============================================================
 const CAT_ORDER = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
+const SECTION_TABS = ['Tecidos','Confecção','Decoração','Acessórios'];
 let catAtiva = 'Cortinas';
 const disAttr = () => !isAdmin ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
 const fornOptsHTML = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
@@ -2254,12 +2255,37 @@ function renderCatalog() {
   const ativas = config.categoriasAtivas || {};
   const cats = CAT_ORDER.filter(c => ativas[c] !== false && produtos.some(p => p.categoria === c));
   produtos.forEach(p => { if (p.categoria && !cats.includes(p.categoria) && ativas[p.categoria] !== false) cats.push(p.categoria); });
-  if (!cats.includes(catAtiva)) catAtiva = cats[0] || '';
+  const allTabs = [...cats, ...SECTION_TABS];
+  if (!allTabs.includes(catAtiva)) catAtiva = allTabs[0] || '';
+  const isSection = SECTION_TABS.includes(catAtiva);
   const tabs = $('#catTabs');
   if (tabs) {
-    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('');
-    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderCatalog(); }));
+    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('')
+      + '<span style="width:8px;"></span>'
+      + SECTION_TABS.map(s => {
+        let cnt = '';
+        if (s === 'Tecidos') cnt = ` (${tecidos.length})`;
+        else if (s === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
+        else if (s === 'Decoração') cnt = ` (${(config.decoracao||[]).length})`;
+        else if (s === 'Acessórios') cnt = ` (${(config.acessorios||[]).length})`;
+        return `<button data-cat="${esc(s)}" class="${s===catAtiva?'active':''}" style="border-style:dashed;">${esc(s)}${cnt}</button>`;
+      }).join('');
+    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); }));
   }
+  const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
+  const cardCat = $('#prodTable')?.closest('.card');
+  if (cardCat) cardCat.style.display = isSection ? 'none' : '';
+  const cardCalha = $('#cardCalhaGrid');
+  if (cardCalha) cardCalha.style.display = isCalha ? '' : 'none';
+  const cardTec = $('#cardTecidos');
+  if (cardTec) cardTec.style.display = catAtiva === 'Tecidos' ? '' : 'none';
+  const cardConf = $('#cardConfeccao');
+  if (cardConf) cardConf.style.display = catAtiva === 'Confecção' ? '' : 'none';
+  const cardDec = $('#cardDecoracao');
+  if (cardDec) cardDec.style.display = catAtiva === 'Decoração' ? '' : 'none';
+  const cardAce = $('#cardAcessorios');
+  if (cardAce) cardAce.style.display = catAtiva === 'Acessórios' ? '' : 'none';
+  if (isSection) return;
   const dis = disAttr();
   const q = norm($('#catSearch')?.value||'').trim();
   const fq = norm($('#catForn')?.value||'').trim();
@@ -3482,7 +3508,21 @@ if (document.readyState === 'loading') {
 // ============================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW reg failed', err));
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (nw) nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      });
+      setInterval(() => reg.update().catch(() => {}), 60000);
+    }).catch(err => console.warn('SW reg failed', err));
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
   });
 }
 </script>
