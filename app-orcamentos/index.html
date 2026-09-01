@@ -161,6 +161,9 @@
   .item-internal-body { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; }
   .item-internal-body .field { margin-bottom: 0; }
   @media (max-width: 900px) { .item-internal-body { grid-template-columns: 1fr 1fr; } }
+  .item-lucro { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 10px 12px; margin: 0 12px 12px; background: rgba(27,91,74,0.06); border-left: 3px solid var(--dark); font-size: 11px; color: var(--muted); }
+  .item-lucro span { white-space: nowrap; }
+  .item-lucro strong { color: var(--dark); font-variant-numeric: tabular-nums; }
 
   /* ===== TOTALS ===== */
   .totals { margin-top: 14px; max-width: 360px; margin-left: auto; }
@@ -1422,6 +1425,7 @@ function renderItems() {
           <div class="field tight"><label>Confecção (€/ml)</label><input type="number" step="0.01" min="0" data-fld="conf" value="${it.conf??''}" placeholder="padrão do tecido" /></div>
           <div class="field tight"><label>Margem lucro (%)</label><input type="number" step="1" min="40" max="95" data-fld="margem" value="${it.margem??''}" placeholder="padrão ${config.margemPct??60}" /></div>
         </div>
+        <div class="item-lucro"></div>
       </details>
     `;
     wrap.appendChild(card);
@@ -1461,6 +1465,10 @@ function renderItems() {
           if (s.preco > 0) {
             orc.itens[i].preco = s.preco;
             const pi = $('[data-fld="preco"]', card); if (pi) pi.value = s.preco.toFixed(2);
+          }
+          if (s.un && f !== 'un') {
+            orc.itens[i].un = s.un;
+            const ui = $('[data-fld="un"]', card); if (ui) ui.value = s.un;
           }
           updateSuggestion(card, i);
         }
@@ -1503,8 +1511,8 @@ function setupProdAutocomplete(card, i) {
     orc.itens[i].codigo = p.codigo;
     orc.itens[i].nome = p.nome;
     orc.itens[i].categoria = p.categoria;
-    if (p.unidade && !orc.itens[i].un) orc.itens[i].un = p.unidade;
     const sug = computeSuggested(orc.itens[i]);
+    orc.itens[i].un = sug.un || p.unidade || orc.itens[i].un || '';
     if (sug.preco > 0) orc.itens[i].preco = sug.preco;
     else if (p.preco > 0 && !orc.itens[i].preco) orc.itens[i].preco = p.preco;
     list.classList.remove('show');
@@ -1552,6 +1560,7 @@ function computeSuggested(it) {
     const aviso = (needed > sizes[sizes.length - 1].m) ? ' ⚠ acima do maior tamanho — confirmar com Giferant' : '';
     return {
       preco: Math.round(pick.p * 100) / 100,
+      un: 'uni',
       text: `${prod.nome}: janela ${(+it.largura).toFixed(2)}m + folga ${folga.toFixed(2)}m = ${needed.toFixed(2)}m → tamanho ${pick.m.toFixed(2)}m = ${fmtEUR(pick.p)}${aviso}`
     };
   }
@@ -1570,15 +1579,38 @@ function computeSuggested(it) {
   const qtdTecido = (larg_m * fator) + bainhas;                                  // metros lineares de tecido
   const base = qtdTecido * (custoTec + custoConf);
   const pvp = base / (1 - margemPct / 100);
+  const precoR = Math.round(pvp * 100) / 100;
+  const custoR = Math.round(base * 100) / 100;
+  const lucro = Math.round((precoR - custoR) * 100) / 100;
+  const margemReal = precoR > 0 ? Math.round((lucro / precoR) * 1000) / 10 : 0;
   return {
-    preco: Math.round(pvp * 100) / 100,
-    text: `(${larg_m.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas) = ${qtdTecido.toFixed(2)}m tecido × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${margemPct}%) = ${fmtEUR(pvp)} c/IVA`
+    preco: precoR,
+    un: 'ml',
+    ml: Math.round(qtdTecido * 100) / 100,
+    custo: custoR,
+    lucro: lucro,
+    margemReal: margemReal,
+    text: `(${larg_m.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas) = ${qtdTecido.toFixed(2)} ml × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${margemPct}%) = ${fmtEUR(pvp)} c/IVA`
   };
 }
 function updateSuggestion(card, i) {
+  const s = computeSuggested(orc.itens[i]);
   const el = card.querySelector('.item-suggest');
-  if (!el) return;
-  el.textContent = computeSuggested(orc.itens[i]).text;
+  if (el) el.textContent = s.text;
+  // Painel interno de lucro (nunca vai para o PDF — só existe no ecrã de edição).
+  const lucroEl = card.querySelector('.item-lucro');
+  if (lucroEl) {
+    if (s.custo != null) {
+      lucroEl.innerHTML =
+        `<span>Custo total: <strong>${fmtEUR(s.custo)}</strong></span>` +
+        `<span>PVP c/IVA: <strong>${fmtEUR(s.preco)}</strong></span>` +
+        `<span>Lucro bruto: <strong>${fmtEUR(s.lucro)}</strong></span>` +
+        `<span>Margem real: <strong>${s.margemReal.toFixed(1)}%</strong></span>`;
+      lucroEl.style.display = '';
+    } else {
+      lucroEl.style.display = 'none';
+    }
+  }
 }
 
 // ============================================================
