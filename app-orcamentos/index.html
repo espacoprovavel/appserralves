@@ -153,6 +153,14 @@
   .item-suggest { font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; min-height: 14px; }
   .item-grid-a { display: grid; grid-template-columns: 110px 1fr 160px; gap: 10px; margin-bottom: 10px; }
   .item-grid-b { display: grid; grid-template-columns: 1fr 90px 90px 70px 80px 90px 70px; gap: 8px; }
+  .item-internal { margin-top: 10px; background: var(--soft); border: 1px dashed var(--border); border-radius: 4px; }
+  .item-internal > summary { cursor: pointer; list-style: none; padding: 8px 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); user-select: none; }
+  .item-internal > summary::-webkit-details-marker { display: none; }
+  .item-internal > summary::before { content: '🔒 '; }
+  .item-internal[open] > summary { border-bottom: 1px dashed var(--border); }
+  .item-internal-body { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; }
+  .item-internal-body .field { margin-bottom: 0; }
+  @media (max-width: 900px) { .item-internal-body { grid-template-columns: 1fr 1fr; } }
 
   /* ===== TOTALS ===== */
   .totals { margin-top: 14px; max-width: 360px; margin-left: auto; }
@@ -747,9 +755,9 @@
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
           <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="tecTable" style="min-width:520px;">
-              <colgroup><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:90px"><col><col style="width:44px"></colgroup>
-              <thead><tr><th>Código</th><th>Nome</th><th class="num">Custo €/m</th><th class="num">Confecção €/ml</th><th>Cor</th><th></th></tr></thead>
+            <table class="t" id="tecTable" style="min-width:640px;">
+              <colgroup><col style="width:80px"><col style="width:150px"><col style="width:85px"><col style="width:95px"><col style="width:90px"><col><col style="width:44px"></colgroup>
+              <thead><tr><th>Código</th><th>Nome</th><th class="num">Custo €/m</th><th class="num">Confecção €/ml</th><th>Cor</th><th>Fornecedor / Ref (interno)</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -846,13 +854,18 @@
               60% → ÷ 0,40 · 50% → ÷ 0,50 · 40% → ÷ 0,60
             </div>
 
-            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Multiplicador de tecido (largura da janela × coef = metros de tecido)</h4>
+            <div class="grid grid-2 mt-12">
+              <div class="field"><label>Margem de bainhas (m)</label><input type="number" id="cfgBainhas" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Metros de tecido acrescentados (ourela sup.+inf.). Padrão 0,30.</div></div>
+              <div class="field"><label>Folga da calha (m)</label><input type="number" id="cfgFolga" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somada à largura antes de escolher o tamanho. Padrão 0,03.</div></div>
+            </div>
+            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Fator de franzido (largura da janela × fator + bainhas = metros de tecido)</h4>
             <div class="grid grid-2">
               <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.01" min="1" /></div>
               <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.01" min="1" /></div>
               <div class="field"><label>Cortina Franzido</label><input type="number" id="cfgCoefFranzido" step="0.01" min="1" /></div>
               <div class="field"><label>Cortina Blackout</label><input type="number" id="cfgCoefBlackout" step="0.01" min="1" /></div>
             </div>
+            <p class="muted small" style="margin-top:8px;">Estes são os valores <strong>padrão</strong>. Em cada item do orçamento podes sobrepor o fator, bainhas, confecção e margem na secção "Informação interna".</p>
           </div>
 
           <div class="card">
@@ -1136,8 +1149,12 @@ const DEFAULT_CONFIG = {
   printFormat: 'a4',
   // Margem de lucro aplicada ao tecido + confecção (mínimo 40%). Padrão Legado = 60%.
   margemPct: 60,
-  // Multiplicador de tecido por metro de largura de janela (folga p/ franzir/ondular).
-  // Cálculo cortina: PVP c/IVA = (largura×coef) × (custo tecido c/IVA + confecção €/ml) ÷ (1 − margem)
+  // Margem de bainhas: metros de tecido acrescentados (ourela sup.+inf.). Padrão 0,30 m.
+  margemBainhas: 0.30,
+  // Folga da calha: acrescentada à largura da janela antes de escolher o tamanho. Padrão 0,03 m.
+  folgaCalha: 0.03,
+  // Multiplicador (fator de franzido) por tipo de cortina — metros de tecido por metro de janela.
+  // Cortina: PVP c/IVA = ((largura×fator)+bainhas) × (custo tecido c/IVA + confecção €/ml) ÷ (1 − margem)
   coefs: { 'Cortina Onda Natural': 2.77, 'Cortina Ilhós': 2.77, 'Cortina Franzido': 2.77, 'Cortina Blackout': 2.77 }
 };
 const CATALOG_VERSION = 2;
@@ -1388,14 +1405,24 @@ function renderItems() {
       </div>
       <div class="item-grid-b">
         <div class="field tight"><label>Cor</label><input type="text" data-fld="cor" value="${esc(it.cor)}" placeholder="Linho, Cru..." /></div>
-        <div class="field tight"><label>Largura (cm)</label><input type="number" min="0" step="1" data-fld="largura" value="${it.largura||''}" /></div>
-        <div class="field tight"><label>Altura (cm)</label><input type="number" min="0" step="1" data-fld="altura" value="${it.altura||''}" /></div>
+        <div class="field tight"><label>Largura (m)</label><input type="number" min="0" step="0.01" data-fld="largura" value="${it.largura||''}" placeholder="2,20" /></div>
+        <div class="field tight"><label>Altura (m)</label><input type="number" min="0" step="0.01" data-fld="altura" value="${it.altura||''}" placeholder="2,75" /></div>
         <div class="field tight"><label>Qtd</label><input type="number" min="0" step="0.01" data-fld="qtd" value="${it.qtd||1}" /></div>
-        <div class="field tight"><label>Un</label><input type="text" data-fld="un" value="${esc(it.un||'')}" placeholder="UN / MT / m²" /></div>
+        <div class="field tight"><label>Un</label><input type="text" data-fld="un" value="${esc(it.un||'')}" placeholder="un / m" /></div>
         <div class="field tight"><label>P.V.P. (€)</label><input type="number" min="0" step="0.01" data-fld="preco" value="${it.preco||''}" /></div>
         <div class="field tight"><label>Desc (%)</label><input type="number" min="0" max="100" step="1" data-fld="desc" value="${it.desc||0}" /></div>
       </div>
       <div class="item-suggest"></div>
+      <details class="item-internal">
+        <summary>Informação interna — não aparece no orçamento</summary>
+        <div class="item-internal-body">
+          <div class="field tight" style="grid-column:1 / -1;"><label>Fornecedor / Ref. no site</label><input type="text" data-fld="fornecedorRef" value="${esc(it.fornecedorRef||'')}" placeholder="Giferant — REF-..." /></div>
+          <div class="field tight"><label>Fator de franzido</label><input type="number" step="0.01" min="1" data-fld="fator" value="${it.fator??''}" placeholder="padrão ${(config.coefs&&config.coefs[it.nome])||2.77}" /></div>
+          <div class="field tight"><label>Margem bainhas (m)</label><input type="number" step="0.01" min="0" data-fld="bainhas" value="${it.bainhas??''}" placeholder="padrão ${(config.margemBainhas??0.30)}" /></div>
+          <div class="field tight"><label>Confecção (€/ml)</label><input type="number" step="0.01" min="0" data-fld="conf" value="${it.conf??''}" placeholder="padrão do tecido" /></div>
+          <div class="field tight"><label>Margem lucro (%)</label><input type="number" step="1" min="40" max="95" data-fld="margem" value="${it.margem??''}" placeholder="padrão ${config.margemPct??60}" /></div>
+        </div>
+      </details>
     `;
     wrap.appendChild(card);
     updateSuggestion(card, i);
@@ -1411,16 +1438,25 @@ function renderItems() {
         const f = el.dataset.fld;
         let v = el.value;
         if (['largura','altura','qtd','preco','desc'].includes(f)) v = parseFloat(v) || 0;
+        // Overrides internos: guardar em bruto ('' = herda o padrão).
         orc.itens[i][f] = v;
-        // Ao escolher o tecido, preenche a cor automaticamente a partir do catálogo.
+        // Ao escolher o tecido, preenche a cor e o fornecedor/ref a partir do catálogo.
         if (f === 'tecido') {
           const tsel = tecidos.find(t => t.nome === v);
-          if (tsel && tsel.cores) {
-            orc.itens[i].cor = tsel.cores;
-            const ci = $('[data-fld="cor"]', card); if (ci) ci.value = tsel.cores;
+          if (tsel) {
+            if (tsel.cores) { orc.itens[i].cor = tsel.cores; const ci = $('[data-fld="cor"]', card); if (ci) ci.value = tsel.cores; }
+            orc.itens[i].fornecedorRef = tsel.fornecedor || '';
+            const fi = $('[data-fld="fornecedorRef"]', card); if (fi) fi.value = tsel.fornecedor || '';
+            const cf = $('[data-fld="conf"]', card); if (cf) cf.placeholder = 'padrão do tecido (' + (tsel.conf ?? 0) + ')';
           }
         }
-        if (['nome','tecido','largura','altura','qtd'].includes(f)) {
+        // Editar o Fornecedor/Ref grava também no tecido (fica memorizado).
+        if (f === 'fornecedorRef') {
+          const tsel = tecidos.find(t => t.nome === orc.itens[i].tecido);
+          if (tsel) { tsel.fornecedor = v; save(K.tec, tecidos); }
+        }
+        const recompute = ['nome','tecido','largura','altura','qtd','fator','bainhas','conf','margem'].includes(f);
+        if (recompute) {
           const s = computeSuggested(orc.itens[i]);
           if (s.preco > 0) {
             orc.itens[i].preco = s.preco;
@@ -1476,13 +1512,22 @@ function setupProdAutocomplete(card, i) {
   });
 }
 
-// Margem de lucro (fração) com mínimo bloqueado de 40%.
-function getMargem() {
-  let pct = parseFloat(config.margemPct);
+// Normaliza uma percentagem de margem com mínimo bloqueado de 40%.
+function clampMargemPct(pct) {
   if (!isFinite(pct)) pct = 60;
   if (pct < 40) pct = 40;   // mínimo Legado Decor — nunca abaixo de 40%
   if (pct > 95) pct = 95;   // divisor não pode ser 0/negativo
-  return pct / 100;
+  return pct;
+}
+// Margem padrão (fração) definida no painel.
+function getMargem() { return clampMargemPct(parseFloat(config.margemPct)) / 100; }
+
+// Lê um override numérico do item (só conta se preenchido); senão devolve o valor padrão.
+function itemNum(it, key, fallback) {
+  const v = it[key];
+  if (v === '' || v == null) return fallback;
+  const n = parseFloat(v);
+  return isFinite(n) ? n : fallback;
 }
 
 // Encontra o produto de catálogo correspondente ao item (por nome ou código).
@@ -1490,40 +1535,44 @@ function findProduto(it) {
   return produtos.find(p => p.nome === it.nome) || produtos.find(p => p.codigo === it.codigo) || null;
 }
 
-// Preço UNITÁRIO sugerido (sem qtd — o qtd é aplicado em lineTotal).
+// Preço UNITÁRIO sugerido (sem qtd nem desconto — aplicados em lineTotal).
+// Medidas em METROS (não dividir por 100).
 function computeSuggested(it) {
   const prod = findProduto(it);
 
-  // ----- CALHA: preço de catálogo × 1,23 (já incluído nos dados). Seleção automática
-  // do tamanho imediatamente ≥ largura da janela. A calha NÃO entra na margem. -----
+  // ----- CALHA: tamanho = largura + folga; escolhe o tamanho de catálogo imediatamente ≥.
+  // Preço = preço de catálogo ao cliente (× 1,23, já nos dados). Exceção 5000 2,20m = €49.
+  // A calha NUNCA entra na margem. -----
   if (prod && prod.tipo === 'calha' && Array.isArray(prod.tamanhos) && prod.tamanhos.length) {
     if (!it.largura) return { preco: 0, text: 'Indica a largura da janela para escolher o tamanho da calha.' };
-    const w = it.largura / 100;
+    const folga = (config.folgaCalha != null) ? parseFloat(config.folgaCalha) : 0.03;
+    const needed = (parseFloat(it.largura) || 0) + folga;   // metros
     const sizes = prod.tamanhos.slice().sort((a, b) => a.m - b.m);
-    const pick = sizes.find(s => s.m >= w) || sizes[sizes.length - 1];
-    const aviso = (w > sizes[sizes.length - 1].m) ? ' ⚠ largura acima do maior tamanho — confirmar com Giferant' : '';
+    const pick = sizes.find(s => s.m >= needed) || sizes[sizes.length - 1];
+    const aviso = (needed > sizes[sizes.length - 1].m) ? ' ⚠ acima do maior tamanho — confirmar com Giferant' : '';
     return {
       preco: Math.round(pick.p * 100) / 100,
-      text: `${prod.nome}: janela ${w.toFixed(2)}m → tamanho ${pick.m.toFixed(2)}m = ${fmtEUR(pick.p)}${aviso}`
+      text: `${prod.nome}: janela ${(+it.largura).toFixed(2)}m + folga ${folga.toFixed(2)}m = ${needed.toFixed(2)}m → tamanho ${pick.m.toFixed(2)}m = ${fmtEUR(pick.p)}${aviso}`
     };
   }
 
-  // ----- CORTINA: PVP c/IVA = (largura×coef) × (custo tecido c/IVA + confecção €/ml) ÷ (1−margem) -----
+  // ----- CORTINA: PVP c/IVA = ((largura×fator)+bainhas) × (custo tecido c/IVA + confecção) ÷ (1−margem) -----
   const isCortina = prod ? prod.tipo === 'cortina' : (config.coefs && config.coefs[it.nome]);
   if (!isCortina) return { preco: 0, text: '' };
-  const coef = (config.coefs && config.coefs[it.nome]) || 2.77;
   const tec = tecidos.find(t => t.nome === it.tecido);
   if (!tec || !it.largura) return { preco: 0, text: 'Escolhe o tecido e indica a largura da janela.' };
-  const larg_m = it.largura / 100;
-  const metros = larg_m * coef;                       // metros lineares de tecido
-  const custoTec = parseFloat(tec.preco) || 0;        // €/m fornecedor (c/ IVA)
-  const custoConf = parseFloat(tec.conf) || 0;        // €/ml confecção
-  const margem = getMargem();
-  const base = metros * (custoTec + custoConf);        // custo tecido + confecção
-  const pvp = base / (1 - margem);                     // aplica a margem
+  const larg_m = parseFloat(it.largura) || 0;                                    // metros (direto)
+  const fator = itemNum(it, 'fator', (config.coefs && config.coefs[it.nome]) || 2.77);
+  const bainhas = itemNum(it, 'bainhas', (config.margemBainhas != null ? parseFloat(config.margemBainhas) : 0.30));
+  const custoTec = parseFloat(tec.preco) || 0;                                   // €/m fornecedor (c/ IVA)
+  const custoConf = itemNum(it, 'conf', parseFloat(tec.conf) || 0);              // €/ml confecção (override possível)
+  const margemPct = clampMargemPct(itemNum(it, 'margem', parseFloat(config.margemPct)));
+  const qtdTecido = (larg_m * fator) + bainhas;                                  // metros lineares de tecido
+  const base = qtdTecido * (custoTec + custoConf);
+  const pvp = base / (1 - margemPct / 100);
   return {
     preco: Math.round(pvp * 100) / 100,
-    text: `${larg_m.toFixed(2)}m × ${coef} = ${metros.toFixed(2)}m tecido × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${Math.round(margem*100)}%) = ${fmtEUR(pvp)} c/IVA`
+    text: `(${larg_m.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas) = ${qtdTecido.toFixed(2)}m tecido × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${margemPct}%) = ${fmtEUR(pvp)} c/IVA`
   };
 }
 function updateSuggestion(card, i) {
@@ -1542,7 +1591,7 @@ function recalc() {
   orc.itens.forEach((it, i) => {
     const tot = lineTotal(it);
     total += tot;
-    const med = (it.largura && it.altura) ? `${(it.largura/100).toFixed(2)}m × ${(it.altura/100).toFixed(2)}m` : '—';
+    const med = (it.largura && it.altura) ? `${(+it.largura).toFixed(2)}m × ${(+it.altura).toFixed(2)}m` : '—';
     const tecCor = [it.tecido, it.cor].filter(Boolean).join(' · ');
     const dscTxt = (it.desc||0) > 0 ? `${it.desc}%` : '—';
     const tr = document.createElement('tr');
@@ -1727,11 +1776,12 @@ function renderProdutos() {
       <td><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco}" class="num" ${dis} /></td>
       <td><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? 0}" class="num" ${dis} /></td>
       <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
+      <td><input type="text" data-t="${i}" data-f="fornecedor" value="${esc(t.fornecedor||'')}" placeholder="Giferant — REF-..." ${dis} /></td>
       <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>
     `;
     tb.appendChild(tr);
   });
-  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="6" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
+  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="7" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
   tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
     tecidos[i][f] = (f === 'preco' || f === 'conf') ? (parseFloat(el.value)||0) : el.value;
@@ -1771,6 +1821,8 @@ function renderConfigForm() {
   $('#defValidade').value = config.defValidade;
   $('#printFormat').value = config.printFormat || 'a4';
   $('#cfgMargem').value = config.margemPct ?? 60;
+  $('#cfgBainhas').value = config.margemBainhas ?? 0.30;
+  $('#cfgFolga').value = config.folgaCalha ?? 0.03;
   $('#cfgCoefOnda').value = config.coefs['Cortina Onda Natural'] ?? 2.77;
   $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.77;
   $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.77;
@@ -1806,6 +1858,8 @@ $('#btnSaveConfig').addEventListener('click', () => {
   if (mg > 95) mg = 95;
   config.margemPct = mg;
   $('#cfgMargem').value = mg;
+  config.margemBainhas = parseFloat($('#cfgBainhas').value); if (!isFinite(config.margemBainhas)) config.margemBainhas = 0.30;
+  config.folgaCalha = parseFloat($('#cfgFolga').value); if (!isFinite(config.folgaCalha)) config.folgaCalha = 0.03;
   config.coefs = {
     'Cortina Onda Natural': parseFloat($('#cfgCoefOnda').value)||2.77,
     'Cortina Ilhós': parseFloat($('#cfgCoefIlhos').value)||2.77,
@@ -1825,7 +1879,7 @@ function recalcCortinasAtual() {
   let mudou = false;
   orc.itens.forEach(it => {
     const prod = findProduto(it);
-    if (prod && prod.tipo === 'cortina') {
+    if (prod && (prod.tipo === 'cortina' || prod.tipo === 'calha')) {
       const s = computeSuggested(it);
       if (s.preco > 0) { it.preco = s.preco; mudou = true; }
     }
@@ -1888,7 +1942,7 @@ function pdfHTML(o) {
   let lastDim = '';
   o.itens.forEach((it) => {
     const tot = lineTotal(it);
-    const dim = (it.largura && it.altura) ? `${(it.largura/100).toFixed(2)}m larg × ${(it.altura/100).toFixed(2)}m alt` : '';
+    const dim = (it.largura && it.altura) ? `${(+it.largura).toFixed(2)}m larg × ${(+it.altura).toFixed(2)}m alt` : '';
     if (dim && dim !== lastDim) {
       linhas += `<tr class="janela-row"><td colspan="8"><strong>Janela</strong> (${dim})</td></tr>`;
       lastDim = dim;
@@ -2037,7 +2091,7 @@ $('#btnWhatsApp').addEventListener('click', () => {
   const tot = totalOf(orc);
   const lines = orc.itens.map(it => {
     const d = it.nome || '—';
-    const med = (it.largura&&it.altura) ? ` ${(it.largura/100).toFixed(2)}m×${(it.altura/100).toFixed(2)}m` : '';
+    const med = (it.largura&&it.altura) ? ` ${(+it.largura).toFixed(2)}m×${(+it.altura).toFixed(2)}m` : '';
     return `• ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR((it.qtd||0)*(it.preco||0))}`;
   }).join('\n');
   const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\n` +
@@ -2054,7 +2108,7 @@ $('#btnEmail').addEventListener('click', () => {
   const body = `Caro(a) ${orc.cliente.nome||'cliente'},\n\nSegue o resumo do orçamento ${orc.ref}.\n\n` +
     orc.itens.map(it => {
       const d = it.nome || '—';
-      const med = (it.largura&&it.altura) ? ` (${it.largura}×${it.altura}cm)` : '';
+      const med = (it.largura&&it.altura) ? ` (${(+it.largura).toFixed(2)}×${(+it.altura).toFixed(2)}m)` : '';
       return `- ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR((it.qtd||0)*(it.preco||0))}`;
     }).join('\n') +
     `\n\nTotal: ${fmtEUR(tot)} (IVA incluído)\nValidade: ${orc.validade||30} dias\n\nCom os melhores cumprimentos,\n${config.empresa.nome}\n${config.empresa.tel}\n${config.empresa.email}`;
@@ -2287,7 +2341,7 @@ function applyRoleUI() {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgMargem','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgMargem','cfgBainhas','cfgFolga','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
