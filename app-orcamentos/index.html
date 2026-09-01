@@ -71,8 +71,7 @@
   .sidebar .foot { padding: 14px 22px; font-size: 10px; opacity: 0.5; letter-spacing: 0.5px; border-top: 1px solid rgba(245,240,230,0.1); }
 
   .main { padding: 28px 36px 36px; max-width: 100%; min-width: 0; overflow-x: hidden; }
-  .container { max-width: 1100px; margin: 0 auto; min-width: 0; }
-  .container.full-width { max-width: 100%; }
+  .container { max-width: 100%; margin: 0 auto; min-width: 0; }
   .cfg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
   .cfg-row > .card { margin-bottom: 0; }
   .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
@@ -137,7 +136,7 @@
     linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0)) 0 0/14px 100% no-repeat,
     linear-gradient(-90deg, rgba(0,0,0,0.08), rgba(0,0,0,0)) 100% 0/14px 100% no-repeat;
     background-attachment: local, local, scroll, scroll; }
-  table.t { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; }
   table.t th, table.t td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); word-wrap: break-word; overflow-wrap: break-word; }
   table.t th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); background: var(--soft); }
   table.t tbody tr:nth-child(even) td { background: rgba(212,207,197,0.18); }
@@ -351,8 +350,23 @@
     .hist-toolbar input[type=search] { max-width: 100%; }
     .hist-toolbar select { max-width: 100%; }
     .totals { max-width: 100%; }
-    .btn { padding: 12px 16px; font-size: 11px; }
+    .btn { padding: 12px 16px; font-size: 11px; min-height: 44px; }
     .btn-row { flex-wrap: wrap; gap: 8px; }
+    .btn-sm, .btn-xs { min-height: 44px; padding: 10px 14px; }
+    /* Mobile: tables → stacked cards */
+    .mob-cards table.t { display: block; }
+    .mob-cards table.t colgroup, .mob-cards table.t thead { display: none; }
+    .mob-cards table.t tbody { display: flex; flex-direction: column; gap: 8px; }
+    .mob-cards table.t tbody tr { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 10px 12px; border: 1px solid var(--border); background: var(--white); border-bottom: none; }
+    .mob-cards table.t tbody tr td { display: inline-flex; align-items: center; gap: 4px; border: 0; padding: 2px 0; font-size: 13px; background: transparent !important; }
+    .mob-cards table.t tbody tr td:empty { display: none; }
+    .mob-cards table.t tbody tr td input, .mob-cards table.t tbody tr td select { min-height: 40px; font-size: 14px; }
+    .mob-cards table.t tbody tr td::before { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+    .mob-cards table.t tbody tr td.int { display: none; }
+    /* Calha grid mobile */
+    .calha-family-head { flex-wrap: wrap; }
+    table.calha-grid { width: 100%; }
+    table.calha-grid td input { width: 60px; min-height: 40px; }
     /* Auth overlay mobile */
     #authOverlay { padding: 16px; align-items: flex-start; overflow-y: auto; }
     #authOverlay .auth-box { padding: 24px 20px; margin-top: auto; margin-bottom: auto; }
@@ -400,6 +414,69 @@
   .members-table .role-user { background: var(--soft); color: var(--muted); }
   .members-table .inactive { opacity: 0.5; }
   .invite-card { background: var(--soft); padding: 16px; margin-bottom: 16px; border-left: 3px solid var(--dark); }
+
+  /* ===== TOOLTIPS ⓘ ===== */
+  .tip { position: relative; display: inline-flex; align-items: center; vertical-align: middle; }
+  .tip-btn { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 9px; font-weight: 700; border: 0; cursor: help; margin-left: 4px; line-height: 1; font-family: 'DM Sans', sans-serif; padding: 0; }
+  .tip-btn:hover, .tip-btn:focus { background: var(--dark); color: var(--creme); outline: none; }
+  .tip-text { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--creme); padding: 8px 12px; font-size: 11px; font-weight: 400; line-height: 1.45; white-space: normal; width: max-content; max-width: 280px; z-index: 50; border-radius: 4px; text-transform: none; letter-spacing: 0; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+  .tip-text::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--dark); }
+  .tip-btn:hover + .tip-text, .tip-btn:focus + .tip-text { display: block; }
+
+  /* ===== HIDE TOGGLE (3E) ===== */
+  .item-card.hidden-item { opacity: 0.45; background: #f5f3ee; }
+  .hide-toggle { background: transparent; border: 0; cursor: pointer; padding: 4px; color: var(--muted); display: inline-flex; align-items: center; }
+  .hide-toggle:hover { color: var(--dark); }
+  .item-card.hidden-item .hide-toggle { color: var(--err); }
+
+  /* ===== CALHA GRID EDITOR (3C) ===== */
+  .calha-forn-block { margin-bottom: 24px; }
+  .calha-forn-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--creme); background: var(--dark); padding: 10px 14px; margin-bottom: 0; }
+  .calha-family { margin-bottom: 0; padding: 12px 14px; border: 1px solid var(--border); border-top: 0; }
+  .calha-family:nth-child(odd) { background: var(--white); }
+  .calha-family:nth-child(even) { background: var(--soft); }
+  .calha-family-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; padding: 8px 10px; background: rgba(27,91,74,0.08); border-left: 3px solid var(--dark); }
+  .calha-family:nth-child(even) .calha-family-head { background: rgba(27,91,74,0.14); }
+  .calha-family-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
+  .calha-family-name .forn { display: none; }
+  .calha-family-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  table.calha-grid { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  table.calha-grid th { padding: 6px 10px; text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--soft); border-bottom: 1px solid var(--border); }
+  table.calha-grid td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  table.calha-grid td input { width: 80px; padding: 5px 6px; border: 1px solid transparent; background: transparent; font-size: 12px; border-radius: 3px; color: var(--dark); }
+  table.calha-grid td input:focus { border-color: var(--border); background: var(--white); outline: none; }
+  table.calha-grid td input[type=checkbox] { width: auto; }
+  .calha-empty { color: var(--muted); font-size: 11px; font-style: italic; padding: 6px 0; }
+
+  /* ===== GROUPED SECTIONS (fornecedor → tipo) ===== */
+  .forn-block { margin-bottom: 20px; }
+  .forn-block-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--creme); background: var(--dark); padding: 10px 14px; }
+  .tipo-group { border: 1px solid var(--border); border-top: 0; }
+  .tipo-group-head { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(27,91,74,0.06); cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+  .tipo-group-head:hover { background: rgba(27,91,74,0.12); }
+  .tipo-group-head .tg-arrow { transition: transform 0.2s; font-size: 10px; color: var(--muted); }
+  .tipo-group-head.collapsed .tg-arrow { transform: rotate(-90deg); }
+  .tipo-group-head .tg-label { font-weight: 600; font-size: 13px; }
+  .tipo-group-head .tg-count { font-size: 11px; color: var(--muted); }
+  .tipo-group-body { padding: 0; }
+  .tipo-group-body.collapsed { display: none; }
+  .tec-card-item { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 8px 14px; border-bottom: 1px solid var(--border); align-items: center; }
+  .tec-card-item:last-child { border-bottom: 0; }
+  .tec-card-item:hover { background: var(--soft); }
+  .tec-card-item .tci-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tec-card-item .tci-field label { margin-bottom: 0; font-size: 9px; }
+  .tec-card-item .tci-field input, .tec-card-item .tci-field select { padding: 5px 8px; font-size: 13px; min-height: 36px; border: 1px solid var(--border); border-radius: 3px; }
+  .tec-card-item .tci-field.int { opacity: 0.7; }
+  @media (max-width: 900px) {
+    .tec-card-item .tci-field.int { display: none; }
+    .tec-card-item { padding: 10px 12px; }
+  }
+
+  /* ===== CATEGORY TOGGLES (3B) ===== */
+  .cat-toggle { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cat-toggle label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--dark); cursor: pointer; padding: 5px 10px; background: var(--soft); border: 1px solid var(--border); border-radius: 16px; }
+  .cat-toggle label:hover { border-color: var(--dark); }
+  .cat-toggle input[type=checkbox] { accent-color: var(--dark); width: 14px; height: 14px; }
 
   /* ===== PRINT ===== */
   @media print {
@@ -691,7 +768,7 @@
           </div>
           <div class="totals">
             <div class="row total"><span>TOTAL A PAGAR</span><span id="total">€0,00</span></div>
-            <div class="row muted"><span></span><span>* Valores com IVA incluído à taxa em vigor (23%)</span></div>
+            <div class="row muted"><span></span><span id="ivaNote">* Valores com IVA incluído à taxa em vigor (23%)</span></div>
           </div>
         </div>
 
@@ -703,6 +780,7 @@
             <button class="btn" id="btnPreview">Pré-visualizar</button>
             <button class="btn btn-outline" id="btnDownloadPDF">Descarregar PDF</button>
             <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
+            <button class="btn btn-outline" id="btnPdfEN">PDF in English</button>
             <button class="btn btn-wa" id="btnWhatsApp">WhatsApp</button>
             <button class="btn btn-outline" id="btnEmail">Email</button>
           </div>
@@ -744,18 +822,25 @@
           <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
         </div>
 
-        <!-- ===== CATÁLOGO (por categoria) ===== -->
-        <div class="card">
-          <div class="card-head">
+        <!-- ===== TAB BAR (always visible) ===== -->
+        <div class="card" style="padding-bottom:14px;">
+          <div class="card-head" style="margin-bottom:8px;">
             <h3>Catálogo</h3>
-            <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
           </div>
           <div class="cat-tabs" id="catTabs"></div>
+        </div>
+
+        <!-- ===== CATÁLOGO (por categoria) ===== -->
+        <div class="card" id="cardCatalogo">
+          <div class="card-head">
+            <div></div>
+            <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
+          </div>
           <div class="sec-filters">
             <input type="search" id="catSearch" placeholder="Pesquisar nome ou código..." />
             <input type="search" id="catForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="prodTable" style="min-width:760px;">
               <colgroup><col style="width:90px"><col><col style="width:75px"><col style="width:50px"><col style="width:110px"><col style="width:130px"><col style="width:36px"></colgroup>
               <thead><tr><th>Código</th><th>Nome</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Ref/Obs</th><th></th></tr></thead>
@@ -764,30 +849,31 @@
           </div>
         </div>
 
+        <!-- ===== EDITOR DE CALHAS — Tamanhos × Preços (3C) ===== -->
+        <div class="card" id="cardCalhaGrid" style="display:none;">
+          <div class="card-head">
+            <h3>Editor de Calhas — Tamanhos × Preços</h3>
+          </div>
+          <p class="muted small" style="margin:0 0 12px;">Edite os preços de cada tamanho directamente. Ao alterar, os valores são guardados automaticamente.</p>
+          <div id="calhaGridArea"></div>
+        </div>
+
         <!-- ===== TECIDOS ===== -->
-        <div class="card">
+        <div class="card" id="cardTecidos" style="display:none;">
           <div class="card-head">
             <h3>Tecidos</h3>
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
-          <p class="muted small" style="margin:0 0 8px;">Colunas 🔒 douradas são internas — nunca aparecem no orçamento. Desliza para o lado para ver todas.</p>
+          <p class="muted small" style="margin:0 0 8px;">Agrupados por fornecedor e tipo. Clique no cabeçalho do tipo para expandir/recolher.</p>
           <div class="sec-filters">
             <input type="search" id="tecSearch" placeholder="Pesquisar nome, cor ou SKU..." />
-            <input type="search" id="tecForn" placeholder="🔒 Filtrar por fornecedor..." />
+            <input type="search" id="tecForn" placeholder="Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="tecTable" style="min-width:1180px;">
-              <colgroup><col style="width:85px"><col style="width:140px"><col style="width:150px"><col style="width:110px"><col style="width:110px"><col style="width:90px"><col style="width:90px"><col style="width:110px"><col style="width:80px"><col style="width:150px"><col style="width:80px"><col style="width:36px"></colgroup>
-              <thead><tr>
-                <th>SKU LD</th><th>Nome Legado</th><th class="int">🔒 Nome Original</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 SKU Fornec.</th><th class="int">🔒 Tipo</th><th>Cor</th><th class="int">🔒 Composição</th><th class="int num">🔒 Custo €/m</th><th class="int">🔒 Tipo Confecção</th><th class="int num">🔒 €/ml</th><th></th>
-              </tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+          <div id="tecGroupArea"></div>
         </div>
 
         <!-- ===== CONFECÇÃO ===== -->
-        <div class="card">
+        <div class="card" id="cardConfeccao" style="display:none;">
           <div class="card-head">
             <h3>Confecção (Mónica Confecções)</h3>
             <button class="btn btn-sm" id="btnAddConf">+ Nova confecção</button>
@@ -796,7 +882,7 @@
             <input type="search" id="confSearch" placeholder="Pesquisar serviço ou categoria..." />
             <input type="search" id="confForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="confTable" style="min-width:700px;">
               <colgroup><col style="width:130px"><col><col style="width:80px"><col style="width:65px"><col style="width:110px"><col><col style="width:36px"></colgroup>
               <thead><tr><th>Categoria</th><th>Serviço</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th>Observações</th><th></th></tr></thead>
@@ -806,7 +892,7 @@
         </div>
 
         <!-- ===== DECORAÇÃO ===== -->
-        <div class="card">
+        <div class="card" id="cardDecoracao" style="display:none;">
           <div class="card-head">
             <h3>Decoração</h3>
             <button class="btn btn-sm" id="btnAddDec">+ Novo produto</button>
@@ -816,7 +902,7 @@
             <input type="search" id="decSearch" placeholder="Pesquisar..." />
             <input type="search" id="decForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="decTable" style="min-width:1200px;">
               <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
               <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
@@ -826,7 +912,7 @@
         </div>
 
         <!-- ===== ACESSÓRIOS ===== -->
-        <div class="card">
+        <div class="card" id="cardAcessorios" style="display:none;">
           <div class="card-head">
             <h3>Acessórios Gerais</h3>
             <button class="btn btn-sm" id="btnAddAce">+ Novo acessório</button>
@@ -836,7 +922,7 @@
             <input type="search" id="aceSearch" placeholder="Pesquisar..." />
             <input type="search" id="aceForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="aceTable" style="min-width:1200px;">
               <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
               <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
@@ -917,8 +1003,8 @@
           <div class="card">
             <h3>Serviços</h3>
             <div class="grid grid-2">
-              <div class="field"><label>Medição por visita (€)</label><input type="number" id="svcMedicao" step="0.01" /></div>
-              <div class="field"><label>Instalação por janela (€)</label><input type="number" id="svcInstalacao" step="0.01" /></div>
+              <div class="field"><label>Medição por visita (€) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Valor cobrado por cada visita de medição ao domicílio do cliente.</span></span></label><input type="number" id="svcMedicao" step="0.01" /></div>
+              <div class="field"><label>Instalação por janela (€) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Valor cobrado pela instalação de calha e cortina por cada janela.</span></span></label><input type="number" id="svcInstalacao" step="0.01" /></div>
             </div>
             <p class="muted small" style="margin-top:8px;">Linhas fixas do orçamento. Adiciona-as como itens (Medição, Instalação) na criação do orçamento.</p>
           </div>
@@ -929,7 +1015,7 @@
             <h3>Margem de Lucro</h3>
             <p class="muted small">Aplica-se ao <strong>tecido + confecção</strong> da cortina. A calha nunca entra na margem (cobra sempre ao preço de mercado).</p>
             <div class="grid grid-2 mt-12">
-              <div class="field"><label>Margem (%)</label><input type="number" id="cfgMargem" step="1" min="40" max="95" /><div class="muted small" style="margin-top:4px;">Mínimo 40%. Padrão Legado Decor: 60%. Ao guardar, os preços do orçamento atual são recalculados.</div></div>
+              <div class="field"><label>Margem (%) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Percentagem de lucro aplicada sobre o custo total do tecido e da confecção. O PVP com IVA é calculado dividindo o custo por (1 − margem). Mínimo recomendado: 40%.</span></span></label><input type="number" id="cfgMargem" step="1" min="40" max="95" /><div class="muted small" style="margin-top:4px;">Mínimo 40%. Padrão Legado Decor: 60%. Ao guardar, os preços do orçamento atual são recalculados.</div></div>
             </div>
             <div class="muted small" style="margin-top:6px;line-height:1.6;">
               Fórmula: <strong>PVP c/IVA = (custo tecido c/IVA + confecção) ÷ (1 − margem)</strong><br>
@@ -937,10 +1023,10 @@
             </div>
 
             <div class="grid grid-2 mt-12">
-              <div class="field"><label>Margem de bainhas (m)</label><input type="number" id="cfgBainhas" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Metros de tecido acrescentados (ourela sup.+inf.). Padrão 0,30.</div></div>
-              <div class="field"><label>Folga da calha (m)</label><input type="number" id="cfgFolga" step="0.01" min="0" /><div class="muted small" style="margin-top:4px;">Somada à largura antes de escolher o tamanho. Padrão 0,03.</div></div>
+              <div class="field"><label>Margem de bainhas (m) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Metros de tecido adicionais para bainhas superiores e inferiores. Somados ao comprimento de tecido calculado pelo fator de franzido.</span></span></label><input type="number" id="cfgBainhas" step="0.01" min="0" /></div>
+              <div class="field"><label>Folga da calha (m) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Margem acrescentada à largura da janela antes de selecionar o tamanho da calha no catálogo. Garante que a calha é ligeiramente maior do que o vão.</span></span></label><input type="number" id="cfgFolga" step="0.01" min="0" /></div>
             </div>
-            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Fator de franzido (largura da janela × fator + bainhas = metros de tecido)</h4>
+            <h4 style="margin-top:18px;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Fator de franzido <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Multiplicador que determina quantos metros de tecido são necessários por metro de largura da janela. Valores maiores criam ondas mais cheias.</span></span></h4>
             <div class="grid grid-2">
               <div class="field"><label>Cortina Onda Natural</label><input type="number" id="cfgCoefOnda" step="0.01" min="1" /></div>
               <div class="field"><label>Cortina Ilhós</label><input type="number" id="cfgCoefIlhos" step="0.01" min="1" /></div>
@@ -952,10 +1038,10 @@
 
           <div class="card">
             <h3>Condições Padrão</h3>
-            <div class="field"><label>Notas (predefinição)</label><textarea id="defNotas" rows="3"></textarea></div>
+            <div class="field"><label>Notas (predefinição) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Texto predefinido que aparece na secção de condições de cada novo orçamento. Pode ser alterado individualmente em cada orçamento.</span></span></label><textarea id="defNotas" rows="3"></textarea></div>
             <div class="grid grid-2">
-              <div class="field"><label>Validade (dias)</label><input type="number" id="defValidade" /></div>
-              <div class="field"><label>Formato de impressão</label>
+              <div class="field"><label>Validade (dias) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Número de dias durante os quais o orçamento é válido a partir da data de emissão. Aparece no PDF.</span></span></label><input type="number" id="defValidade" /></div>
+              <div class="field"><label>Formato de impressão <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Escolha entre A4 (documento padrão) ou recibo de 80 mm (impressora térmica de ponto de venda).</span></span></label>
                 <select id="printFormat">
                   <option value="a4">A4 Normal</option>
                   <option value="receipt">Recibo 80mm</option>
@@ -963,6 +1049,19 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="card">
+          <h3>Produtos por Unidade <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Configurações para produtos vendidos por unidade: decoração, acessórios e taxa de IVA. As margens aqui definidas são os valores padrão para cada secção.</span></span></h3>
+          <p class="muted small">Margens padrão para Decoração e Acessórios, taxa de IVA e categorias visíveis no catálogo.</p>
+          <div class="grid grid-3 mt-12">
+            <div class="field"><label>Margem Decoração (%) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Margem de lucro padrão aplicada aos produtos de decoração. PVP = Custo Base ÷ (1 − margem/100).</span></span></label><input type="number" id="cfgMargemDec" step="1" min="0" max="95" /></div>
+            <div class="field"><label>Margem Acessórios (%) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Margem de lucro padrão aplicada aos acessórios gerais. PVP = Custo Base ÷ (1 − margem/100).</span></span></label><input type="number" id="cfgMargemAce" step="1" min="0" max="95" /></div>
+            <div class="field"><label>IVA (%) <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Taxa de IVA em vigor. Aparece no PDF e nos cálculos de preço. Em Portugal continental, a taxa normal é 23%.</span></span></label><input type="number" id="cfgIVA" step="1" min="0" max="100" /></div>
+          </div>
+          <div class="sub-head">Categorias visíveis no catálogo</div>
+          <p class="muted small" style="margin-bottom:8px;">Desative categorias que não utiliza. Apenas afeta a visibilidade nas abas do catálogo.</p>
+          <div class="cat-toggle" id="catToggles"></div>
         </div>
 
         <div class="card">
@@ -994,6 +1093,27 @@
           <div id="impReport" class="muted small" style="margin-top:10px;"></div>
         </div>
 
+        <div class="card" id="cardWooExport" style="border-left:3px solid var(--dark);">
+          <h3>Exportar para WooCommerce (CSV)</h3>
+          <p class="muted small">Gera um ficheiro CSV compatível com o importador nativo do WooCommerce. Apenas dados visíveis ao cliente — nunca exporta campos internos.</p>
+          <div class="grid grid-2 mt-12" style="max-width:560px;">
+            <div class="field"><label>Secção a exportar</label>
+              <select id="wooSection">
+                <option value="all">Tudo</option>
+                <option value="tecidos">Tecidos</option>
+                <option value="calhas">Calhas / Catálogo</option>
+                <option value="confeccoes">Confecção</option>
+                <option value="decoracao">Decoração</option>
+                <option value="acessorios">Acessórios</option>
+              </select>
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;">
+              <button class="btn" id="btnWooExport" style="width:100%;background:#1B5B4A;color:#fff;font-size:12px;padding:12px 20px;">EXPORTAR CSV</button>
+            </div>
+          </div>
+          <div id="wooExportMsg" class="muted small" style="margin-top:10px;"></div>
+        </div>
+
         <div class="card">
           <h3>Dados / Cópia de segurança</h3>
           <p class="muted small">Tudo é guardado localmente neste dispositivo. Exporta para criares uma cópia de segurança.</p>
@@ -1020,8 +1140,9 @@
             <div class="field"><label>Nome</label><input type="text" id="newMemberName" placeholder="Como quer ser chamado" /></div>
             <div class="field"><label>Email</label><input type="email" id="newMemberEmail" placeholder="colega@exemplo.pt" /></div>
             <div class="field"><label>Palavra-passe inicial</label><input type="text" id="newMemberPwd" placeholder="Mín. 8 caracteres" /></div>
-            <div class="field"><label>Função</label>
+            <div class="field"><label>Função <span class="tip"><button type="button" class="tip-btn" tabindex="-1">ⓘ</button><span class="tip-text">Apenas leitura: pode consultar orçamentos e produtos, mas não criar nem editar. Utilizador: pode criar e editar orçamentos. Administrador: acesso total incluindo configurações e equipa.</span></span></label>
               <select id="newMemberRole">
+                <option value="viewer">Apenas leitura</option>
                 <option value="user">Utilizador</option>
                 <option value="owner">Administrador</option>
                 <option value="master" class="master-only" style="display:none;">Administrador Master</option>
@@ -1405,9 +1526,13 @@ const DEFAULT_CONFIG = {
   folgaCalha: 0.03,
   // Multiplicador (fator de franzido) por tipo de cortina — metros de tecido por metro de janela.
   // Cortina: PVP c/IVA = ((largura×fator)+bainhas) × (custo tecido c/IVA + confecção €/ml) ÷ (1 − margem)
-  coefs: { 'Cortina Onda Natural': 2.77, 'Cortina Ilhós': 2.77, 'Cortina Franzido': 2.77, 'Cortina Blackout': 2.77 }
+  coefs: { 'Cortina Onda Natural': 2.77, 'Cortina Ilhós': 2.77, 'Cortina Franzido': 2.77, 'Cortina Blackout': 2.77 },
+  margemDecoracao: 50,
+  margemAcessorios: 50,
+  ivaPct: 23,
+  categoriasAtivas: null
 };
-const CATALOG_VERSION = 4;
+const CATALOG_VERSION = 5;
 
 // Substitui os dados de catálogo pelos reais quando a versão está desatualizada,
 // e migra o modelo de cálculo antigo (m²) para o novo (metros lineares).
@@ -1429,6 +1554,9 @@ function migrateCatalog() {
   if (!Array.isArray(config.confeccoes) || !config.confeccoes.length) config.confeccoes = DEFAULT_CONFECCOES.map(c => ({ ...c }));
   if (!Array.isArray(config.decoracao)) config.decoracao = [];
   if (!Array.isArray(config.acessorios)) config.acessorios = [];
+  if (config.margemDecoracao == null) config.margemDecoracao = 50;
+  if (config.margemAcessorios == null) config.margemAcessorios = 50;
+  if (config.ivaPct == null) config.ivaPct = 23;
   config.catalogVersion = CATALOG_VERSION;
   save(K.prod, produtos);
   save(K.tec, tecidos);
@@ -1634,14 +1762,18 @@ function renderItems() {
   if (!orc.itens.length) orc.itens.push(newItem());
   orc.itens.forEach((it, i) => {
     const card = document.createElement('div');
-    card.className = 'item-card';
+    card.className = 'item-card' + (it.oculto ? ' hidden-item' : '');
     card.dataset.i = i;
     const tecOpts = ['', ...tecidos.map(t => t.nome), 'N/A'].map(n => `<option value="${esc(n)}" ${it.tecido===n?'selected':''}>${esc(n || '— Tecido —')}</option>`).join('');
+    const eyeIcon = it.oculto
+      ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     card.innerHTML = `
       <div class="item-head">
         <div class="ix">Item ${i+1}</div>
         <div style="display:flex; align-items:center; gap:12px;">
           <div class="line-tot">${fmtEUR(lineTotal(it))}</div>
+          <button class="hide-toggle" data-hide title="${it.oculto ? 'Mostrar no orçamento' : 'Ocultar do orçamento'}">${eyeIcon}</button>
           <button class="btn btn-ghost btn-icon" data-rm title="Remover">✕</button>
         </div>
       </div>
@@ -1690,6 +1822,11 @@ function renderItems() {
     $('[data-rm]', card).addEventListener('click', () => {
       if (orc.itens.length === 1) orc.itens[0] = newItem();
       else orc.itens.splice(i, 1);
+      renderItems(); recalc(); saveDraft();
+    });
+    // hide toggle (3E)
+    $('[data-hide]', card).addEventListener('click', () => {
+      orc.itens[i].oculto = !orc.itens[i].oculto;
       renderItems(); recalc(); saveDraft();
     });
     // fields
@@ -1876,7 +2013,9 @@ function recalc() {
   const tbody = $('#resumoTable tbody');
   tbody.innerHTML = '';
   let total = 0;
+  const iva = config.ivaPct ?? 23;
   orc.itens.forEach((it, i) => {
+    if (it.oculto) return;
     const tot = lineTotal(it);
     total += tot;
     const med = (it.largura && it.altura) ? `${(+it.largura).toFixed(2)}m × ${(+it.altura).toFixed(2)}m` : '—';
@@ -1890,17 +2029,18 @@ function recalc() {
       <td class="num">${it.qtd||0}</td>
       <td class="num">${fmtEUR(it.preco||0)}</td>
       <td class="num">${dscTxt}</td>
-      <td class="center">23%</td>
+      <td class="center">${iva}%</td>
       <td class="num">${fmtEUR(tot)}</td>
     `;
     tbody.appendChild(tr);
   });
   $('#total').textContent = fmtEUR(total);
   $('#refDisplay').textContent = `Referência: ${orc.ref} · Data: ${fmtDate(orc.data)}`;
+  const ivaEl = $('#ivaNote'); if (ivaEl) ivaEl.textContent = `* Valores com IVA incluído à taxa em vigor (${iva}%)`;
 }
 
 function totalOf(o) {
-  return o.itens.reduce((a, it) => a + lineTotal(it), 0);
+  return o.itens.filter(it => !it.oculto).reduce((a, it) => a + lineTotal(it), 0);
 }
 
 // ============================================================
@@ -2021,6 +2161,7 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // PRODUTOS / TECIDOS UI
 // ============================================================
 const CAT_ORDER = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
+const SECTION_TABS = ['Tecidos','Confecção','Decoração','Acessórios'];
 let catAtiva = 'Cortinas';
 const disAttr = () => !isAdmin ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
 const fornOptsHTML = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
@@ -2032,21 +2173,126 @@ const matchForn = (obj, fq) => !fq || norm(obj.fornecedor||'').includes(fq);
 
 function renderProdutos() {
   renderCatalog();
+  renderCalhaGrid();
   renderTecidosTable();
   renderConfeccoesTable();
   renderDecAce('decoracao', 'decTable', 'decSearch', 'decForn');
   renderDecAce('acessorios', 'aceTable', 'aceSearch', 'aceForn');
 }
 
+// ============================================================
+// CALHA GRID EDITOR (3C) — grouped by fornecedor → model
+// ============================================================
+function renderCalhaGrid() {
+  const area = $('#calhaGridArea'); if (!area) return;
+  const calhas = produtos.filter(p => p.tipo === 'calha');
+  if (!calhas.length) { area.innerHTML = '<div class="calha-empty">Sem famílias de calha no catálogo.</div>'; return; }
+  area.innerHTML = '';
+  const dis = !isAdmin ? 'disabled' : '';
+  const byForn = {};
+  calhas.forEach(c => { const f = c.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(c); });
+  Object.keys(byForn).sort().forEach(forn => {
+    const block = document.createElement('div');
+    block.className = 'calha-forn-block';
+    let html = `<div class="calha-forn-header">FORNECEDOR: ${esc(forn)}</div>`;
+    byForn[forn].forEach(calha => {
+      const idx = produtos.indexOf(calha);
+      const sizes = Array.isArray(calha.tamanhos) ? calha.tamanhos : [];
+      html += `<div class="calha-family"><div class="calha-family-head">
+        <div class="calha-family-name">${esc(calha.nome)}</div>
+        <div class="calha-family-btns">
+          ${isAdmin ? `<button class="btn btn-xs btn-outline" data-dupecalha="${idx}" title="Duplicar esta calha">⧉ Duplicar</button>` : ''}
+          ${isAdmin ? `<button class="btn btn-xs btn-outline" data-addsize="${idx}">+ Tamanho</button>` : ''}
+        </div>
+      </div>`;
+      if (sizes.length) {
+        html += `<table class="calha-grid"><thead><tr><th>Tamanho (m)</th><th>Preço c/IVA (€)</th><th>Custo B2B s/IVA (€)</th><th>Activo</th><th>Preço Fixo</th>${isAdmin ? '<th></th>' : ''}</tr></thead><tbody>`;
+        sizes.forEach((s, si) => {
+          html += `<tr>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="m" value="${s.m ?? ''}" ${dis} /></td>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="p" value="${s.p ?? ''}" ${dis} /></td>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="b2b" value="${s.b2b ?? ''}" ${dis} /></td>
+            <td class="center"><input type="checkbox" data-ci="${idx}" data-si="${si}" data-sf="activo" ${s.activo !== false ? 'checked' : ''} ${dis} /></td>
+            <td class="center"><input type="checkbox" data-ci="${idx}" data-si="${si}" data-sf="fixo" ${s.fixo ? 'checked' : ''} ${dis} /></td>
+            ${isAdmin ? `<td class="center"><button class="btn btn-ghost btn-icon" data-rmsize="${idx}-${si}" title="Remover">✕</button></td>` : ''}
+          </tr>`;
+        });
+        html += '</tbody></table>';
+      } else {
+        html += `<div class="calha-empty">Sem tamanhos. ${isAdmin ? 'Clique "+ Tamanho" para adicionar.' : ''}</div>`;
+      }
+      html += '</div>';
+    });
+    block.innerHTML = html;
+    area.appendChild(block);
+  });
+  area.querySelectorAll('[data-ci][data-sf]').forEach(el => el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', () => {
+    const ci = +el.dataset.ci, si = +el.dataset.si, f = el.dataset.sf;
+    if (produtos[ci] && Array.isArray(produtos[ci].tamanhos) && produtos[ci].tamanhos[si]) {
+      if (f === 'activo' || f === 'fixo') { produtos[ci].tamanhos[si][f] = el.checked; }
+      else { const v = parseFloat(el.value) || 0; produtos[ci].tamanhos[si][f] = v; if (f === 'p' && si === 0) produtos[ci].preco = v; }
+      save(K.prod, produtos);
+    }
+  }));
+  area.querySelectorAll('[data-addsize]').forEach(b => b.addEventListener('click', () => {
+    const ci = +b.dataset.addsize;
+    if (!Array.isArray(produtos[ci].tamanhos)) produtos[ci].tamanhos = [];
+    produtos[ci].tamanhos.push({ m: 0, p: 0, b2b: 0, activo: true, fixo: false });
+    save(K.prod, produtos); renderCalhaGrid();
+  }));
+  area.querySelectorAll('[data-rmsize]').forEach(b => b.addEventListener('click', () => {
+    const [ci, si] = b.dataset.rmsize.split('-').map(Number);
+    if (!confirm('Remover este tamanho?')) return;
+    produtos[ci].tamanhos.splice(si, 1);
+    save(K.prod, produtos); renderCalhaGrid();
+  }));
+  area.querySelectorAll('[data-dupecalha]').forEach(b => b.addEventListener('click', () => {
+    const ci = +b.dataset.dupecalha;
+    const orig = produtos[ci];
+    const copy = JSON.parse(JSON.stringify(orig));
+    copy.id = 'p_' + uid();
+    copy.nome = (copy.nome || '') + ' (cópia)';
+    copy.tamanhos = (copy.tamanhos || []).map(s => ({ m: s.m, p: 0, b2b: 0, activo: true, fixo: false }));
+    produtos.splice(ci + 1, 0, copy);
+    save(K.prod, produtos); renderCalhaGrid();
+  }));
+}
+
 function renderCatalog() {
-  const cats = CAT_ORDER.filter(c => produtos.some(p => p.categoria === c));
-  produtos.forEach(p => { if (p.categoria && !cats.includes(p.categoria)) cats.push(p.categoria); });
-  if (!cats.includes(catAtiva)) catAtiva = cats[0] || '';
+  const ativas = config.categoriasAtivas || {};
+  const cats = CAT_ORDER.filter(c => ativas[c] !== false && produtos.some(p => p.categoria === c));
+  produtos.forEach(p => { if (p.categoria && !cats.includes(p.categoria) && ativas[p.categoria] !== false) cats.push(p.categoria); });
+  const allTabs = [...cats, ...SECTION_TABS];
+  if (!allTabs.includes(catAtiva)) catAtiva = allTabs[0] || '';
+  const isSection = SECTION_TABS.includes(catAtiva);
   const tabs = $('#catTabs');
   if (tabs) {
-    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('');
-    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderCatalog(); }));
+    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('')
+      + '<span style="width:8px;"></span>'
+      + SECTION_TABS.map(s => {
+        let cnt = '';
+        if (s === 'Tecidos') cnt = ` (${tecidos.length})`;
+        else if (s === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
+        else if (s === 'Decoração') cnt = ` (${(config.decoracao||[]).length})`;
+        else if (s === 'Acessórios') cnt = ` (${(config.acessorios||[]).length})`;
+        return `<button data-cat="${esc(s)}" class="${s===catAtiva?'active':''}" style="border-style:dashed;">${esc(s)}${cnt}</button>`;
+      }).join('');
+    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); }));
   }
+  const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
+  const cardCat = $('#cardCatalogo');
+  if (cardCat) cardCat.style.display = isSection ? 'none' : '';
+  const cardCalha = $('#cardCalhaGrid');
+  if (cardCalha) cardCalha.style.display = isCalha ? '' : 'none';
+  const cardTec = $('#cardTecidos');
+  if (cardTec) cardTec.style.display = catAtiva === 'Tecidos' ? '' : 'none';
+  const cardConf = $('#cardConfeccao');
+  if (cardConf) cardConf.style.display = catAtiva === 'Confecção' ? '' : 'none';
+  const cardDec = $('#cardDecoracao');
+  if (cardDec) cardDec.style.display = catAtiva === 'Decoração' ? '' : 'none';
+  const cardAce = $('#cardAcessorios');
+  if (cardAce) cardAce.style.display = catAtiva === 'Acessórios' ? '' : 'none';
+  if (isSection) return;
   const dis = disAttr();
   const q = norm($('#catSearch')?.value||'').trim();
   const fq = norm($('#catForn')?.value||'').trim();
@@ -2076,38 +2322,70 @@ function renderCatalog() {
   }));
 }
 
+const _tecCollapsed = {};
 function renderTecidosTable() {
+  const area = $('#tecGroupArea'); if (!area) return;
   const dis = disAttr();
   const q = norm($('#tecSearch')?.value||'').trim();
   const fq = norm($('#tecForn')?.value||'').trim();
   const rows = tecidos.filter(t => matchQ(t,q,'codigo','nome','cores','skuFornecedor') && matchForn(t,fq));
-  const tb = $('#tecTable tbody'); if (!tb) return; tb.innerHTML = '';
-  rows.forEach(t => {
-    const i = tecidos.indexOf(t);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></td>
-      <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></td>
-      <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></td>
-      <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" class="num" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></td>
-      <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" class="num" ${dis} /></td>
-      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>`;
-    tb.appendChild(tr);
+  if (!rows.length) { area.innerHTML = '<div class="calha-empty" style="padding:20px;text-align:center;">Sem resultados.</div>'; return; }
+  const byForn = {};
+  rows.forEach(t => { const f = t.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(t); });
+  area.innerHTML = '';
+  Object.keys(byForn).sort().forEach(forn => {
+    if (fq && !norm(forn).includes(fq)) return;
+    const block = document.createElement('div');
+    block.className = 'forn-block';
+    let html = `<div class="forn-block-header">FORNECEDOR: ${esc(forn)}</div>`;
+    const byTipo = {};
+    byForn[forn].forEach(t => { const tp = t.tipo || 'Sem tipo'; (byTipo[tp] = byTipo[tp] || []).push(t); });
+    Object.keys(byTipo).sort().forEach(tipo => {
+      const key = forn + '|' + tipo;
+      const collapsed = _tecCollapsed[key];
+      html += `<div class="tipo-group">
+        <div class="tipo-group-head${collapsed ? ' collapsed' : ''}" data-tgkey="${esc(key)}">
+          <span class="tg-arrow">▼</span>
+          <span class="tg-label">${esc(tipo)}</span>
+          <span class="tg-count">(${byTipo[tipo].length})</span>
+        </div>
+        <div class="tipo-group-body${collapsed ? ' collapsed' : ''}">`;
+      byTipo[tipo].forEach(t => {
+        const i = tecidos.indexOf(t);
+        html += `<div class="tec-card-item">
+          <div class="tci-field" style="flex:0 0 80px;"><label>SKU LD</label><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></div>
+          <div class="tci-field" style="flex:1 1 140px;"><label>Nome</label><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></div>
+          <div class="tci-field" style="flex:0 0 90px;"><label>Cor</label><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Nome Orig.</label><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 110px;"><label>🔒 Fornecedor</label><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 80px;"><label>🔒 Tipo</label><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 100px;"><label>🔒 SKU Fornec.</label><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 90px;"><label>🔒 Composição</label><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 75px;"><label>🔒 Custo €/m</label><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Confecção</label><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 70px;"><label>🔒 €/ml</label><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" ${dis} /></div>
+          ${isAdmin ? `<div class="tci-field" style="flex:0 0 30px;align-self:center;"><button class="btn btn-ghost btn-icon" data-rmt="${i}" style="min-height:36px;">✕</button></div>` : ''}
+        </div>`;
+      });
+      html += '</div></div>';
+    });
+    block.innerHTML = html;
+    area.appendChild(block);
   });
-  if (!rows.length) tb.innerHTML = `<tr><td colspan="12" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
-  tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
+  area.querySelectorAll('.tipo-group-head').forEach(h => h.addEventListener('click', () => {
+    const key = h.dataset.tgkey;
+    _tecCollapsed[key] = !_tecCollapsed[key];
+    h.classList.toggle('collapsed');
+    h.nextElementSibling.classList.toggle('collapsed');
+  }));
+  area.querySelectorAll('[data-t]').forEach(el => el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
     tecidos[i][f] = (f === 'preco' || f === 'conf') ? (parseFloat(el.value)||0) : el.value;
     if (f === 'confTipo') { const cf = (config.confeccoes||[]).find(c => c.nome === el.value); if (cf) { tecidos[i].conf = cf.preco; renderTecidosTable(); } }
+    if (f === 'fornecedor' || f === 'tipo') renderTecidosTable();
     save(K.tec, tecidos);
   }));
-  tb.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
+  area.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
     if (!confirm('Remover este tecido?')) return;
     tecidos.splice(+b.dataset.rmt, 1); save(K.tec, tecidos); renderTecidosTable();
   }));
@@ -2217,6 +2495,95 @@ $('#btnAddDec')?.addEventListener('click', () => addDecAce('decoracao','decTable
 $('#btnAddAce')?.addEventListener('click', () => addDecAce('acessorios','aceTable','aceSearch','aceForn'));
 
 // ============================================================
+// WOOCOMMERCE CSV EXPORT (3G)
+// ============================================================
+function wooCSVRow(cols) {
+  return cols.map(c => {
+    const s = String(c ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(',');
+}
+function exportWooCSV() {
+  const sec = $('#wooSection').value;
+  const iva = config.ivaPct ?? 23;
+  const rows = [];
+  const header = ['ID','Type','SKU','Name','Published','Short description','Description','Regular price','Categories','Tags','Images','Attribute 1 name','Attribute 1 value(s)','Attribute 1 visible','Attribute 1 global'];
+  rows.push(wooCSVRow(header));
+
+  if (sec === 'all' || sec === 'tecidos') {
+    tecidos.forEach(t => {
+      const custoTec = parseFloat(t.preco) || 0;
+      const mg = clampMargemPct(parseFloat(config.margemPct) || 60);
+      const pvp = custoTec > 0 ? Math.round((custoTec / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', t.codigo || '', t.nome || '', 1,
+        [t.tipo, t.cores].filter(Boolean).join(' — '),
+        t.composicao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        t.tipo || 'Tecidos', t.cores || '', '',
+        'Cor', t.cores || '', 1, 1]));
+    });
+  }
+  if (sec === 'all' || sec === 'calhas') {
+    produtos.forEach(p => {
+      if (p.tipo === 'calha' && Array.isArray(p.tamanhos) && p.tamanhos.length) {
+        p.tamanhos.forEach(s => {
+          const price = Math.round((s.p || 0) * 100) / 100;
+          rows.push(wooCSVRow(['', 'simple', (p.codigo || p.nome) + '-' + (s.m || ''), p.nome + ' ' + (s.m || '') + 'm', 1,
+            p.categoria || 'Calha', '', price > 0 ? price.toFixed(2) : '',
+            p.categoria || 'Calhas', '', '', '', '', '', '']));
+        });
+      } else if (p.tipo !== 'calha') {
+        const price = Math.round((parseFloat(p.preco) || 0) * 100) / 100;
+        rows.push(wooCSVRow(['', 'simple', p.codigo || '', p.nome || '', 1,
+          p.categoria || '', '', price > 0 ? price.toFixed(2) : '',
+          p.categoria || '', '', '', '', '', '', '']));
+      }
+    });
+  }
+  if (sec === 'all' || sec === 'confeccoes') {
+    (config.confeccoes || []).forEach(c => {
+      const price = Math.round((parseFloat(c.preco) || 0) * 100) / 100;
+      rows.push(wooCSVRow(['', 'simple', '', c.nome || '', 1,
+        c.cat || 'Confecção', '', price > 0 ? price.toFixed(2) : '',
+        'Confecção', '', '', '', '', '', '']));
+    });
+  }
+  if (sec === 'all' || sec === 'decoracao') {
+    (config.decoracao || []).forEach(d => {
+      const mg = clampMargemPct(itemNum(d, 'margem', parseFloat(config.margemPct)));
+      const custo = parseFloat(d.custoBase) || 0;
+      const pvp = custo > 0 ? Math.round((custo / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', d.sku || '', d.nome || '', 1,
+        [d.tipo, d.cor].filter(Boolean).join(' — '),
+        d.descricao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        'Decoração', d.cor || '', '',
+        'Cor', d.cor || '', 1, 1]));
+    });
+  }
+  if (sec === 'all' || sec === 'acessorios') {
+    (config.acessorios || []).forEach(d => {
+      const mg = clampMargemPct(itemNum(d, 'margem', parseFloat(config.margemPct)));
+      const custo = parseFloat(d.custoBase) || 0;
+      const pvp = custo > 0 ? Math.round((custo / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', d.sku || '', d.nome || '', 1,
+        [d.tipo, d.cor].filter(Boolean).join(' — '),
+        d.descricao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        'Acessórios', d.cor || '', '',
+        'Cor', d.cor || '', 1, 1]));
+    });
+  }
+  if (rows.length <= 1) { toast('Sem produtos para exportar nesta secção.'); return; }
+  const BOM = '﻿';
+  const blob = new Blob([BOM + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = 'legado-decor-woocommerce-' + (sec === 'all' ? 'tudo' : sec) + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  const msg = $('#wooExportMsg');
+  if (msg) msg.textContent = 'Ficheiro pronto. Para importar no WooCommerce: WooCommerce → Produtos → Importar → seleccionar este ficheiro.';
+}
+$('#btnWooExport')?.addEventListener('click', exportWooCSV);
+
+// ============================================================
 // CONFIG UI
 // ============================================================
 function renderConfigForm() {
@@ -2239,6 +2606,11 @@ function renderConfigForm() {
   $('#cfgCoefIlhos').value = config.coefs['Cortina Ilhós'] ?? 2.77;
   $('#cfgCoefFranzido').value = config.coefs['Cortina Franzido'] ?? 2.77;
   $('#cfgCoefBlackout').value = config.coefs['Cortina Blackout'] ?? 2.77;
+  // Produtos por Unidade (3B)
+  $('#cfgMargemDec').value = config.margemDecoracao ?? 50;
+  $('#cfgMargemAce').value = config.margemAcessorios ?? 50;
+  $('#cfgIVA').value = config.ivaPct ?? 23;
+  renderCatToggles();
   // A Minha Conta — só faz sentido com Firebase ativo e sessão iniciada
   const conta = $('#cardMinhaConta');
   if (conta) {
@@ -2247,6 +2619,19 @@ function renderConfigForm() {
     if (on) { $('#myName').value = Cloud.user.name || ''; $('#myEmail').value = Cloud.user.email || ''; }
   }
   renderFornecedores();
+}
+function renderCatToggles() {
+  const wrap = $('#catToggles'); if (!wrap) return;
+  const ativas = config.categoriasAtivas || {};
+  wrap.innerHTML = CAT_ORDER.map(cat => {
+    const checked = ativas[cat] !== false;
+    return `<label><input type="checkbox" data-cat="${esc(cat)}" ${checked ? 'checked' : ''} /> ${esc(cat)}</label>`;
+  }).join('');
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', () => {
+    if (!config.categoriasAtivas) config.categoriasAtivas = {};
+    config.categoriasAtivas[cb.dataset.cat] = cb.checked;
+    save(K.cfg, config);
+  }));
 }
 
 function renderFornecedores() {
@@ -2426,6 +2811,12 @@ $('#btnSaveConfig').addEventListener('click', () => {
     'Cortina Franzido': parseFloat($('#cfgCoefFranzido').value)||2.77,
     'Cortina Blackout': parseFloat($('#cfgCoefBlackout').value)||2.77
   };
+  // Produtos por Unidade (3B)
+  config.margemDecoracao = parseFloat($('#cfgMargemDec').value) || 50;
+  config.margemAcessorios = parseFloat($('#cfgMargemAce').value) || 50;
+  let iva = parseFloat($('#cfgIVA').value);
+  if (!isFinite(iva) || iva < 0) iva = 23;
+  config.ivaPct = iva;
   save(K.cfg, config);
   updateFormatoInfo();
   recalcCortinasAtual();  // recalcula os preços das cortinas do orçamento atual com a nova margem
@@ -2448,9 +2839,19 @@ function recalcCortinasAtual() {
 }
 $('#btnResetConfig').addEventListener('click', () => {
   if (!confirm('Repor todas as configurações para os valores padrão? (não apaga histórico nem clientes)')) return;
+  const savedForn = config.fornecedores;
+  const savedConf = config.confeccoes;
+  const savedDec = config.decoracao;
+  const savedAce = config.acessorios;
+  const savedCat = config.catalogVersion;
   config = { ...DEFAULT_CONFIG };
   config.empresa = { ...DEFAULT_CONFIG.empresa };
   config.coefs = { ...DEFAULT_CONFIG.coefs };
+  config.fornecedores = savedForn;
+  config.confeccoes = savedConf;
+  config.decoracao = savedDec;
+  config.acessorios = savedAce;
+  config.catalogVersion = savedCat;
   save(K.cfg, config); renderConfigForm(); updateFormatoInfo(); toast('Reposto');
 });
 $('#btnExport').addEventListener('click', () => {
@@ -2489,22 +2890,41 @@ function updateFormatoInfo() {
 // ============================================================
 // PDF / PRINT / SHARE
 // ============================================================
-function pdfHTML(o) {
+// Translation table for PDF in English (3F)
+const PDF_LABELS = {
+  pt: {
+    cliente: 'Cliente:', vendedor: 'Vendedor:', orcamento: 'Orçamento', janela: 'Janela',
+    artigo: 'Artigo', descricao: 'Descrição', qtd: 'Qtd', un: 'Un', pvp: 'P.V.P.', desc: 'Desc', iva: 'IVA', total: 'Total',
+    totalPagar: 'TOTAL A PAGAR', slogan: 'O SEU LAR À SUA MEDIDA',
+    ivaNote: '*Valores com IVA incluído à taxa em vigor', validoNote: 'Orçamento válido por', dias: 'dias'
+  },
+  en: {
+    cliente: 'Client:', vendedor: 'Salesperson:', orcamento: 'Quotation', janela: 'Window',
+    artigo: 'Article', descricao: 'Description', qtd: 'Qty', un: 'Unit', pvp: 'Price', desc: 'Disc', iva: 'VAT', total: 'Total',
+    totalPagar: 'TOTAL TO PAY', slogan: 'YOUR HOME MADE TO MEASURE',
+    ivaNote: '*Prices include VAT at the current rate', validoNote: 'Quotation valid for', dias: 'days'
+  }
+};
+
+function pdfHTML(o, lang) {
+  lang = lang || 'pt';
+  const L = PDF_LABELS[lang] || PDF_LABELS.pt;
+  const iva = config.ivaPct ?? 23;
+  const visItens = o.itens.filter(it => !it.oculto);
   let total = 0;
-  o.itens.forEach(it => total += lineTotal(it));
+  visItens.forEach(it => total += lineTotal(it));
 
   const dt = new Date(o.data + 'T00:00');
   const vd = new Date(dt); vd.setDate(vd.getDate() + (parseInt(o.validade)||30));
   const validadeStr = fmtDate(vd.toISOString().slice(0,10));
 
-  // Linhas da tabela — para itens com medidas, inserir sub-linha "Janela ..."
   let linhas = '';
   let lastDim = '';
-  o.itens.forEach((it) => {
+  visItens.forEach((it) => {
     const tot = lineTotal(it);
     const dim = (it.largura && it.altura) ? `${(+it.largura).toFixed(2)}m larg × ${(+it.altura).toFixed(2)}m alt` : '';
     if (dim && dim !== lastDim) {
-      linhas += `<tr class="janela-row"><td colspan="8"><strong>Janela</strong> (${dim})</td></tr>`;
+      linhas += `<tr class="janela-row"><td colspan="8"><strong>${L.janela}</strong> (${dim})</td></tr>`;
       lastDim = dim;
     } else if (!dim) {
       lastDim = '';
@@ -2517,7 +2937,7 @@ function pdfHTML(o) {
       <td class="center">${esc(it.un||'UN')}</td>
       <td class="num">${fmtEUR(it.preco||0)}</td>
       <td class="num">${(it.desc||0) > 0 ? (it.desc + ' %') : ''}</td>
-      <td class="center">23</td>
+      <td class="center">${iva}</td>
       <td class="num">${fmtEUR(tot)}</td>
     </tr>`;
   });
@@ -2532,8 +2952,8 @@ function pdfHTML(o) {
       <div class="pdf-clean-body">
         <div class="pdf-header-clean">
           <div class="pdf-col-l">
-            <div class="line"><strong>Cliente:</strong> ${esc(cli.nome||'—')}</div>
-            <div class="line"><strong>Vendedor:</strong> ${esc(vendedor)}</div>
+            <div class="line"><strong>${L.cliente}</strong> ${esc(cli.nome||'—')}</div>
+            <div class="line"><strong>${L.vendedor}</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" style="width:140px;height:auto;display:block;margin:0 auto;">
@@ -2550,11 +2970,11 @@ function pdfHTML(o) {
                 <circle cx="0" cy="0" r="5.2" fill="#B8973A"/>
               </g>
               <text x="80" y="76" font-family="'Playfair Display',Georgia,serif" font-size="13" font-weight="700" letter-spacing="2.5" fill="#1B5B4A" text-anchor="middle">${esc(emp.nome||'LEGADO DECOR')}</text>
-              <text x="80" y="92" font-family="'DM Sans',Arial,sans-serif" font-size="6" letter-spacing="2" fill="#5A6E68" text-anchor="middle">O SEU LAR À SUA MEDIDA</text>
+              <text x="80" y="92" font-family="'DM Sans',Arial,sans-serif" font-size="6" letter-spacing="2" fill="#5A6E68" text-anchor="middle">${esc(L.slogan)}</text>
             </svg>
           </div>
           <div class="pdf-col-r">
-            <div class="line"><strong>Orçamento</strong> ${esc(o.ref)}</div>
+            <div class="line"><strong>${L.orcamento}</strong> ${esc(o.ref)}</div>
             <div class="line">${fmtDate(o.data)}</div>
           </div>
         </div>
@@ -2571,14 +2991,14 @@ function pdfHTML(o) {
           </colgroup>
           <thead>
             <tr>
-              <th>Artigo</th><th>Descrição</th><th class="num">Qtd</th><th class="center">Un</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">IVA</th><th class="num">Total</th>
+              <th>${L.artigo}</th><th>${L.descricao}</th><th class="num">${L.qtd}</th><th class="center">${L.un}</th><th class="num">${L.pvp}</th><th class="num">${L.desc}</th><th class="center">${L.iva}</th><th class="num">${L.total}</th>
             </tr>
           </thead>
           <tbody>${linhas}</tbody>
         </table>
 
         <div class="pdf-pagar">
-          <div class="pagar-label">TOTAL A PAGAR</div>
+          <div class="pagar-label">${L.totalPagar}</div>
           <div class="pagar-valor">${fmtEUR(total)}</div>
         </div>
 
@@ -2586,7 +3006,7 @@ function pdfHTML(o) {
       </div>
 
       <div class="pdf-clean-foot">
-        <div class="pdf-rodape">*Valores com IVA incluído à taxa em vigor (23%). Orçamento válido por ${o.validade||30} dias.</div>
+        <div class="pdf-rodape">${L.ivaNote} (${iva}%). ${L.validoNote} ${o.validade||30} ${L.dias}.</div>
         <div class="pdf-foot-clean">
           <div class="col">
             <div class="empresa-name">${esc(emp.nome||'Legado Decor')}</div>
@@ -2617,13 +3037,15 @@ function pdfHTML(o) {
   `;
 }
 
+let _pdfLang = 'pt';
 function renderToTargets() {
-  const html = pdfHTML(orc);
+  const html = pdfHTML(orc, _pdfLang);
   $('#pdfArea').innerHTML = html;
   $('#previewArea').innerHTML = html;
 }
 
 $('#btnPreview').addEventListener('click', () => {
+  _pdfLang = 'pt';
   renderToTargets();
   const box = $('#printPreviewCard');
   box.style.display = box.style.display === 'none' ? 'block' : 'none';
@@ -2645,6 +3067,15 @@ $('#btnDownloadPDF').addEventListener('click', () => {
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   toast(isIOS ? 'Toca em Partilhar → Guardar em Ficheiros (PDF)' : 'Na janela de impressão, escolhe "Guardar como PDF"');
   setTimeout(() => { window.print(); }, 200);
+});
+
+$('#btnPdfEN').addEventListener('click', () => {
+  _pdfLang = 'en';
+  renderToTargets();
+  $('#printPreviewCard').style.display = 'block';
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  toast(isIOS ? 'Tap Share → Save to Files (PDF)' : 'In the print dialog, choose "Save as PDF"');
+  setTimeout(() => { window.print(); _pdfLang = 'pt'; }, 200);
 });
 
 $('#btnWhatsApp').addEventListener('click', () => {
@@ -2720,6 +3151,7 @@ async function renderEquipa() {
       // Não permitir alterar função de master por não-master, ou de si próprio
       const roleDisabled = isSelf || (m.role === 'master' && !Cloud.isMaster());
       const roleSel = `<select data-role="${m.uid}" ${roleDisabled?'disabled':''}>
+        <option value="viewer" ${m.role==='viewer'?'selected':''}>Apenas leitura</option>
         <option value="user" ${m.role==='user'?'selected':''}>Utilizador</option>
         <option value="owner" ${m.role==='owner'?'selected':''}>Administrador</option>
         ${Cloud.isMaster() ? `<option value="master" ${m.role==='master'?'selected':''}>Adm. Master</option>` : ''}
@@ -2889,6 +3321,7 @@ $('#btnLogoutM')?.addEventListener('click', doLogout);
 function applyRoleUI() {
   const admin = isAdmin;
   const master = window.Cloud && Cloud.isMaster && Cloud.isMaster();
+  const isViewer = window.Cloud && Cloud.ready && Cloud.user && Cloud.user.role === 'viewer';
   // Equipa tab: só admins
   const showEquipa = !window.FIREBASE_ENABLED || admin;
   $$('[data-tab="equipa"]').forEach(b => b.style.display = showEquipa ? '' : 'none');
@@ -2896,18 +3329,26 @@ function applyRoleUI() {
   $$('[data-tab="registo"]').forEach(b => b.style.display = master ? '' : 'none');
   // Opção master no dropdown do convite
   $$('.master-only').forEach(el => { el.style.display = master ? '' : 'none'; });
+  // Viewer: disable create/edit on orçamento section
+  if (isViewer) {
+    ['btnGuardar','btnLimpar','btnAddItem'].forEach(id => {
+      const el = $('#'+id); if (el) { el.disabled = true; el.style.opacity = '0.4'; el.title = 'Não tem permissão para editar'; }
+    });
+  }
   // Configurações: botões de escrita só para admin
   ['btnSaveConfig','btnExport','btnImport','btnResetConfig'].forEach(id => {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   // Configurações: inputs readonly para não-admin
-  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgMargem','cfgBainhas','cfgFolga','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout'].forEach(id => {
+  ['empNome','empNif','empTel','empEmail','empMorada','empAndar','empCp','empLocalidade','empConcelho','empDistrito','empPais','empInsta','empFacebook','empSite','svcMedicao','svcInstalacao','defNotas','defValidade','printFormat','cfgMargem','cfgBainhas','cfgFolga','cfgCoefOnda','cfgCoefIlhos','cfgCoefFranzido','cfgCoefBlackout','cfgMargemDec','cfgMargemAce','cfgIVA'].forEach(id => {
     const el = $('#'+id); if (!el) return;
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
   });
+  // WooCommerce export: admin only
+  const wooCard = $('#cardWooExport'); if (wooCard) wooCard.style.display = admin ? '' : 'none';
   // Produtos: botões de adicionar
-  ['btnAddProduto','btnAddTecido'].forEach(id => {
+  ['btnAddProduto','btnAddTecido','btnAddConf','btnAddDec','btnAddAce'].forEach(id => {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
   });
   if ($('#sec-produtos')?.classList.contains('active')) renderProdutos();
@@ -3074,7 +3515,21 @@ if (document.readyState === 'loading') {
 // ============================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW reg failed', err));
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (nw) nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      });
+      setInterval(() => reg.update().catch(() => {}), 60000);
+    }).catch(err => console.warn('SW reg failed', err));
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
   });
 }
 </script>
