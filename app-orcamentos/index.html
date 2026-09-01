@@ -362,7 +362,7 @@
     .mob-cards table.t tbody tr td:empty { display: none; }
     .mob-cards table.t tbody tr td input, .mob-cards table.t tbody tr td select { min-height: 40px; font-size: 14px; }
     .mob-cards table.t tbody tr td::before { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
-    .mob-cards table.t tbody tr td.int { display: none; }
+    body:not(.role-master) .mob-cards table.t tbody tr td.int { display: none; }
     /* Calha grid mobile */
     .calha-family-head { flex-wrap: wrap; }
     table.calha-grid { width: 100%; }
@@ -468,8 +468,11 @@
   .tec-card-item .tci-field input, .tec-card-item .tci-field select { padding: 5px 8px; font-size: 13px; min-height: 36px; border: 1px solid var(--border); border-radius: 3px; }
   .tec-card-item .tci-field.int { opacity: 0.7; }
   @media (max-width: 900px) {
-    .tec-card-item .tci-field.int { display: none; }
-    .tec-card-item { padding: 10px 12px; }
+    body:not(.role-master) .tec-card-item .tci-field.int { display: none; }
+    body.role-master .tec-card-item .tci-field.int { opacity: 1; }
+    .tec-card-item { padding: 10px 12px; gap: 4px 8px; }
+    .tec-card-item .tci-field { flex: 1 1 calc(50% - 8px) !important; min-width: 80px !important; }
+    .tec-card-item .tci-field input, .tec-card-item .tci-field select { min-height: 40px; font-size: 14px; }
   }
 
   /* ===== CATEGORY TOGGLES (3B) ===== */
@@ -2471,25 +2474,25 @@ function renderDecAce(kind, tableId, searchId, fornId) {
 ['aceSearch','aceForn'].forEach(id => $('#'+id)?.addEventListener('input', () => renderDecAce('acessorios','aceTable','aceSearch','aceForn')));
 $('#btnAddProduto').addEventListener('click', () => {
   if (!isAdmin) return;
-  produtos.push({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: catAtiva || '', tipo: 'fixo', preco: 0, unidade: 'uni', fornecedor: '', refFornecedor: '' });
-  save(K.prod, produtos); renderCatalog();
+  produtos.unshift({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: catAtiva || '', tipo: 'fixo', preco: 0, unidade: 'uni', fornecedor: '', refFornecedor: '' });
+  save(K.prod, produtos); renderCatalog(); window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 $('#btnAddTecido').addEventListener('click', () => {
   if (!isAdmin) return;
-  tecidos.push({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', nomeOriginal: '', fornecedor: 'Feira dos Tecidos', skuFornecedor: '', tipo: '', cores: '', composicao: '', preco: 0, confTipo: '', conf: 0 });
-  save(K.tec, tecidos); renderTecidosTable();
+  tecidos.unshift({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', nomeOriginal: '', fornecedor: 'Feira dos Tecidos', skuFornecedor: '', tipo: '', cores: '', composicao: '', preco: 0, confTipo: '', conf: 0 });
+  save(K.tec, tecidos); renderTecidosTable(); window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 $('#btnAddConf')?.addEventListener('click', () => {
   if (!isAdmin) return;
   config.confeccoes = config.confeccoes || [];
-  config.confeccoes.push({ id: 'cf_'+uid(), nome: 'Nova confecção', preco: 0, un: '€/ml', cat: '', fornecedor: 'Mónica Confecções', obs: '' });
-  save(K.cfg, config); renderConfeccoesTable();
+  config.confeccoes.unshift({ id: 'cf_'+uid(), nome: 'Nova confecção', preco: 0, un: '€/ml', cat: '', fornecedor: 'Mónica Confecções', obs: '' });
+  save(K.cfg, config); renderConfeccoesTable(); window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 function addDecAce(kind, tableId, searchId, fornId) {
   if (!isAdmin) return;
   config[kind] = config[kind] || [];
-  config[kind].push({ id: (kind==='decoracao'?'dec_':'ace_')+uid(), nome: 'Novo', nomeFornecedor: '', fornecedor: '', codFornecedor: '', tipo: '', cor: '', sku: '', descricao: '', custoBase: '', margem: '' });
-  save(K.cfg, config); renderDecAce(kind, tableId, searchId, fornId);
+  config[kind].unshift({ id: (kind==='decoracao'?'dec_':'ace_')+uid(), nome: 'Novo', nomeFornecedor: '', fornecedor: '', codFornecedor: '', tipo: '', cor: '', sku: '', descricao: '', custoBase: '', margem: '' });
+  save(K.cfg, config); renderDecAce(kind, tableId, searchId, fornId); window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 $('#btnAddDec')?.addEventListener('click', () => addDecAce('decoracao','decTable','decSearch','decForn'));
 $('#btnAddAce')?.addEventListener('click', () => addDecAce('acessorios','aceTable','aceSearch','aceForn'));
@@ -3321,6 +3324,7 @@ $('#btnLogoutM')?.addEventListener('click', doLogout);
 function applyRoleUI() {
   const admin = isAdmin;
   const master = window.Cloud && Cloud.isMaster && Cloud.isMaster();
+  document.body.classList.toggle('role-master', admin || master);
   const isViewer = window.Cloud && Cloud.ready && Cloud.user && Cloud.user.role === 'viewer';
   // Equipa tab: só admins
   const showEquipa = !window.FIREBASE_ENABLED || admin;
