@@ -71,8 +71,7 @@
   .sidebar .foot { padding: 14px 22px; font-size: 10px; opacity: 0.5; letter-spacing: 0.5px; border-top: 1px solid rgba(245,240,230,0.1); }
 
   .main { padding: 28px 36px 36px; max-width: 100%; min-width: 0; overflow-x: hidden; }
-  .container { max-width: 1100px; margin: 0 auto; min-width: 0; }
-  .container.full-width { max-width: 100%; }
+  .container { max-width: 100%; margin: 0 auto; min-width: 0; }
   .cfg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
   .cfg-row > .card { margin-bottom: 0; }
   .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
@@ -137,7 +136,7 @@
     linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0)) 0 0/14px 100% no-repeat,
     linear-gradient(-90deg, rgba(0,0,0,0.08), rgba(0,0,0,0)) 100% 0/14px 100% no-repeat;
     background-attachment: local, local, scroll, scroll; }
-  table.t { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; }
   table.t th, table.t td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); word-wrap: break-word; overflow-wrap: break-word; }
   table.t th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); background: var(--soft); }
   table.t tbody tr:nth-child(even) td { background: rgba(212,207,197,0.18); }
@@ -351,8 +350,23 @@
     .hist-toolbar input[type=search] { max-width: 100%; }
     .hist-toolbar select { max-width: 100%; }
     .totals { max-width: 100%; }
-    .btn { padding: 12px 16px; font-size: 11px; }
+    .btn { padding: 12px 16px; font-size: 11px; min-height: 44px; }
     .btn-row { flex-wrap: wrap; gap: 8px; }
+    .btn-sm, .btn-xs { min-height: 44px; padding: 10px 14px; }
+    /* Mobile: tables → stacked cards */
+    .mob-cards table.t { display: block; }
+    .mob-cards table.t colgroup, .mob-cards table.t thead { display: none; }
+    .mob-cards table.t tbody { display: flex; flex-direction: column; gap: 8px; }
+    .mob-cards table.t tbody tr { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 10px 12px; border: 1px solid var(--border); background: var(--white); border-bottom: none; }
+    .mob-cards table.t tbody tr td { display: inline-flex; align-items: center; gap: 4px; border: 0; padding: 2px 0; font-size: 13px; background: transparent !important; }
+    .mob-cards table.t tbody tr td:empty { display: none; }
+    .mob-cards table.t tbody tr td input, .mob-cards table.t tbody tr td select { min-height: 40px; font-size: 14px; }
+    .mob-cards table.t tbody tr td::before { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+    .mob-cards table.t tbody tr td.int { display: none; }
+    /* Calha grid mobile */
+    .calha-family-head { flex-wrap: wrap; }
+    table.calha-grid { width: 100%; }
+    table.calha-grid td input { width: 60px; min-height: 40px; }
     /* Auth overlay mobile */
     #authOverlay { padding: 16px; align-items: flex-start; overflow-y: auto; }
     #authOverlay .auth-box { padding: 24px 20px; margin-top: auto; margin-bottom: auto; }
@@ -416,17 +430,47 @@
   .item-card.hidden-item .hide-toggle { color: var(--err); }
 
   /* ===== CALHA GRID EDITOR (3C) ===== */
-  .calha-family { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-  .calha-family:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
-  .calha-family-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
-  .calha-family-name { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600; }
-  .calha-family-name .forn { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--muted); font-weight: 400; margin-left: 6px; }
-  table.calha-grid { width: auto; border-collapse: collapse; font-size: 12px; }
-  table.calha-grid th { padding: 5px 10px; text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--soft); border-bottom: 1px solid var(--border); }
-  table.calha-grid td { padding: 3px 6px; border-bottom: 1px solid var(--border); }
-  table.calha-grid td input { width: 80px; padding: 4px 6px; border: 1px solid transparent; background: transparent; font-size: 12px; border-radius: 3px; color: var(--dark); }
+  .calha-forn-block { margin-bottom: 24px; }
+  .calha-forn-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--creme); background: var(--dark); padding: 10px 14px; margin-bottom: 0; }
+  .calha-family { margin-bottom: 0; padding: 12px 14px; border: 1px solid var(--border); border-top: 0; }
+  .calha-family:nth-child(odd) { background: var(--white); }
+  .calha-family:nth-child(even) { background: var(--soft); }
+  .calha-family-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; padding: 8px 10px; background: rgba(27,91,74,0.08); border-left: 3px solid var(--dark); }
+  .calha-family:nth-child(even) .calha-family-head { background: rgba(27,91,74,0.14); }
+  .calha-family-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
+  .calha-family-name .forn { display: none; }
+  .calha-family-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  table.calha-grid { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  table.calha-grid th { padding: 6px 10px; text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--soft); border-bottom: 1px solid var(--border); }
+  table.calha-grid td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  table.calha-grid td input { width: 80px; padding: 5px 6px; border: 1px solid transparent; background: transparent; font-size: 12px; border-radius: 3px; color: var(--dark); }
   table.calha-grid td input:focus { border-color: var(--border); background: var(--white); outline: none; }
+  table.calha-grid td input[type=checkbox] { width: auto; }
   .calha-empty { color: var(--muted); font-size: 11px; font-style: italic; padding: 6px 0; }
+
+  /* ===== GROUPED SECTIONS (fornecedor → tipo) ===== */
+  .forn-block { margin-bottom: 20px; }
+  .forn-block-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--creme); background: var(--dark); padding: 10px 14px; }
+  .tipo-group { border: 1px solid var(--border); border-top: 0; }
+  .tipo-group-head { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(27,91,74,0.06); cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+  .tipo-group-head:hover { background: rgba(27,91,74,0.12); }
+  .tipo-group-head .tg-arrow { transition: transform 0.2s; font-size: 10px; color: var(--muted); }
+  .tipo-group-head.collapsed .tg-arrow { transform: rotate(-90deg); }
+  .tipo-group-head .tg-label { font-weight: 600; font-size: 13px; }
+  .tipo-group-head .tg-count { font-size: 11px; color: var(--muted); }
+  .tipo-group-body { padding: 0; }
+  .tipo-group-body.collapsed { display: none; }
+  .tec-card-item { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 8px 14px; border-bottom: 1px solid var(--border); align-items: center; }
+  .tec-card-item:last-child { border-bottom: 0; }
+  .tec-card-item:hover { background: var(--soft); }
+  .tec-card-item .tci-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tec-card-item .tci-field label { margin-bottom: 0; font-size: 9px; }
+  .tec-card-item .tci-field input, .tec-card-item .tci-field select { padding: 5px 8px; font-size: 13px; min-height: 36px; border: 1px solid var(--border); border-radius: 3px; }
+  .tec-card-item .tci-field.int { opacity: 0.7; }
+  @media (max-width: 900px) {
+    .tec-card-item .tci-field.int { display: none; }
+    .tec-card-item { padding: 10px 12px; }
+  }
 
   /* ===== CATEGORY TOGGLES (3B) ===== */
   .cat-toggle { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -789,7 +833,7 @@
             <input type="search" id="catSearch" placeholder="Pesquisar nome ou código..." />
             <input type="search" id="catForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="prodTable" style="min-width:760px;">
               <colgroup><col style="width:90px"><col><col style="width:75px"><col style="width:50px"><col style="width:110px"><col style="width:130px"><col style="width:36px"></colgroup>
               <thead><tr><th>Código</th><th>Nome</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Ref/Obs</th><th></th></tr></thead>
@@ -813,20 +857,12 @@
             <h3>Tecidos</h3>
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
-          <p class="muted small" style="margin:0 0 8px;">Colunas 🔒 douradas são internas — nunca aparecem no orçamento. Desliza para o lado para ver todas.</p>
+          <p class="muted small" style="margin:0 0 8px;">Agrupados por fornecedor e tipo. Clique no cabeçalho do tipo para expandir/recolher.</p>
           <div class="sec-filters">
             <input type="search" id="tecSearch" placeholder="Pesquisar nome, cor ou SKU..." />
-            <input type="search" id="tecForn" placeholder="🔒 Filtrar por fornecedor..." />
+            <input type="search" id="tecForn" placeholder="Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="tecTable" style="min-width:1180px;">
-              <colgroup><col style="width:85px"><col style="width:140px"><col style="width:150px"><col style="width:110px"><col style="width:110px"><col style="width:90px"><col style="width:90px"><col style="width:110px"><col style="width:80px"><col style="width:150px"><col style="width:80px"><col style="width:36px"></colgroup>
-              <thead><tr>
-                <th>SKU LD</th><th>Nome Legado</th><th class="int">🔒 Nome Original</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 SKU Fornec.</th><th class="int">🔒 Tipo</th><th>Cor</th><th class="int">🔒 Composição</th><th class="int num">🔒 Custo €/m</th><th class="int">🔒 Tipo Confecção</th><th class="int num">🔒 €/ml</th><th></th>
-              </tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+          <div id="tecGroupArea"></div>
         </div>
 
         <!-- ===== CONFECÇÃO ===== -->
@@ -839,7 +875,7 @@
             <input type="search" id="confSearch" placeholder="Pesquisar serviço ou categoria..." />
             <input type="search" id="confForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="confTable" style="min-width:700px;">
               <colgroup><col style="width:130px"><col><col style="width:80px"><col style="width:65px"><col style="width:110px"><col><col style="width:36px"></colgroup>
               <thead><tr><th>Categoria</th><th>Serviço</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th>Observações</th><th></th></tr></thead>
@@ -859,7 +895,7 @@
             <input type="search" id="decSearch" placeholder="Pesquisar..." />
             <input type="search" id="decForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="decTable" style="min-width:1200px;">
               <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
               <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
@@ -879,7 +915,7 @@
             <input type="search" id="aceSearch" placeholder="Pesquisar..." />
             <input type="search" id="aceForn" placeholder="🔒 Filtrar por fornecedor..." />
           </div>
-          <div class="tbl-wrap" style="overflow-x:auto;">
+          <div class="tbl-wrap mob-cards" style="overflow-x:auto;">
             <table class="t" id="aceTable" style="min-width:1200px;">
               <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
               <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
@@ -1050,11 +1086,11 @@
           <div id="impReport" class="muted small" style="margin-top:10px;"></div>
         </div>
 
-        <div class="card" id="cardWooExport">
+        <div class="card" id="cardWooExport" style="border-left:3px solid var(--dark);">
           <h3>Exportar para WooCommerce (CSV)</h3>
           <p class="muted small">Gera um ficheiro CSV compatível com o importador nativo do WooCommerce. Apenas dados visíveis ao cliente — nunca exporta campos internos.</p>
           <div class="grid grid-2 mt-12" style="max-width:560px;">
-            <div class="field"><label>Secção</label>
+            <div class="field"><label>Secção a exportar</label>
               <select id="wooSection">
                 <option value="all">Tudo</option>
                 <option value="tecidos">Tecidos</option>
@@ -1065,7 +1101,7 @@
               </select>
             </div>
             <div class="field" style="display:flex;align-items:flex-end;">
-              <button class="btn" id="btnWooExport" style="width:100%;">📦 Exportar CSV</button>
+              <button class="btn" id="btnWooExport" style="width:100%;background:#1B5B4A;color:#fff;font-size:12px;padding:12px 20px;">EXPORTAR CSV</button>
             </div>
           </div>
           <div id="wooExportMsg" class="muted small" style="margin-top:10px;"></div>
@@ -2137,60 +2173,79 @@ function renderProdutos() {
 }
 
 // ============================================================
-// CALHA GRID EDITOR (3C) — editable sizes × prices per family
+// CALHA GRID EDITOR (3C) — grouped by fornecedor → model
 // ============================================================
 function renderCalhaGrid() {
   const area = $('#calhaGridArea'); if (!area) return;
   const calhas = produtos.filter(p => p.tipo === 'calha');
   if (!calhas.length) { area.innerHTML = '<div class="calha-empty">Sem famílias de calha no catálogo.</div>'; return; }
   area.innerHTML = '';
-  calhas.forEach(calha => {
-    const idx = produtos.indexOf(calha);
-    const div = document.createElement('div');
-    div.className = 'calha-family';
-    const sizes = Array.isArray(calha.tamanhos) ? calha.tamanhos : [];
-    let html = `<div class="calha-family-head">
-      <div class="calha-family-name">${esc(calha.nome)} <span class="forn">${esc(calha.fornecedor||'')} · ${esc(calha.codigo||'')}</span></div>
-      ${isAdmin ? `<button class="btn btn-xs btn-outline" data-addsize="${idx}">+ Tamanho</button>` : ''}
-    </div>`;
-    if (sizes.length) {
-      html += `<table class="calha-grid"><thead><tr><th>Tamanho (m)</th><th>Preço (€)</th>${isAdmin ? '<th></th>' : ''}</tr></thead><tbody>`;
-      sizes.forEach((s, si) => {
-        html += `<tr>
-          <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="m" value="${s.m ?? ''}" ${isAdmin?'':'disabled'} /></td>
-          <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="p" value="${s.p ?? ''}" ${isAdmin?'':'disabled'} /></td>
-          ${isAdmin ? `<td class="center"><button class="btn btn-ghost btn-icon" data-rmsize="${idx}-${si}" title="Remover">✕</button></td>` : ''}
-        </tr>`;
-      });
-      html += '</tbody></table>';
-    } else {
-      html += `<div class="calha-empty">Sem tamanhos definidos. Adicione tamanhos para esta calha.</div>`;
-    }
-    div.innerHTML = html;
-    area.appendChild(div);
+  const dis = !isAdmin ? 'disabled' : '';
+  const byForn = {};
+  calhas.forEach(c => { const f = c.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(c); });
+  Object.keys(byForn).sort().forEach(forn => {
+    const block = document.createElement('div');
+    block.className = 'calha-forn-block';
+    let html = `<div class="calha-forn-header">FORNECEDOR: ${esc(forn)}</div>`;
+    byForn[forn].forEach(calha => {
+      const idx = produtos.indexOf(calha);
+      const sizes = Array.isArray(calha.tamanhos) ? calha.tamanhos : [];
+      html += `<div class="calha-family"><div class="calha-family-head">
+        <div class="calha-family-name">${esc(calha.nome)}</div>
+        <div class="calha-family-btns">
+          ${isAdmin ? `<button class="btn btn-xs btn-outline" data-dupecalha="${idx}" title="Duplicar esta calha">⧉ Duplicar</button>` : ''}
+          ${isAdmin ? `<button class="btn btn-xs btn-outline" data-addsize="${idx}">+ Tamanho</button>` : ''}
+        </div>
+      </div>`;
+      if (sizes.length) {
+        html += `<table class="calha-grid"><thead><tr><th>Tamanho (m)</th><th>Preço c/IVA (€)</th><th>Custo B2B s/IVA (€)</th><th>Activo</th><th>Preço Fixo</th>${isAdmin ? '<th></th>' : ''}</tr></thead><tbody>`;
+        sizes.forEach((s, si) => {
+          html += `<tr>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="m" value="${s.m ?? ''}" ${dis} /></td>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="p" value="${s.p ?? ''}" ${dis} /></td>
+            <td><input type="number" step="0.01" min="0" data-ci="${idx}" data-si="${si}" data-sf="b2b" value="${s.b2b ?? ''}" ${dis} /></td>
+            <td class="center"><input type="checkbox" data-ci="${idx}" data-si="${si}" data-sf="activo" ${s.activo !== false ? 'checked' : ''} ${dis} /></td>
+            <td class="center"><input type="checkbox" data-ci="${idx}" data-si="${si}" data-sf="fixo" ${s.fixo ? 'checked' : ''} ${dis} /></td>
+            ${isAdmin ? `<td class="center"><button class="btn btn-ghost btn-icon" data-rmsize="${idx}-${si}" title="Remover">✕</button></td>` : ''}
+          </tr>`;
+        });
+        html += '</tbody></table>';
+      } else {
+        html += `<div class="calha-empty">Sem tamanhos. ${isAdmin ? 'Clique "+ Tamanho" para adicionar.' : ''}</div>`;
+      }
+      html += '</div>';
+    });
+    block.innerHTML = html;
+    area.appendChild(block);
   });
-  // event: edit size/price
-  area.querySelectorAll('[data-ci][data-sf]').forEach(el => el.addEventListener('input', () => {
+  area.querySelectorAll('[data-ci][data-sf]').forEach(el => el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', () => {
     const ci = +el.dataset.ci, si = +el.dataset.si, f = el.dataset.sf;
-    const v = parseFloat(el.value) || 0;
     if (produtos[ci] && Array.isArray(produtos[ci].tamanhos) && produtos[ci].tamanhos[si]) {
-      produtos[ci].tamanhos[si][f] = v;
-      if (f === 'p' && si === 0) produtos[ci].preco = v;
+      if (f === 'activo' || f === 'fixo') { produtos[ci].tamanhos[si][f] = el.checked; }
+      else { const v = parseFloat(el.value) || 0; produtos[ci].tamanhos[si][f] = v; if (f === 'p' && si === 0) produtos[ci].preco = v; }
       save(K.prod, produtos);
     }
   }));
-  // event: add size
   area.querySelectorAll('[data-addsize]').forEach(b => b.addEventListener('click', () => {
     const ci = +b.dataset.addsize;
     if (!Array.isArray(produtos[ci].tamanhos)) produtos[ci].tamanhos = [];
-    produtos[ci].tamanhos.push({ m: 0, p: 0 });
+    produtos[ci].tamanhos.push({ m: 0, p: 0, b2b: 0, activo: true, fixo: false });
     save(K.prod, produtos); renderCalhaGrid();
   }));
-  // event: remove size
   area.querySelectorAll('[data-rmsize]').forEach(b => b.addEventListener('click', () => {
     const [ci, si] = b.dataset.rmsize.split('-').map(Number);
     if (!confirm('Remover este tamanho?')) return;
     produtos[ci].tamanhos.splice(si, 1);
+    save(K.prod, produtos); renderCalhaGrid();
+  }));
+  area.querySelectorAll('[data-dupecalha]').forEach(b => b.addEventListener('click', () => {
+    const ci = +b.dataset.dupecalha;
+    const orig = produtos[ci];
+    const copy = JSON.parse(JSON.stringify(orig));
+    copy.id = 'p_' + uid();
+    copy.nome = (copy.nome || '') + ' (cópia)';
+    copy.tamanhos = (copy.tamanhos || []).map(s => ({ m: s.m, p: 0, b2b: 0, activo: true, fixo: false }));
+    produtos.splice(ci + 1, 0, copy);
     save(K.prod, produtos); renderCalhaGrid();
   }));
 }
@@ -2234,38 +2289,70 @@ function renderCatalog() {
   }));
 }
 
+const _tecCollapsed = {};
 function renderTecidosTable() {
+  const area = $('#tecGroupArea'); if (!area) return;
   const dis = disAttr();
   const q = norm($('#tecSearch')?.value||'').trim();
   const fq = norm($('#tecForn')?.value||'').trim();
   const rows = tecidos.filter(t => matchQ(t,q,'codigo','nome','cores','skuFornecedor') && matchForn(t,fq));
-  const tb = $('#tecTable tbody'); if (!tb) return; tb.innerHTML = '';
-  rows.forEach(t => {
-    const i = tecidos.indexOf(t);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></td>
-      <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></td>
-      <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
-      <td class="int"><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></td>
-      <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" class="num" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></td>
-      <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" class="num" ${dis} /></td>
-      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>`;
-    tb.appendChild(tr);
+  if (!rows.length) { area.innerHTML = '<div class="calha-empty" style="padding:20px;text-align:center;">Sem resultados.</div>'; return; }
+  const byForn = {};
+  rows.forEach(t => { const f = t.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(t); });
+  area.innerHTML = '';
+  Object.keys(byForn).sort().forEach(forn => {
+    if (fq && !norm(forn).includes(fq)) return;
+    const block = document.createElement('div');
+    block.className = 'forn-block';
+    let html = `<div class="forn-block-header">FORNECEDOR: ${esc(forn)}</div>`;
+    const byTipo = {};
+    byForn[forn].forEach(t => { const tp = t.tipo || 'Sem tipo'; (byTipo[tp] = byTipo[tp] || []).push(t); });
+    Object.keys(byTipo).sort().forEach(tipo => {
+      const key = forn + '|' + tipo;
+      const collapsed = _tecCollapsed[key];
+      html += `<div class="tipo-group">
+        <div class="tipo-group-head${collapsed ? ' collapsed' : ''}" data-tgkey="${esc(key)}">
+          <span class="tg-arrow">▼</span>
+          <span class="tg-label">${esc(tipo)}</span>
+          <span class="tg-count">(${byTipo[tipo].length})</span>
+        </div>
+        <div class="tipo-group-body${collapsed ? ' collapsed' : ''}">`;
+      byTipo[tipo].forEach(t => {
+        const i = tecidos.indexOf(t);
+        html += `<div class="tec-card-item">
+          <div class="tci-field" style="flex:0 0 80px;"><label>SKU LD</label><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></div>
+          <div class="tci-field" style="flex:1 1 140px;"><label>Nome</label><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></div>
+          <div class="tci-field" style="flex:0 0 90px;"><label>Cor</label><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Nome Orig.</label><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 110px;"><label>🔒 Fornecedor</label><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 80px;"><label>🔒 Tipo</label><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 100px;"><label>🔒 SKU Fornec.</label><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 90px;"><label>🔒 Composição</label><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 75px;"><label>🔒 Custo €/m</label><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" ${dis} /></div>
+          <div class="tci-field int" style="flex:0 0 120px;"><label>🔒 Confecção</label><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></div>
+          <div class="tci-field int" style="flex:0 0 70px;"><label>🔒 €/ml</label><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" ${dis} /></div>
+          ${isAdmin ? `<div class="tci-field" style="flex:0 0 30px;align-self:center;"><button class="btn btn-ghost btn-icon" data-rmt="${i}" style="min-height:36px;">✕</button></div>` : ''}
+        </div>`;
+      });
+      html += '</div></div>';
+    });
+    block.innerHTML = html;
+    area.appendChild(block);
   });
-  if (!rows.length) tb.innerHTML = `<tr><td colspan="12" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
-  tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
+  area.querySelectorAll('.tipo-group-head').forEach(h => h.addEventListener('click', () => {
+    const key = h.dataset.tgkey;
+    _tecCollapsed[key] = !_tecCollapsed[key];
+    h.classList.toggle('collapsed');
+    h.nextElementSibling.classList.toggle('collapsed');
+  }));
+  area.querySelectorAll('[data-t]').forEach(el => el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
     tecidos[i][f] = (f === 'preco' || f === 'conf') ? (parseFloat(el.value)||0) : el.value;
     if (f === 'confTipo') { const cf = (config.confeccoes||[]).find(c => c.nome === el.value); if (cf) { tecidos[i].conf = cf.preco; renderTecidosTable(); } }
+    if (f === 'fornecedor' || f === 'tipo') renderTecidosTable();
     save(K.tec, tecidos);
   }));
-  tb.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
+  area.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
     if (!confirm('Remover este tecido?')) return;
     tecidos.splice(+b.dataset.rmt, 1); save(K.tec, tecidos); renderTecidosTable();
   }));
