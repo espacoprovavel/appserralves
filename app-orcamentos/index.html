@@ -1050,6 +1050,27 @@
           <div id="impReport" class="muted small" style="margin-top:10px;"></div>
         </div>
 
+        <div class="card" id="cardWooExport">
+          <h3>Exportar para WooCommerce (CSV)</h3>
+          <p class="muted small">Gera um ficheiro CSV compatível com o importador nativo do WooCommerce. Apenas dados visíveis ao cliente — nunca exporta campos internos.</p>
+          <div class="grid grid-2 mt-12" style="max-width:560px;">
+            <div class="field"><label>Secção</label>
+              <select id="wooSection">
+                <option value="all">Tudo</option>
+                <option value="tecidos">Tecidos</option>
+                <option value="calhas">Calhas / Catálogo</option>
+                <option value="confeccoes">Confecção</option>
+                <option value="decoracao">Decoração</option>
+                <option value="acessorios">Acessórios</option>
+              </select>
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;">
+              <button class="btn" id="btnWooExport" style="width:100%;">📦 Exportar CSV</button>
+            </div>
+          </div>
+          <div id="wooExportMsg" class="muted small" style="margin-top:10px;"></div>
+        </div>
+
         <div class="card">
           <h3>Dados / Cópia de segurança</h3>
           <p class="muted small">Tudo é guardado localmente neste dispositivo. Exporta para criares uma cópia de segurança.</p>
@@ -2354,6 +2375,95 @@ $('#btnAddDec')?.addEventListener('click', () => addDecAce('decoracao','decTable
 $('#btnAddAce')?.addEventListener('click', () => addDecAce('acessorios','aceTable','aceSearch','aceForn'));
 
 // ============================================================
+// WOOCOMMERCE CSV EXPORT (3G)
+// ============================================================
+function wooCSVRow(cols) {
+  return cols.map(c => {
+    const s = String(c ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(',');
+}
+function exportWooCSV() {
+  const sec = $('#wooSection').value;
+  const iva = config.ivaPct ?? 23;
+  const rows = [];
+  const header = ['ID','Type','SKU','Name','Published','Short description','Description','Regular price','Categories','Tags','Images','Attribute 1 name','Attribute 1 value(s)','Attribute 1 visible','Attribute 1 global'];
+  rows.push(wooCSVRow(header));
+
+  if (sec === 'all' || sec === 'tecidos') {
+    tecidos.forEach(t => {
+      const custoTec = parseFloat(t.preco) || 0;
+      const mg = clampMargemPct(parseFloat(config.margemPct) || 60);
+      const pvp = custoTec > 0 ? Math.round((custoTec / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', t.codigo || '', t.nome || '', 1,
+        [t.tipo, t.cores].filter(Boolean).join(' — '),
+        t.composicao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        t.tipo || 'Tecidos', t.cores || '', '',
+        'Cor', t.cores || '', 1, 1]));
+    });
+  }
+  if (sec === 'all' || sec === 'calhas') {
+    produtos.forEach(p => {
+      if (p.tipo === 'calha' && Array.isArray(p.tamanhos) && p.tamanhos.length) {
+        p.tamanhos.forEach(s => {
+          const price = Math.round((s.p || 0) * 100) / 100;
+          rows.push(wooCSVRow(['', 'simple', (p.codigo || p.nome) + '-' + (s.m || ''), p.nome + ' ' + (s.m || '') + 'm', 1,
+            p.categoria || 'Calha', '', price > 0 ? price.toFixed(2) : '',
+            p.categoria || 'Calhas', '', '', '', '', '', '']));
+        });
+      } else if (p.tipo !== 'calha') {
+        const price = Math.round((parseFloat(p.preco) || 0) * 100) / 100;
+        rows.push(wooCSVRow(['', 'simple', p.codigo || '', p.nome || '', 1,
+          p.categoria || '', '', price > 0 ? price.toFixed(2) : '',
+          p.categoria || '', '', '', '', '', '', '']));
+      }
+    });
+  }
+  if (sec === 'all' || sec === 'confeccoes') {
+    (config.confeccoes || []).forEach(c => {
+      const price = Math.round((parseFloat(c.preco) || 0) * 100) / 100;
+      rows.push(wooCSVRow(['', 'simple', '', c.nome || '', 1,
+        c.cat || 'Confecção', '', price > 0 ? price.toFixed(2) : '',
+        'Confecção', '', '', '', '', '', '']));
+    });
+  }
+  if (sec === 'all' || sec === 'decoracao') {
+    (config.decoracao || []).forEach(d => {
+      const mg = clampMargemPct(itemNum(d, 'margem', parseFloat(config.margemPct)));
+      const custo = parseFloat(d.custoBase) || 0;
+      const pvp = custo > 0 ? Math.round((custo / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', d.sku || '', d.nome || '', 1,
+        [d.tipo, d.cor].filter(Boolean).join(' — '),
+        d.descricao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        'Decoração', d.cor || '', '',
+        'Cor', d.cor || '', 1, 1]));
+    });
+  }
+  if (sec === 'all' || sec === 'acessorios') {
+    (config.acessorios || []).forEach(d => {
+      const mg = clampMargemPct(itemNum(d, 'margem', parseFloat(config.margemPct)));
+      const custo = parseFloat(d.custoBase) || 0;
+      const pvp = custo > 0 ? Math.round((custo / (1 - mg / 100)) * 100) / 100 : 0;
+      rows.push(wooCSVRow(['', 'simple', d.sku || '', d.nome || '', 1,
+        [d.tipo, d.cor].filter(Boolean).join(' — '),
+        d.descricao || '', pvp > 0 ? pvp.toFixed(2) : '',
+        'Acessórios', d.cor || '', '',
+        'Cor', d.cor || '', 1, 1]));
+    });
+  }
+  if (rows.length <= 1) { toast('Sem produtos para exportar nesta secção.'); return; }
+  const BOM = '﻿';
+  const blob = new Blob([BOM + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = 'legado-decor-woocommerce-' + (sec === 'all' ? 'tudo' : sec) + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  const msg = $('#wooExportMsg');
+  if (msg) msg.textContent = 'Ficheiro pronto. Para importar no WooCommerce: WooCommerce → Produtos → Importar → seleccionar este ficheiro.';
+}
+$('#btnWooExport')?.addEventListener('click', exportWooCSV);
+
+// ============================================================
 // CONFIG UI
 // ============================================================
 function renderConfigForm() {
@@ -3115,6 +3225,8 @@ function applyRoleUI() {
     el.readOnly = !admin; el.disabled = (el.tagName === 'SELECT') ? !admin : false;
     el.style.opacity = admin ? '' : '0.75'; el.style.pointerEvents = admin ? '' : 'none';
   });
+  // WooCommerce export: admin only
+  const wooCard = $('#cardWooExport'); if (wooCard) wooCard.style.display = admin ? '' : 'none';
   // Produtos: botões de adicionar
   ['btnAddProduto','btnAddTecido','btnAddConf','btnAddDec','btnAddAce'].forEach(id => {
     const el = $('#'+id); if (el) el.style.display = admin ? '' : 'none';
