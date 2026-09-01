@@ -144,6 +144,11 @@
   table.t .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   table.t .center { text-align: center; }
   table.t tbody tr:hover td { background: var(--soft); }
+  .cat-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .cat-tabs button { background: var(--soft); border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer; border-radius: 20px; white-space: nowrap; }
+  .cat-tabs button.active { background: var(--dark); color: var(--creme); border-color: var(--dark); }
+  .sec-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .sec-filters input { flex: 1; min-width: 150px; }
   table.t th.int { background: #ECE6DA; color: #8a7f6a; }
   table.t td.int { background: rgba(180,151,58,0.06); }
   table.t td input, table.t td select { width: 100%; border: 1px solid transparent; background: transparent; padding: 5px 6px; font-size: 12px; border-radius: 3px; color: var(--dark); }
@@ -739,29 +744,37 @@
           <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
         </div>
 
-        <div class="card" style="padding-bottom:8px;">
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-            <input type="search" id="catalogSearch" placeholder="Pesquisar código ou nome..." style="flex:1;min-width:180px;" />
-          </div>
-          <div class="card-head" style="margin-bottom:10px;">
-            <h3 style="margin:0;">Produtos</h3>
+        <!-- ===== CATÁLOGO (por categoria) ===== -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Catálogo</h3>
             <button class="btn btn-sm" id="btnAddProduto">+ Novo produto</button>
           </div>
+          <div class="cat-tabs" id="catTabs"></div>
+          <div class="sec-filters">
+            <input type="search" id="catSearch" placeholder="Pesquisar nome ou código..." />
+            <input type="search" id="catForn" placeholder="🔒 Filtrar por fornecedor..." />
+          </div>
           <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="prodTable" style="min-width:820px;">
-              <colgroup><col style="width:90px"><col><col style="width:100px"><col style="width:70px"><col style="width:55px"><col style="width:100px"><col style="width:120px"><col style="width:36px"></colgroup>
-              <thead><tr><th>Código</th><th>Nome</th><th>Categoria</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Ref/Obs</th><th></th></tr></thead>
+            <table class="t" id="prodTable" style="min-width:760px;">
+              <colgroup><col style="width:90px"><col><col style="width:75px"><col style="width:50px"><col style="width:110px"><col style="width:130px"><col style="width:36px"></colgroup>
+              <thead><tr><th>Código</th><th>Nome</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Ref/Obs</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
         </div>
 
+        <!-- ===== TECIDOS ===== -->
         <div class="card">
           <div class="card-head">
             <h3>Tecidos</h3>
             <button class="btn btn-sm" id="btnAddTecido">+ Novo tecido</button>
           </div>
-          <p class="muted small" style="margin:0 0 8px;">Colunas cinzentas 🔒 são internas — nunca aparecem no orçamento ao cliente. Desliza para o lado para ver todas.</p>
+          <p class="muted small" style="margin:0 0 8px;">Colunas 🔒 douradas são internas — nunca aparecem no orçamento. Desliza para o lado para ver todas.</p>
+          <div class="sec-filters">
+            <input type="search" id="tecSearch" placeholder="Pesquisar nome, cor ou SKU..." />
+            <input type="search" id="tecForn" placeholder="🔒 Filtrar por fornecedor..." />
+          </div>
           <div class="tbl-wrap" style="overflow-x:auto;">
             <table class="t" id="tecTable" style="min-width:1180px;">
               <colgroup><col style="width:85px"><col style="width:140px"><col style="width:150px"><col style="width:110px"><col style="width:110px"><col style="width:90px"><col style="width:90px"><col style="width:110px"><col style="width:80px"><col style="width:150px"><col style="width:80px"><col style="width:36px"></colgroup>
@@ -773,16 +786,60 @@
           </div>
         </div>
 
+        <!-- ===== CONFECÇÃO ===== -->
         <div class="card">
           <div class="card-head">
             <h3>Confecção (Mónica Confecções)</h3>
             <button class="btn btn-sm" id="btnAddConf">+ Nova confecção</button>
           </div>
-          <p class="muted small" style="margin:0 0 8px;">Tabela de serviços de confecção. Interna — nunca aparece no orçamento ao cliente.</p>
+          <div class="sec-filters">
+            <input type="search" id="confSearch" placeholder="Pesquisar serviço ou categoria..." />
+            <input type="search" id="confForn" placeholder="🔒 Filtrar por fornecedor..." />
+          </div>
           <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="confTable" style="min-width:640px;">
-              <colgroup><col style="width:130px"><col><col style="width:90px"><col style="width:70px"><col><col style="width:36px"></colgroup>
-              <thead><tr><th>Categoria</th><th>Serviço</th><th class="num">Preço</th><th>Unidade</th><th>Observações</th><th></th></tr></thead>
+            <table class="t" id="confTable" style="min-width:700px;">
+              <colgroup><col style="width:130px"><col><col style="width:80px"><col style="width:65px"><col style="width:110px"><col><col style="width:36px"></colgroup>
+              <thead><tr><th>Categoria</th><th>Serviço</th><th class="num">Preço</th><th>Un</th><th class="int">🔒 Fornecedor</th><th>Observações</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== DECORAÇÃO ===== -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Decoração</h3>
+            <button class="btn btn-sm" id="btnAddDec">+ Novo produto</button>
+          </div>
+          <p class="muted small" style="margin:0 0 8px;">PVP = Custo Base ÷ (1 − Margem%). Colunas 🔒 são internas. Começa vazio.</p>
+          <div class="sec-filters">
+            <input type="search" id="decSearch" placeholder="Pesquisar..." />
+            <input type="search" id="decForn" placeholder="🔒 Filtrar por fornecedor..." />
+          </div>
+          <div class="tbl-wrap" style="overflow-x:auto;">
+            <table class="t" id="decTable" style="min-width:1200px;">
+              <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
+              <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== ACESSÓRIOS ===== -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Acessórios Gerais</h3>
+            <button class="btn btn-sm" id="btnAddAce">+ Novo acessório</button>
+          </div>
+          <p class="muted small" style="margin:0 0 8px;">Mesma estrutura da Decoração. No orçamento aparecem como nota separada. Começa vazio.</p>
+          <div class="sec-filters">
+            <input type="search" id="aceSearch" placeholder="Pesquisar..." />
+            <input type="search" id="aceForn" placeholder="🔒 Filtrar por fornecedor..." />
+          </div>
+          <div class="tbl-wrap" style="overflow-x:auto;">
+            <table class="t" id="aceTable" style="min-width:1200px;">
+              <colgroup><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:100px"><col style="width:100px"><col style="width:90px"><col style="width:90px"><col><col style="width:90px"><col style="width:70px"><col style="width:90px"><col style="width:36px"></colgroup>
+              <thead><tr><th>Nome Legado</th><th class="int">🔒 Nome Fornec.</th><th class="int">🔒 Fornecedor</th><th class="int">🔒 Cód. Fornec.</th><th class="int">🔒 Tipo/Cat.</th><th>Cor</th><th class="int">🔒 SKU</th><th>Descrição</th><th class="int num">🔒 Custo Base</th><th class="int num">🔒 Margem %</th><th class="num">PVP c/IVA</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -912,9 +969,9 @@
           <div class="card-head"><h3>Fornecedores</h3><button class="btn btn-sm" id="btnAddForn">+ Novo fornecedor</button></div>
           <p class="muted small">Lista global de fornecedores. Interna — nunca aparece no orçamento ao cliente.</p>
           <div class="tbl-wrap" style="overflow-x:auto;">
-            <table class="t" id="fornTable" style="min-width:520px;">
-              <colgroup><col style="width:200px"><col><col style="width:180px"><col style="width:36px"></colgroup>
-              <thead><tr><th>Nome</th><th>Website</th><th>Email</th><th></th></tr></thead>
+            <table class="t" id="fornTable" style="min-width:920px;">
+              <colgroup><col style="width:150px"><col style="width:150px"><col style="width:160px"><col style="width:120px"><col><col style="width:140px"><col style="width:36px"></colgroup>
+              <thead><tr><th>Nome</th><th>Contacto responsável</th><th>Email</th><th>Telefone</th><th>Endereço</th><th>Website</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -924,10 +981,14 @@
           <h3>Importar Dados (Excel / CSV)</h3>
           <p class="muted small">Importa tecidos, confecção ou calhas de um ficheiro .xlsx ou .csv. Nunca duplica (ignora SKU/nome já existente) nem apaga o que existe — só acrescenta novos.</p>
           <div class="grid grid-2 mt-12" style="max-width:560px;">
-            <div class="field"><label>Secção a importar</label>
-              <select id="impSeccao"><option value="tecidos">Tecidos</option><option value="confeccoes">Confecção</option><option value="produtos">Calhas / Produtos</option></select>
+            <div class="field"><label>1. Secção a importar</label>
+              <select id="impSeccao"><option value="tecidos">Tecidos</option><option value="confeccoes">Confecção</option><option value="calhas">Calhas / Catálogo</option><option value="produtos">Produtos (outros)</option><option value="decoracao">Decoração</option><option value="acessorios">Acessórios</option></select>
             </div>
-            <div class="field"><label>Ficheiro (.xlsx ou .csv)</label><input type="file" id="impFile" accept=".xlsx,.csv" /></div>
+            <div class="field"><label>2. Ficheiro</label>
+              <button type="button" class="btn btn-outline" id="btnImpPick" style="width:100%;">📁 Escolher ficheiro (.xlsx / .csv)</button>
+              <input type="file" id="impFile" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" />
+              <div class="muted small" id="impFileName" style="margin-top:6px;">Nenhum ficheiro escolhido.</div>
+            </div>
           </div>
           <div id="impMapArea" style="display:none;"></div>
           <div id="impReport" class="muted small" style="margin-top:10px;"></div>
@@ -1100,79 +1161,79 @@ const DEFAULT_PRODUTOS = [
   { id:'crt_il', codigo:'CRT-IL', nome:"Cortina Ilhós", categoria:'Cortinas', tipo:'cortina', preco:0, unidade:'ml' },
   { id:'crt_fr', codigo:'CRT-FR', nome:"Cortina Franzido", categoria:'Cortinas', tipo:'cortina', preco:0, unidade:'ml' },
   { id:'crt_bk', codigo:'CRT-BK', nome:"Cortina Blackout", categoria:'Cortinas', tipo:'cortina', preco:0, unidade:'ml' },
-  { id:'ld_cks_8624', codigo:"LD-CKS", nome:"Calha CKS — Cordão / Tradicional / Ondas", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CKS", obs:"Perfil para cordão; franzido e ondas. Pode ser curva. Teto ou parede.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_ks_2300', codigo:"LD-KS", nome:"Calha KS — Tradicional / Ondas", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"KS", obs:"Perfil simples para modelos tradicionais ou ondas. Teto ou parede.", preco:32.62, unidade:'uni', tamanhos:[{m:1.6,p:32.62}, {m:2.0,p:39.7}, {m:2.4,p:47.6}, {m:3.0,p:57.2}, {m:4.0,p:75.28}], motor:false },
-  { id:'ld_ds_9105', codigo:"LD-DS", nome:"Calha DS — Design Discreto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"DS", obs:"Perfil discreto; teto ou parede. Pode ser curvado a pedido.", preco:45.17, unidade:'uni', tamanhos:[{m:2.0,p:45.17}, {m:2.4,p:54.05}, {m:3.0,p:64.87}, {m:4.0,p:81.01}], motor:false },
-  { id:'ld_3000eco_1808', codigo:"LD-3000ECO", nome:"Calha 3000 ECO — Perfil Quadrado", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"3000 ECO", obs:"Modelo simples, quadrado; teto ou parede. Económico.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_2000eco_8648', codigo:"LD-2000ECO", nome:"Calha 2000 ECO — Perfil Arredondado", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"2000 ECO", obs:"Perfil arredondado; teto ou parede.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_kseembut_6640', codigo:"LD-KSEEMBUT", nome:"Calha KSE — Para Embutir no Teto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"KSE Embutir", obs:"Embutida no teto; modelos tradicionais ou ondas. Muito discreta.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_athenase_6238', codigo:"LD-ATHENASE", nome:"Calha Athenas — Para Embutir (Sistema Cordão)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Athenas Embutir", obs:"Desenvolvida na Europa; embutida; sistema de cordão.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_dsxl_3582', codigo:"LD-DSXL", nome:"Calha DSXL — Perfil Slim Wide", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"DSXL", obs:"Slim mas larga; disponível em 3 cores de acabamento.", preco:106.49, unidade:'uni', tamanhos:[{m:2.0,p:106.49}, {m:2.4,p:122.31}, {m:3.0,p:144.75}, {m:4.0,p:181.33}], motor:false },
-  { id:'ld_ccs_8330', codigo:"LD-CCS", nome:"Calha CCS — Perfil Quadrado Robusto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CCS", obs:"Perfil robusto; suporta sistemas tradicionais e ondas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_reva_9506', codigo:"LD-REVA", nome:"Calha Reva — Cordão ou Manual", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Reva", obs:"Operação por cordão ou manual.", preco:48.93, unidade:'uni', tamanhos:[{m:2.0,p:48.93}, {m:2.4,p:56.46}, {m:3.0,p:66.76}, {m:4.0,p:84.23}], motor:false },
-  { id:'ld_mltipla_7659', codigo:"LD-MLTIPLA", nome:"Calha Múltipla — Perfil Duplo/Triplo (Hotelaria)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Múltipla", obs:"Perfil especial hotelaria; calha dupla ou tripla.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_mts_8126', codigo:"LD-MTS", nome:"Calha MTS — Hospitalar / Cortinas de Separação", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"MTS", obs:"Perfil especializado para hospitais e separação de espaços.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_1000_7556', codigo:"LD-1000", nome:"Calha 1000 — Ferro Americano Tradicional", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"1000", obs:"Perfil de ferro tradicional, origem americana.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_calhau_7325', codigo:"LD-CALHAU", nome:"Calha U — Ferro (Origem Alemã)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Calha U", obs:"Perfil de ferro de inspiração alemã; design histórico.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_calhai_9349', codigo:"LD-CALHAI", nome:"Calha I — Alumínio em I (Curvaturas)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Calha I", obs:"Perfil alumínio em I; ideal para instalações curvas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_estoreco_2603', codigo:"LD-ESTORECO", nome:"Estore Compact Star — Caixa Motorizada", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Estore Compact Star", obs:"Caixa de estore compacta com motor integrado.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_st43_9276', codigo:"LD-ST43", nome:"Calha ST43", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"ST43", obs:"Consultar especificações com a Giferant.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_bilbau_6560', codigo:"LD-BILBAU", nome:"Calha Bilbau", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Bilbau", obs:"Consultar especificações com a Giferant.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_painelja_1853', codigo:"LD-PAINELJA", nome:"Sistema Painel Japonês — Painéis Deslizantes", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Painel Japonês", obs:"Sistema de painéis deslizantes; ideal para vãos largos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_sintra_3405', codigo:"LD-SINTRA", nome:"Calha Design Sintra — Perfil Quadrado (4 Acabamentos)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Sintra", obs:"Quadrado; com ou sem cordão; 4 acabamentos de cor.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_lyon_3135', codigo:"LD-LYON", nome:"Calha Design Lyon — Perfil Redondo (Semelhante a Varão)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Lyon", obs:"Perfil redondo; assemelha-se a varão decorativo; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_elegance_4042', codigo:"LD-ELEGANCE", nome:"Calha Design Elegance — Perfil Oval", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Elegance", obs:"Forma oval; vários acabamentos de cor.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_milano_1969', codigo:"LD-MILANO", nome:"Calha Design Milano — Perfil Ovalizado 10cm Altura", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Milano", obs:"Ovalizado; 10 cm de altura; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_paris_4760', codigo:"LD-PARIS", nome:"Calha Design Paris — Perfil Retangular", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Paris", obs:"Retangular; diversas cores de acabamento.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_turim_8568', codigo:"LD-TURIM", nome:"Calha Design Turim — Frente Arredondada (Teto)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Turim", obs:"Aplicação ao teto; frente arredondada; várias cores.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_5000_9892', codigo:"LD-5000", nome:"Calha Design 5000 — Estrutura Quadrada (Teto/Parede)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"5000", obs:"Estrutura quadrada simples; teto ou parede. Ver também preços Calha 5000 na aba Calculadora.", preco:32.47, unidade:'uni', tamanhos:[{m:1.6,p:32.47}, {m:1.8,p:35.33}, {m:2.0,p:37.91}, {m:2.2,p:49.0}, {m:2.4,p:44.7}, {m:2.6,p:47.23}, {m:3.0,p:52.84}, {m:3.5,p:60.25}, {m:4.0,p:66.15}, {m:5.0,p:82.63}], motor:false },
-  { id:'ld_grcia_8375', codigo:"LD-GRCIA", nome:"Painel Grécia — Acabamento Inox / Aço Inoxidável", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Grécia", obs:"Painel moderno; acabamento inox; várias opções de terminais.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_led_779', codigo:"LD-LED", nome:"Calha Design com LED — Iluminação Integrada", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"LED", obs:"Sistema de iluminação LED integrada na calha; efeito decorativo.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_lyonmoto_3902', codigo:"LD-LYONMOTO", nome:"Calha Decorativa Lyon — Motorizada (Bateria ou WiFi)", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Lyon Motorizadas", obs:"Varão decorativo; multi-acabamentos; compatível domótica. Bateria ou WiFi.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_cm45_9408', codigo:"LD-CM45", nome:"Calha CM45 / CM45 Plus — Motorizada 4 Cores", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM45", obs:"1 perfil; 4 cores; motor multifunção (telecomando, interruptor ou domótica).", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_cm43b_6781', codigo:"LD-CM43B", nome:"Calha CM43B / CM43B Plus — Motorizada a Bateria", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM43B", obs:"1 perfil; 4 cores; motorização a bateria. Sem necessidade de cablagem.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_cm46_7605', codigo:"LD-CM46", nome:"Calha CM46 / CM46 Plus — Motorizada WiFi", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM46", obs:"1 perfil; 4 cores; WiFi; controlo via app móvel. Compatível domótica.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_cm950_4706', codigo:"LD-CM950", nome:"Calha CM950 — Motor Robusto Residencial", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM950", obs:"Perfil branco; motor mais potente mercado residencial; grandes dimensões e tecidos pesados.", preco:545.33, unidade:'uni', tamanhos:[{m:1.5,p:545.33}, {m:2.0,p:558.54}, {m:2.5,p:581.89}, {m:3.0,p:603.59}, {m:4.0,p:645.85}, {m:5.0,p:689.32}, {m:6.0,p:748.11}], motor:true },
-  { id:'ld_cm960emb_2655', codigo:"LD-CM960EMB", nome:"Calha CM960 — Motorizada Embutida no Teto", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM960 Embutir", obs:"Instalação embutida flush no teto; motor integrado.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_fmsshutt_2636', codigo:"LD-FMSSHUTT", nome:"Calha Motorizada Forest FMS Shuttle (Holanda)", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"FMS Shuttle", obs:"Marca Forest (Holanda); reconhecida internacionalmente.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_fmspluse_6124', codigo:"LD-FMSPLUSE", nome:"Calha Motorizada Forest FMS Plus — Embutida", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"FMS Plus Embutir", obs:"Versão embutida da Forest; design premium.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_estorest_4716', codigo:"LD-ESTOREST", nome:"Kit Motorizado Estore Star", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Estore Star Motorizado", obs:"Kits de estores de rolo horizontais; telecomando ou domótica.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_somfy_5453', codigo:"LD-SOMFY", nome:"Calhas Motorizadas SOMFY", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"SOMFY", obs:"Motorização SOMFY; líder mundial em automação; consultar modelos disponíveis.", preco:0, unidade:'uni', tamanhos:[], motor:true },
-  { id:'ld_portugal_3472', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Aço Ø20mm", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Aço 20mm", obs:"Diâmetros 20mm e 29mm disponíveis. Acabamentos: preto, branco, cromado.", material:"Aço", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_portugal_3867', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Aço Ø29mm", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Aço 29mm", obs:"Diâmetros 20mm e 29mm disponíveis. Acabamentos: preto, branco, cromado.", material:"Aço", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_portugal_1760', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Inox", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Inox", obs:"Durabilidade e resistência à corrosão. Ideal ambientes húmidos.", material:"Inox", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_platinai_6244', codigo:"LD-PLATINAI", nome:"Varão Platina — Inox", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Platina Inox", obs:"Linha Platina em inox. Acabamento premium.", material:"Inox", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_guadiana_8594', codigo:"LD-GUADIANA", nome:"Varão Guadiana — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Guadiana", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_vouga_8709', codigo:"LD-VOUGA", nome:"Varão Vouga — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Vouga", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_mondego_5079', codigo:"LD-MONDEGO", nome:"Varão Mondego — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Mondego", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_tejo_2747', codigo:"LD-TEJO", nome:"Varão Tejo — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Tejo", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_aramis_7571', codigo:"LD-ARAMIS", nome:"Varão Aramis — Ferro Rústico", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Aramis", obs:"Estética rústica; preto é a cor mais popular.", material:"Ferro", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_country_2755', codigo:"LD-COUNTRY", nome:"Varão Country — Ferro", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Country", obs:"Linha ferro; acabamento rústico/industrial.", material:"Ferro", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_tiaramad_7906', codigo:"LD-TIARAMAD", nome:"Varão Tiara — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Tiara Madeira", obs:"Vasta gama de acabamentos em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_museumad_1696', codigo:"LD-MUSEUMAD", nome:"Varão Museu — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Museu Madeira", obs:"Coleção museu; acabamentos madeira vários tons.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_safirama_229', codigo:"LD-SAFIRAMA", nome:"Varão Safira — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Safira Madeira", obs:"Acabamentos naturais; integra canal de cortina.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_romamade_1805', codigo:"LD-ROMAMADE", nome:"Varão Roma — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Roma Madeira", obs:"Design clássico em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_vienamad_8736', codigo:"LD-VIENAMAD", nome:"Varão Viena — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Viena Madeira", obs:"Estilo europeu clássico; madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_rubimade_621', codigo:"LD-RUBIMADE", nome:"Varão Rubi — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Rubi Madeira", obs:"Coleção madeira; vários acabamentos.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_infantil_6133', codigo:"LD-INFANTIL", nome:"Varão Infantil — Madeira (Temáticos)", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Infantil Madeira", obs:"Coleções temáticas para quartos de criança.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_tradmade_5184', codigo:"LD-TRADMADE", nome:"Varão Tradicional — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Trad. Madeira", obs:"Modelo tradicional em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_rolo_4893', codigo:"LD-ROLO", nome:"Estore Rolo — Várias Telas e Opacidades", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Rolo", obs:"Rolo simples; disponível em tela blackout, screen, opaca e filtrante.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_rolomoto_7203', codigo:"LD-ROLOMOTO", nome:"Estore Rolo Motorizado — Telecomando / App / Domótica", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Rolo Motorizado", obs:"Versão motorizada do rolo; telecomando ou WiFi; compatível domótica.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_minibox_2182', codigo:"LD-MINIBOX", nome:"Estore Mini Box — Caixa Ocultação Integrada", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Mini Box", obs:"Caixa de ocultação integrada na parte superior para aspecto clean.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_mosquite_102', codigo:"LD-MOSQUITE", nome:"Mosquiteira — Rolo, Plissado ou Deslizante", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Mosquiteira", obs:"Protecção contra insectos; vários sistemas de fixação.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_bandasve_406', codigo:"LD-BANDASVE", nome:"Estore Bandas Verticais — Várias Telas", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Bandas Verticais", obs:"Lâminas verticais; controlo de luz e privacidade; vários tecidos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_laminado_6900', codigo:"LD-LAMINADO", nome:"Estore Laminados de Madeira — Persiana", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Laminados Madeira", obs:"Lâminas em madeira natural; estética quente e natural.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_laminado_5273', codigo:"LD-LAMINADO", nome:"Estore Laminados de Alumínio — Persiana", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Laminados Alumínio", obs:"Lâminas em alumínio; alta durabilidade; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_painelde_4415', codigo:"LD-PAINELDE", nome:"Estore Painel Deslizante — Para Vãos Largos", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Painel Deslizante", obs:"Painéis deslizantes; ideal para janelas e portas largas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_telasdec_3723', codigo:"LD-TELASDEC", nome:"Telas Decorativas — Vários Padrões e Cores", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Telas Decorativas", obs:"Telas com padrões e texturas decorativas; consultar catálogo.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_ilhs_2394', codigo:"LD-ILHS", nome:"Ilhós para Cortinas — Vários Tamanhos e Acabamentos", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Ilhós", obs:"Disponível em vários diâmetros (25mm, 35mm, 40mm) e acabamentos (ouro, prata, preto, etc.).", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_puxadore_4920', codigo:"LD-PUXADORE", nome:"Puxadores para Cortinas — Vários Modelos", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Puxadores", obs:"Puxadores para abrir/fechar cortinas; vários materiais e acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_extensve_5080', codigo:"LD-EXTENSVE", nome:"Varões Extensíveis para Janelas / Ganchos", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Extensíveis", obs:"Varões extensíveis de pressão; sem furar; ideal para janelas e divisórias.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_fitaseve_6574', codigo:"LD-FITASEVE", nome:"Fitas e Velcros para Fixação de Cortinas", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Fitas e Velcros", obs:"Fitas franzidas, fitas duplas, velcros de fixação. Várias larguras.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_pelculas_6654', codigo:"LD-PELCULAS", nome:"Películas Decorativas para Vidro", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Películas", obs:"Películas opacas, espelhadas e decorativas para vidros. Privacidade sem cortina.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_varesdee_8960', codigo:"LD-VARESDEE", nome:"Varões de Escada — Fixação de Tapetes/Passadeiras", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Varões de Escada", obs:"Fixação de tapetes em escadas; vários acabamentos metálicos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_embrasse_4885', codigo:"LD-EMBRASSE", nome:"Embrasses (Abrafigos) — Vários Modelos e Acabamentos", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Embrasses", obs:"Abrafigos para prender cortinas lateralmente; metálicos, tecido, magnéticos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
-  { id:'ld_rosetas_7328', codigo:"LD-ROSETAS", nome:"Rosetas de Fixação para Varões — Vários Acabamentos", categoria:"Acessórios", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Rosetas", obs:"Peças de fixação à parede dos varões; combinam com as colecções de varões.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_cks_2232', codigo:"LD-CKS", nome:"Calha CKS — Cordão / Tradicional / Ondas", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CKS", obs:"Perfil para cordão; franzido e ondas. Pode ser curva. Teto ou parede.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_ks_8327', codigo:"LD-KS", nome:"Calha KS — Tradicional / Ondas", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"KS", obs:"Perfil simples para modelos tradicionais ou ondas. Teto ou parede.", preco:32.62, unidade:'uni', tamanhos:[{m:1.6,p:32.62}, {m:2.0,p:39.7}, {m:2.4,p:47.6}, {m:3.0,p:57.2}, {m:4.0,p:75.28}], motor:false },
+  { id:'ld_ds_3492', codigo:"LD-DS", nome:"Calha DS — Design Discreto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"DS", obs:"Perfil discreto; teto ou parede. Pode ser curvado a pedido.", preco:45.17, unidade:'uni', tamanhos:[{m:2.0,p:45.17}, {m:2.4,p:54.05}, {m:3.0,p:64.87}, {m:4.0,p:81.01}], motor:false },
+  { id:'ld_3000eco_9812', codigo:"LD-3000ECO", nome:"Calha 3000 ECO — Perfil Quadrado", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"3000 ECO", obs:"Modelo simples, quadrado; teto ou parede. Económico.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_2000eco_9129', codigo:"LD-2000ECO", nome:"Calha 2000 ECO — Perfil Arredondado", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"2000 ECO", obs:"Perfil arredondado; teto ou parede.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_kseembut_9627', codigo:"LD-KSEEMBUT", nome:"Calha KSE — Para Embutir no Teto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"KSE Embutir", obs:"Embutida no teto; modelos tradicionais ou ondas. Muito discreta.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_athenase_3495', codigo:"LD-ATHENASE", nome:"Calha Athenas — Para Embutir (Sistema Cordão)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Athenas Embutir", obs:"Desenvolvida na Europa; embutida; sistema de cordão.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_dsxl_991', codigo:"LD-DSXL", nome:"Calha DSXL — Perfil Slim Wide", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"DSXL", obs:"Slim mas larga; disponível em 3 cores de acabamento.", preco:106.49, unidade:'uni', tamanhos:[{m:2.0,p:106.49}, {m:2.4,p:122.31}, {m:3.0,p:144.75}, {m:4.0,p:181.33}], motor:false },
+  { id:'ld_ccs_2529', codigo:"LD-CCS", nome:"Calha CCS — Perfil Quadrado Robusto", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CCS", obs:"Perfil robusto; suporta sistemas tradicionais e ondas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_reva_5463', codigo:"LD-REVA", nome:"Calha Reva — Cordão ou Manual", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Reva", obs:"Operação por cordão ou manual.", preco:48.93, unidade:'uni', tamanhos:[{m:2.0,p:48.93}, {m:2.4,p:56.46}, {m:3.0,p:66.76}, {m:4.0,p:84.23}], motor:false },
+  { id:'ld_mltipla_9267', codigo:"LD-MLTIPLA", nome:"Calha Múltipla — Perfil Duplo/Triplo (Hotelaria)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Múltipla", obs:"Perfil especial hotelaria; calha dupla ou tripla.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_mts_6546', codigo:"LD-MTS", nome:"Calha MTS — Hospitalar / Cortinas de Separação", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"MTS", obs:"Perfil especializado para hospitais e separação de espaços.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_1000_8630', codigo:"LD-1000", nome:"Calha 1000 — Ferro Americano Tradicional", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"1000", obs:"Perfil de ferro tradicional, origem americana.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_calhau_6536', codigo:"LD-CALHAU", nome:"Calha U — Ferro (Origem Alemã)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Calha U", obs:"Perfil de ferro de inspiração alemã; design histórico.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_calhai_998', codigo:"LD-CALHAI", nome:"Calha I — Alumínio em I (Curvaturas)", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Calha I", obs:"Perfil alumínio em I; ideal para instalações curvas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_estoreco_4559', codigo:"LD-ESTORECO", nome:"Estore Compact Star — Caixa Motorizada", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Estore Compact Star", obs:"Caixa de estore compacta com motor integrado.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_st43_6248', codigo:"LD-ST43", nome:"Calha ST43", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"ST43", obs:"Consultar especificações com a Giferant.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_bilbau_9521', codigo:"LD-BILBAU", nome:"Calha Bilbau", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Bilbau", obs:"Consultar especificações com a Giferant.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_painelja_2255', codigo:"LD-PAINELJA", nome:"Sistema Painel Japonês — Painéis Deslizantes", categoria:"Calhas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Painel Japonês", obs:"Sistema de painéis deslizantes; ideal para vãos largos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_sintra_5742', codigo:"LD-SINTRA", nome:"Calha Design Sintra — Perfil Quadrado (4 Acabamentos)", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Sintra", obs:"Quadrado; com ou sem cordão; 4 acabamentos de cor.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_lyon_2009', codigo:"LD-LYON", nome:"Calha Design Lyon — Perfil Redondo (Semelhante a Varão)", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Lyon", obs:"Perfil redondo; assemelha-se a varão decorativo; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_elegance_5155', codigo:"LD-ELEGANCE", nome:"Calha Design Elegance — Perfil Oval", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Elegance", obs:"Forma oval; vários acabamentos de cor.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_milano_2634', codigo:"LD-MILANO", nome:"Calha Design Milano — Perfil Ovalizado 10cm Altura", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Milano", obs:"Ovalizado; 10 cm de altura; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_paris_87', codigo:"LD-PARIS", nome:"Calha Design Paris — Perfil Retangular", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Paris", obs:"Retangular; diversas cores de acabamento.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_turim_1815', codigo:"LD-TURIM", nome:"Calha Design Turim — Frente Arredondada (Teto)", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Turim", obs:"Aplicação ao teto; frente arredondada; várias cores.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_5000_1019', codigo:"LD-5000", nome:"Calha Design 5000 — Estrutura Quadrada (Teto/Parede)", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"5000", obs:"Estrutura quadrada simples; teto ou parede. Ver também preços Calha 5000 na aba Calculadora.", preco:32.47, unidade:'uni', tamanhos:[{m:1.6,p:32.47}, {m:1.8,p:35.33}, {m:2.0,p:37.91}, {m:2.2,p:49.0}, {m:2.4,p:44.7}, {m:2.6,p:47.23}, {m:3.0,p:52.84}, {m:3.5,p:60.25}, {m:4.0,p:66.15}, {m:5.0,p:82.63}], motor:false },
+  { id:'ld_grcia_5528', codigo:"LD-GRCIA", nome:"Painel Grécia — Acabamento Inox / Aço Inoxidável", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Grécia", obs:"Painel moderno; acabamento inox; várias opções de terminais.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_led_7469', codigo:"LD-LED", nome:"Calha Design com LED — Iluminação Integrada", categoria:"Calhas Design", tipo:"calha", fornecedor:'Giferant', refFornecedor:"LED", obs:"Sistema de iluminação LED integrada na calha; efeito decorativo.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_lyonmoto_5184', codigo:"LD-LYONMOTO", nome:"Calha Decorativa Lyon — Motorizada (Bateria ou WiFi)", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Lyon Motorizadas", obs:"Varão decorativo; multi-acabamentos; compatível domótica. Bateria ou WiFi.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_cm45_7475', codigo:"LD-CM45", nome:"Calha CM45 / CM45 Plus — Motorizada 4 Cores", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM45", obs:"1 perfil; 4 cores; motor multifunção (telecomando, interruptor ou domótica).", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_cm43b_2714', codigo:"LD-CM43B", nome:"Calha CM43B / CM43B Plus — Motorizada a Bateria", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM43B", obs:"1 perfil; 4 cores; motorização a bateria. Sem necessidade de cablagem.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_cm46_403', codigo:"LD-CM46", nome:"Calha CM46 / CM46 Plus — Motorizada WiFi", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM46", obs:"1 perfil; 4 cores; WiFi; controlo via app móvel. Compatível domótica.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_cm950_216', codigo:"LD-CM950", nome:"Calha CM950 — Motor Robusto Residencial", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM950", obs:"Perfil branco; motor mais potente mercado residencial; grandes dimensões e tecidos pesados.", preco:545.33, unidade:'uni', tamanhos:[{m:1.5,p:545.33}, {m:2.0,p:558.54}, {m:2.5,p:581.89}, {m:3.0,p:603.59}, {m:4.0,p:645.85}, {m:5.0,p:689.32}, {m:6.0,p:748.11}], motor:true },
+  { id:'ld_cm960emb_7118', codigo:"LD-CM960EMB", nome:"Calha CM960 — Motorizada Embutida no Teto", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"CM960 Embutir", obs:"Instalação embutida flush no teto; motor integrado.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_fmsshutt_3238', codigo:"LD-FMSSHUTT", nome:"Calha Motorizada Forest FMS Shuttle (Holanda)", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"FMS Shuttle", obs:"Marca Forest (Holanda); reconhecida internacionalmente.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_fmspluse_9663', codigo:"LD-FMSPLUSE", nome:"Calha Motorizada Forest FMS Plus — Embutida", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"FMS Plus Embutir", obs:"Versão embutida da Forest; design premium.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_estorest_6835', codigo:"LD-ESTOREST", nome:"Kit Motorizado Estore Star", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"Estore Star Motorizado", obs:"Kits de estores de rolo horizontais; telecomando ou domótica.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_somfy_3749', codigo:"LD-SOMFY", nome:"Calhas Motorizadas SOMFY", categoria:"Calhas Motorizadas", tipo:"calha", fornecedor:'Giferant', refFornecedor:"SOMFY", obs:"Motorização SOMFY; líder mundial em automação; consultar modelos disponíveis.", preco:0, unidade:'uni', tamanhos:[], motor:true },
+  { id:'ld_portugal_7390', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Aço Ø20mm", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Aço 20mm", obs:"Diâmetros 20mm e 29mm disponíveis. Acabamentos: preto, branco, cromado.", material:"Aço", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_portugal_7508', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Aço Ø29mm", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Aço 29mm", obs:"Diâmetros 20mm e 29mm disponíveis. Acabamentos: preto, branco, cromado.", material:"Aço", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_portugal_1660', codigo:"LD-PORTUGAL", nome:"Varão Portugal — Inox", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Portugal Inox", obs:"Durabilidade e resistência à corrosão. Ideal ambientes húmidos.", material:"Inox", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_platinai_2700', codigo:"LD-PLATINAI", nome:"Varão Platina — Inox", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Platina Inox", obs:"Linha Platina em inox. Acabamento premium.", material:"Inox", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_guadiana_5346', codigo:"LD-GUADIANA", nome:"Varão Guadiana — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Guadiana", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_vouga_3222', codigo:"LD-VOUGA", nome:"Varão Vouga — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Vouga", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_mondego_3759', codigo:"LD-MONDEGO", nome:"Varão Mondego — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Mondego", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_tejo_4750', codigo:"LD-TEJO", nome:"Varão Tejo — Latão", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Tejo", obs:"Acabamentos: ouro, bronze, níquel.", material:"Latão", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_aramis_7698', codigo:"LD-ARAMIS", nome:"Varão Aramis — Ferro Rústico", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Aramis", obs:"Estética rústica; preto é a cor mais popular.", material:"Ferro", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_country_3122', codigo:"LD-COUNTRY", nome:"Varão Country — Ferro", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Country", obs:"Linha ferro; acabamento rústico/industrial.", material:"Ferro", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_tiaramad_2010', codigo:"LD-TIARAMAD", nome:"Varão Tiara — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Tiara Madeira", obs:"Vasta gama de acabamentos em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_museumad_9993', codigo:"LD-MUSEUMAD", nome:"Varão Museu — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Museu Madeira", obs:"Coleção museu; acabamentos madeira vários tons.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_safirama_1865', codigo:"LD-SAFIRAMA", nome:"Varão Safira — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Safira Madeira", obs:"Acabamentos naturais; integra canal de cortina.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_romamade_8106', codigo:"LD-ROMAMADE", nome:"Varão Roma — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Roma Madeira", obs:"Design clássico em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_vienamad_9935', codigo:"LD-VIENAMAD", nome:"Varão Viena — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Viena Madeira", obs:"Estilo europeu clássico; madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_rubimade_3014', codigo:"LD-RUBIMADE", nome:"Varão Rubi — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Rubi Madeira", obs:"Coleção madeira; vários acabamentos.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_infantil_1133', codigo:"LD-INFANTIL", nome:"Varão Infantil — Madeira (Temáticos)", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Infantil Madeira", obs:"Coleções temáticas para quartos de criança.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_tradmade_1685', codigo:"LD-TRADMADE", nome:"Varão Tradicional — Madeira", categoria:"Varões", tipo:"varao", fornecedor:'Giferant', refFornecedor:"Trad. Madeira", obs:"Modelo tradicional em madeira.", material:"Madeira", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_rolo_661', codigo:"LD-ROLO", nome:"Estore Rolo — Várias Telas e Opacidades", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Rolo", obs:"Rolo simples; disponível em tela blackout, screen, opaca e filtrante.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_rolomoto_402', codigo:"LD-ROLOMOTO", nome:"Estore Rolo Motorizado — Telecomando / App / Domótica", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Rolo Motorizado", obs:"Versão motorizada do rolo; telecomando ou WiFi; compatível domótica.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_minibox_1503', codigo:"LD-MINIBOX", nome:"Estore Mini Box — Caixa Ocultação Integrada", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Mini Box", obs:"Caixa de ocultação integrada na parte superior para aspecto clean.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_mosquite_6109', codigo:"LD-MOSQUITE", nome:"Mosquiteira — Rolo, Plissado ou Deslizante", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Mosquiteira", obs:"Protecção contra insectos; vários sistemas de fixação.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_bandasve_9691', codigo:"LD-BANDASVE", nome:"Estore Bandas Verticais — Várias Telas", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Bandas Verticais", obs:"Lâminas verticais; controlo de luz e privacidade; vários tecidos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_laminado_135', codigo:"LD-LAMINADO", nome:"Estore Laminados de Madeira — Persiana", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Laminados Madeira", obs:"Lâminas em madeira natural; estética quente e natural.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_laminado_6303', codigo:"LD-LAMINADO", nome:"Estore Laminados de Alumínio — Persiana", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Laminados Alumínio", obs:"Lâminas em alumínio; alta durabilidade; vários acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_painelde_3118', codigo:"LD-PAINELDE", nome:"Estore Painel Deslizante — Para Vãos Largos", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Painel Deslizante", obs:"Painéis deslizantes; ideal para janelas e portas largas.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_telasdec_3216', codigo:"LD-TELASDEC", nome:"Telas Decorativas — Vários Padrões e Cores", categoria:"Estores", tipo:"estore", fornecedor:'Giferant', refFornecedor:"Telas Decorativas", obs:"Telas com padrões e texturas decorativas; consultar catálogo.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_ilhs_9211', codigo:"LD-ILHS", nome:"Ilhós para Cortinas — Vários Tamanhos e Acabamentos", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Ilhós", obs:"Disponível em vários diâmetros (25mm, 35mm, 40mm) e acabamentos (ouro, prata, preto, etc.).", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_puxadore_3415', codigo:"LD-PUXADORE", nome:"Puxadores para Cortinas — Vários Modelos", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Puxadores", obs:"Puxadores para abrir/fechar cortinas; vários materiais e acabamentos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_extensve_1573', codigo:"LD-EXTENSVE", nome:"Varões Extensíveis para Janelas / Ganchos", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Extensíveis", obs:"Varões extensíveis de pressão; sem furar; ideal para janelas e divisórias.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_fitaseve_6024', codigo:"LD-FITASEVE", nome:"Fitas e Velcros para Fixação de Cortinas", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Fitas e Velcros", obs:"Fitas franzidas, fitas duplas, velcros de fixação. Várias larguras.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_pelculas_2820', codigo:"LD-PELCULAS", nome:"Películas Decorativas para Vidro", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Películas", obs:"Películas opacas, espelhadas e decorativas para vidros. Privacidade sem cortina.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_varesdee_7906', codigo:"LD-VARESDEE", nome:"Varões de Escada — Fixação de Tapetes/Passadeiras", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Varões de Escada", obs:"Fixação de tapetes em escadas; vários acabamentos metálicos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_embrasse_1351', codigo:"LD-EMBRASSE", nome:"Embrasses (Abrafigos) — Vários Modelos e Acabamentos", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Embrasses", obs:"Abrafigos para prender cortinas lateralmente; metálicos, tecido, magnéticos.", preco:0, unidade:'uni', tamanhos:[], motor:false },
+  { id:'ld_rosetas_6678', codigo:"LD-ROSETAS", nome:"Rosetas de Fixação para Varões — Vários Acabamentos", categoria:"Diversos", tipo:"diverso", fornecedor:'Giferant', refFornecedor:"Rosetas", obs:"Peças de fixação à parede dos varões; combinam com as colecções de varões.", preco:0, unidade:'uni', tamanhos:[], motor:false },
   { id:'ld_cmd24', codigo:'LD-CMD24', nome:'Comando Motorizada 2/4 canais', categoria:'Comandos', tipo:'fixo', fornecedor:'Giferant', preco:23.8, unidade:'uni' },
   { id:'ld_cmd20', codigo:'LD-CMD20', nome:'Comando Motorizada 20 canais', categoria:'Comandos', tipo:'fixo', fornecedor:'Giferant', preco:34.2, unidade:'uni' },
   { id:'ld_srvmd', codigo:'LD-SRVMD', nome:'Medição', categoria:'Serviços', tipo:'fixo', preco:30, unidade:'visita' },
@@ -1346,7 +1407,7 @@ const DEFAULT_CONFIG = {
   // Cortina: PVP c/IVA = ((largura×fator)+bainhas) × (custo tecido c/IVA + confecção €/ml) ÷ (1 − margem)
   coefs: { 'Cortina Onda Natural': 2.77, 'Cortina Ilhós': 2.77, 'Cortina Franzido': 2.77, 'Cortina Blackout': 2.77 }
 };
-const CATALOG_VERSION = 3;
+const CATALOG_VERSION = 4;
 
 // Substitui os dados de catálogo pelos reais quando a versão está desatualizada,
 // e migra o modelo de cálculo antigo (m²) para o novo (metros lineares).
@@ -1366,6 +1427,8 @@ function migrateCatalog() {
   // Fornecedores e confecções (Fase 2) — só semeia se ainda não existirem/estiverem vazios.
   if (!Array.isArray(config.fornecedores) || !config.fornecedores.length) config.fornecedores = DEFAULT_FORNECEDORES.map(f => ({ ...f }));
   if (!Array.isArray(config.confeccoes) || !config.confeccoes.length) config.confeccoes = DEFAULT_CONFECCOES.map(c => ({ ...c }));
+  if (!Array.isArray(config.decoracao)) config.decoracao = [];
+  if (!Array.isArray(config.acessorios)) config.acessorios = [];
   config.catalogVersion = CATALOG_VERSION;
   save(K.prod, produtos);
   save(K.tec, tecidos);
@@ -1378,6 +1441,8 @@ config.empresa = { ...DEFAULT_CONFIG.empresa, ...(config.empresa||{}) };
 config.coefs = { ...DEFAULT_CONFIG.coefs, ...(config.coefs||{}) };
 if (!Array.isArray(config.fornecedores)) config.fornecedores = DEFAULT_FORNECEDORES.map(f => ({ ...f }));
 if (!Array.isArray(config.confeccoes)) config.confeccoes = DEFAULT_CONFECCOES.map(c => ({ ...c }));
+if (!Array.isArray(config.decoracao)) config.decoracao = [];
+if (!Array.isArray(config.acessorios)) config.acessorios = [];
 let produtos = load(K.prod, null) || DEFAULT_PRODUTOS.slice();
 let tecidos = load(K.tec, null) || DEFAULT_TECIDOS.slice();
 let clientes = load(K.cli, []);
@@ -1955,131 +2020,201 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // ============================================================
 // PRODUTOS / TECIDOS UI
 // ============================================================
+const CAT_ORDER = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
+let catAtiva = 'Cortinas';
+const disAttr = () => !isAdmin ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
+const fornOptsHTML = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
+  .map(n => `<option value="${esc(n)}" ${sel===n?'selected':''}>${esc(n||'—')}</option>`).join('');
+const confOptsHTML = (sel) => ['', ...(config.confeccoes||[]).map(c => c.nome)]
+  .map(n => `<option value="${esc(n)}" ${sel===n?'selected':''}>${esc(n||'—')}</option>`).join('');
+const matchQ = (obj, q, ...keys) => !q || norm(keys.map(k=>obj[k]||'').join(' ')).includes(q);
+const matchForn = (obj, fq) => !fq || norm(obj.fornecedor||'').includes(fq);
+
 function renderProdutos() {
-  const q = norm(($('#catalogSearch')?.value || '')).trim();
-  const ro = !isAdmin;
-  const dis = ro ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
+  renderCatalog();
+  renderTecidosTable();
+  renderConfeccoesTable();
+  renderDecAce('decoracao', 'decTable', 'decSearch', 'decForn');
+  renderDecAce('acessorios', 'aceTable', 'aceSearch', 'aceForn');
+}
 
-  const prodFiltrados = q ? produtos.filter(p => norm(p.codigo+' '+p.nome+' '+p.categoria).includes(q)) : produtos;
-  const tecFiltrados  = q ? tecidos.filter(t  => norm(t.codigo+' '+t.nome+' '+(t.cores||'')).includes(q)) : tecidos;
-
-  const pb = $('#prodTable tbody'); pb.innerHTML = '';
-  // Map filtered index back to real index for mutations
-  prodFiltrados.forEach((p) => {
+function renderCatalog() {
+  const cats = CAT_ORDER.filter(c => produtos.some(p => p.categoria === c));
+  produtos.forEach(p => { if (p.categoria && !cats.includes(p.categoria)) cats.push(p.categoria); });
+  if (!cats.includes(catAtiva)) catAtiva = cats[0] || '';
+  const tabs = $('#catTabs');
+  if (tabs) {
+    tabs.innerHTML = cats.map(c => `<button data-cat="${esc(c)}" class="${c===catAtiva?'active':''}">${esc(c)} (${produtos.filter(p=>p.categoria===c).length})</button>`).join('');
+    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderCatalog(); }));
+  }
+  const dis = disAttr();
+  const q = norm($('#catSearch')?.value||'').trim();
+  const fq = norm($('#catForn')?.value||'').trim();
+  const rows = produtos.filter(p => p.categoria === catAtiva && matchQ(p,q,'codigo','nome') && matchForn(p,fq));
+  const pb = $('#prodTable tbody'); if (!pb) return; pb.innerHTML = '';
+  rows.forEach(p => {
     const i = produtos.indexOf(p);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><input type="text" data-p="${i}" data-f="codigo" value="${esc(p.codigo)}" ${dis} /></td>
-      <td><input type="text" data-p="${i}" data-f="nome" value="${esc(p.nome)}" ${dis} /></td>
-      <td><input type="text" data-p="${i}" data-f="categoria" value="${esc(p.categoria)}" ${dis} /></td>
-      <td><input type="number" step="0.01" data-p="${i}" data-f="preco" value="${p.preco}" class="num" ${dis} /></td>
-      <td><input type="text" data-p="${i}" data-f="unidade" value="${esc(p.unidade)}" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="codigo" value="${esc(p.codigo||'')}" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="nome" value="${esc(p.nome||'')}" ${dis} /></td>
+      <td><input type="number" step="0.01" data-p="${i}" data-f="preco" value="${p.preco ?? 0}" class="num" ${dis} /></td>
+      <td><input type="text" data-p="${i}" data-f="unidade" value="${esc(p.unidade||'')}" ${dis} /></td>
       <td class="int"><input type="text" data-p="${i}" data-f="fornecedor" value="${esc(p.fornecedor||'')}" ${dis} /></td>
       <td class="int"><input type="text" data-p="${i}" data-f="refFornecedor" value="${esc(p.refFornecedor||p.obs||'')}" title="${esc(p.obs||'')}" ${dis} /></td>
-      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmp="${i}">✕</button>` : ''}</td>
-    `;
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmp="${i}">✕</button>` : ''}</td>`;
     pb.appendChild(tr);
   });
-  if (!prodFiltrados.length) pb.innerHTML = `<tr><td colspan="8" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
+  if (!rows.length) pb.innerHTML = `<tr><td colspan="7" class="center muted" style="padding:20px;">Sem produtos nesta categoria.</td></tr>`;
   pb.querySelectorAll('[data-p]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.p, f = el.dataset.f;
-    produtos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value;
-    save(K.prod, produtos);
+    produtos[i][f] = f === 'preco' ? (parseFloat(el.value)||0) : el.value; save(K.prod, produtos);
   }));
   pb.querySelectorAll('[data-rmp]').forEach(b => b.addEventListener('click', () => {
     if (!confirm('Remover este produto?')) return;
-    produtos.splice(+b.dataset.rmp, 1); save(K.prod, produtos); renderProdutos();
+    produtos.splice(+b.dataset.rmp, 1); save(K.prod, produtos); renderCatalog();
   }));
+}
 
-  const fornOpts = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
-    .map(n => `<option value="${esc(n)}" ${sel===n?'selected':''}>${esc(n||'—')}</option>`).join('');
-  const confOpts = (sel) => ['', ...(config.confeccoes||[]).map(c => c.nome)]
-    .map(n => `<option value="${esc(n)}" ${sel===n?'selected':''}>${esc(n||'—')}</option>`).join('');
-
-  const tb = $('#tecTable tbody'); tb.innerHTML = '';
-  tecFiltrados.forEach((t) => {
+function renderTecidosTable() {
+  const dis = disAttr();
+  const q = norm($('#tecSearch')?.value||'').trim();
+  const fq = norm($('#tecForn')?.value||'').trim();
+  const rows = tecidos.filter(t => matchQ(t,q,'codigo','nome','cores','skuFornecedor') && matchForn(t,fq));
+  const tb = $('#tecTable tbody'); if (!tb) return; tb.innerHTML = '';
+  rows.forEach(t => {
     const i = tecidos.indexOf(t);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><input type="text" data-t="${i}" data-f="codigo" value="${esc(t.codigo||'')}" ${dis} /></td>
       <td><input type="text" data-t="${i}" data-f="nome" value="${esc(t.nome||'')}" ${dis} /></td>
       <td class="int"><input type="text" data-t="${i}" data-f="nomeOriginal" value="${esc(t.nomeOriginal||'')}" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOpts(t.fornecedor||'')}</select></td>
+      <td class="int"><select data-t="${i}" data-f="fornecedor" ${dis}>${fornOptsHTML(t.fornecedor||'')}</select></td>
       <td class="int"><input type="text" data-t="${i}" data-f="skuFornecedor" value="${esc(t.skuFornecedor||'')}" ${dis} /></td>
       <td class="int"><input type="text" data-t="${i}" data-f="tipo" value="${esc(t.tipo||'')}" ${dis} /></td>
       <td><input type="text" data-t="${i}" data-f="cores" value="${esc(t.cores||'')}" ${dis} /></td>
       <td class="int"><input type="text" data-t="${i}" data-f="composicao" value="${esc(t.composicao||'')}" ${dis} /></td>
       <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="preco" value="${t.preco ?? ''}" class="num" ${dis} /></td>
-      <td class="int"><select data-t="${i}" data-f="confTipo" ${dis}>${confOpts(t.confTipo||'')}</select></td>
+      <td class="int"><select data-t="${i}" data-f="confTipo" ${dis}>${confOptsHTML(t.confTipo||'')}</select></td>
       <td class="int"><input type="number" step="0.01" data-t="${i}" data-f="conf" value="${t.conf ?? ''}" class="num" ${dis} /></td>
-      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>
-    `;
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmt="${i}">✕</button>` : ''}</td>`;
     tb.appendChild(tr);
   });
-  if (!tecFiltrados.length) tb.innerHTML = `<tr><td colspan="12" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
+  if (!rows.length) tb.innerHTML = `<tr><td colspan="12" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
   tb.querySelectorAll('[data-t]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.t, f = el.dataset.f;
     tecidos[i][f] = (f === 'preco' || f === 'conf') ? (parseFloat(el.value)||0) : el.value;
-    // Ao escolher o Tipo de Confecção, preenche o custo €/ml a partir da tabela de confecções.
-    if (f === 'confTipo') {
-      const cf = (config.confeccoes||[]).find(c => c.nome === el.value);
-      if (cf) { tecidos[i].conf = cf.preco; renderProdutos(); }
-    }
+    if (f === 'confTipo') { const cf = (config.confeccoes||[]).find(c => c.nome === el.value); if (cf) { tecidos[i].conf = cf.preco; renderTecidosTable(); } }
     save(K.tec, tecidos);
   }));
   tb.querySelectorAll('[data-rmt]').forEach(b => b.addEventListener('click', () => {
     if (!confirm('Remover este tecido?')) return;
-    tecidos.splice(+b.dataset.rmt, 1); save(K.tec, tecidos); renderProdutos();
+    tecidos.splice(+b.dataset.rmt, 1); save(K.tec, tecidos); renderTecidosTable();
   }));
-
-  // ---- Confecções ----
-  const cfb = $('#confTable tbody');
-  if (cfb) {
-    const confs = config.confeccoes || [];
-    const cfF = q ? confs.filter(c => norm(c.nome+' '+(c.cat||'')).includes(q)) : confs;
-    cfb.innerHTML = '';
-    cfF.forEach((c) => {
-      const i = confs.indexOf(c);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input type="text" data-cf="${i}" data-f="cat" value="${esc(c.cat||'')}" ${dis} /></td>
-        <td><input type="text" data-cf="${i}" data-f="nome" value="${esc(c.nome||'')}" ${dis} /></td>
-        <td><input type="number" step="0.01" data-cf="${i}" data-f="preco" value="${c.preco ?? ''}" class="num" ${dis} /></td>
-        <td><input type="text" data-cf="${i}" data-f="un" value="${esc(c.un||'')}" ${dis} /></td>
-        <td><input type="text" data-cf="${i}" data-f="obs" value="${esc(c.obs||'')}" ${dis} /></td>
-        <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmcf="${i}">✕</button>` : ''}</td>
-      `;
-      cfb.appendChild(tr);
-    });
-    if (!cfF.length) cfb.innerHTML = `<tr><td colspan="6" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
-    cfb.querySelectorAll('[data-cf]').forEach(el => el.addEventListener('input', () => {
-      const i = +el.dataset.cf, f = el.dataset.f;
-      confs[i][f] = (f === 'preco') ? (parseFloat(el.value)||0) : el.value;
-      config.confeccoes = confs; save(K.cfg, config);
-    }));
-    cfb.querySelectorAll('[data-rmcf]').forEach(b => b.addEventListener('click', () => {
-      if (!confirm('Remover esta confecção?')) return;
-      confs.splice(+b.dataset.rmcf, 1); config.confeccoes = confs; save(K.cfg, config); renderProdutos();
-    }));
-  }
 }
-$('#catalogSearch')?.addEventListener('input', renderProdutos);
+
+function renderConfeccoesTable() {
+  const dis = disAttr();
+  const q = norm($('#confSearch')?.value||'').trim();
+  const fq = norm($('#confForn')?.value||'').trim();
+  const confs = config.confeccoes || [];
+  const rows = confs.filter(c => matchQ(c,q,'nome','cat') && matchForn(c,fq));
+  const cfb = $('#confTable tbody'); if (!cfb) return; cfb.innerHTML = '';
+  rows.forEach(c => {
+    const i = confs.indexOf(c);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" data-cf="${i}" data-f="cat" value="${esc(c.cat||'')}" ${dis} /></td>
+      <td><input type="text" data-cf="${i}" data-f="nome" value="${esc(c.nome||'')}" ${dis} /></td>
+      <td><input type="number" step="0.01" data-cf="${i}" data-f="preco" value="${c.preco ?? ''}" class="num" ${dis} /></td>
+      <td><input type="text" data-cf="${i}" data-f="un" value="${esc(c.un||'')}" ${dis} /></td>
+      <td class="int"><input type="text" data-cf="${i}" data-f="fornecedor" value="${esc(c.fornecedor||'')}" ${dis} /></td>
+      <td><input type="text" data-cf="${i}" data-f="obs" value="${esc(c.obs||'')}" ${dis} /></td>
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmcf="${i}">✕</button>` : ''}</td>`;
+    cfb.appendChild(tr);
+  });
+  if (!rows.length) cfb.innerHTML = `<tr><td colspan="7" class="center muted" style="padding:20px;">Sem resultados.</td></tr>`;
+  cfb.querySelectorAll('[data-cf]').forEach(el => el.addEventListener('input', () => {
+    const i = +el.dataset.cf, f = el.dataset.f;
+    confs[i][f] = (f === 'preco') ? (parseFloat(el.value)||0) : el.value; config.confeccoes = confs; save(K.cfg, config);
+  }));
+  cfb.querySelectorAll('[data-rmcf]').forEach(b => b.addEventListener('click', () => {
+    if (!confirm('Remover esta confecção?')) return;
+    confs.splice(+b.dataset.rmcf, 1); config.confeccoes = confs; save(K.cfg, config); renderConfeccoesTable();
+  }));
+}
+
+// Decoração / Acessórios — PVP = Custo Base ÷ (1 − Margem%). Margem herda o padrão se vazia.
+function renderDecAce(kind, tableId, searchId, fornId) {
+  const dis = disAttr();
+  const arr = config[kind] = config[kind] || [];
+  const q = norm($('#'+searchId)?.value||'').trim();
+  const fq = norm($('#'+fornId)?.value||'').trim();
+  const rows = arr.filter(d => matchQ(d,q,'nome','cor','sku','descricao') && matchForn(d,fq));
+  const tb = $('#'+tableId+' tbody'); if (!tb) return; tb.innerHTML = '';
+  rows.forEach(d => {
+    const i = arr.indexOf(d);
+    const mg = clampMargemPct(itemNum(d,'margem', parseFloat(config.margemPct)));
+    const custo = parseFloat(d.custoBase)||0;
+    const pvp = custo > 0 ? custo / (1 - mg/100) : 0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" data-d="${i}" data-k="${kind}" data-f="nome" value="${esc(d.nome||'')}" ${dis} /></td>
+      <td class="int"><input type="text" data-d="${i}" data-k="${kind}" data-f="nomeFornecedor" value="${esc(d.nomeFornecedor||'')}" ${dis} /></td>
+      <td class="int"><select data-d="${i}" data-k="${kind}" data-f="fornecedor" ${dis}>${fornOptsHTML(d.fornecedor||'')}</select></td>
+      <td class="int"><input type="text" data-d="${i}" data-k="${kind}" data-f="codFornecedor" value="${esc(d.codFornecedor||'')}" ${dis} /></td>
+      <td class="int"><input type="text" data-d="${i}" data-k="${kind}" data-f="tipo" value="${esc(d.tipo||'')}" ${dis} /></td>
+      <td><input type="text" data-d="${i}" data-k="${kind}" data-f="cor" value="${esc(d.cor||'')}" ${dis} /></td>
+      <td class="int"><input type="text" data-d="${i}" data-k="${kind}" data-f="sku" value="${esc(d.sku||'')}" ${dis} /></td>
+      <td><input type="text" data-d="${i}" data-k="${kind}" data-f="descricao" value="${esc(d.descricao||'')}" ${dis} /></td>
+      <td class="int"><input type="number" step="0.01" data-d="${i}" data-k="${kind}" data-f="custoBase" value="${d.custoBase ?? ''}" class="num" ${dis} /></td>
+      <td class="int"><input type="number" step="1" data-d="${i}" data-k="${kind}" data-f="margem" value="${d.margem ?? ''}" placeholder="${config.margemPct??60}" class="num" ${dis} /></td>
+      <td class="num"><strong>${pvp>0?fmtEUR(pvp):'—'}</strong></td>
+      <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmd="${i}" data-k="${kind}">✕</button>` : ''}</td>`;
+    tb.appendChild(tr);
+  });
+  if (!rows.length) tb.innerHTML = `<tr><td colspan="12" class="center muted" style="padding:20px;">Vazio — usa "+ Novo" para acrescentar.</td></tr>`;
+  tb.querySelectorAll('[data-d]').forEach(el => el.addEventListener('input', () => {
+    const i = +el.dataset.d, f = el.dataset.f, k = el.dataset.k;
+    config[k][i][f] = (f==='custoBase'||f==='margem') ? (el.value===''?'':(parseFloat(el.value)||0)) : el.value;
+    save(K.cfg, config);
+    if (f==='custoBase'||f==='margem') renderDecAce(k, tableId, searchId, fornId); // atualiza PVP
+  }));
+  tb.querySelectorAll('[data-rmd]').forEach(b => b.addEventListener('click', () => {
+    if (!confirm('Remover este item?')) return;
+    config[b.dataset.k].splice(+b.dataset.rmd, 1); save(K.cfg, config); renderDecAce(b.dataset.k, tableId, searchId, fornId);
+  }));
+}
+
+['catSearch','catForn'].forEach(id => $('#'+id)?.addEventListener('input', renderCatalog));
+['tecSearch','tecForn'].forEach(id => $('#'+id)?.addEventListener('input', renderTecidosTable));
+['confSearch','confForn'].forEach(id => $('#'+id)?.addEventListener('input', renderConfeccoesTable));
+['decSearch','decForn'].forEach(id => $('#'+id)?.addEventListener('input', () => renderDecAce('decoracao','decTable','decSearch','decForn')));
+['aceSearch','aceForn'].forEach(id => $('#'+id)?.addEventListener('input', () => renderDecAce('acessorios','aceTable','aceSearch','aceForn')));
 $('#btnAddProduto').addEventListener('click', () => {
   if (!isAdmin) return;
-  produtos.push({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: '', preco: 0, unidade: 'un' });
-  save(K.prod, produtos); renderProdutos();
+  produtos.push({ id: 'p_'+uid(), codigo: '', nome: 'Novo produto', categoria: catAtiva || '', tipo: 'fixo', preco: 0, unidade: 'uni', fornecedor: '', refFornecedor: '' });
+  save(K.prod, produtos); renderCatalog();
 });
 $('#btnAddTecido').addEventListener('click', () => {
   if (!isAdmin) return;
   tecidos.push({ id: 't_'+uid(), codigo: '', nome: 'Novo tecido', nomeOriginal: '', fornecedor: 'Feira dos Tecidos', skuFornecedor: '', tipo: '', cores: '', composicao: '', preco: 0, confTipo: '', conf: 0 });
-  save(K.tec, tecidos); renderProdutos();
+  save(K.tec, tecidos); renderTecidosTable();
 });
 $('#btnAddConf')?.addEventListener('click', () => {
   if (!isAdmin) return;
   config.confeccoes = config.confeccoes || [];
   config.confeccoes.push({ id: 'cf_'+uid(), nome: 'Nova confecção', preco: 0, un: '€/ml', cat: '', fornecedor: 'Mónica Confecções', obs: '' });
-  save(K.cfg, config); renderProdutos();
+  save(K.cfg, config); renderConfeccoesTable();
 });
+function addDecAce(kind, tableId, searchId, fornId) {
+  if (!isAdmin) return;
+  config[kind] = config[kind] || [];
+  config[kind].push({ id: (kind==='decoracao'?'dec_':'ace_')+uid(), nome: 'Novo', nomeFornecedor: '', fornecedor: '', codFornecedor: '', tipo: '', cor: '', sku: '', descricao: '', custoBase: '', margem: '' });
+  save(K.cfg, config); renderDecAce(kind, tableId, searchId, fornId);
+}
+$('#btnAddDec')?.addEventListener('click', () => addDecAce('decoracao','decTable','decSearch','decForn'));
+$('#btnAddAce')?.addEventListener('click', () => addDecAce('acessorios','aceTable','aceSearch','aceForn'));
 
 // ============================================================
 // CONFIG UI
@@ -2123,12 +2258,15 @@ function renderFornecedores() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><input type="text" data-fn="${i}" data-f="nome" value="${esc(f.nome||'')}" ${dis} /></td>
-      <td><input type="text" data-fn="${i}" data-f="website" value="${esc(f.website||'')}" placeholder="https://..." ${dis} /></td>
+      <td><input type="text" data-fn="${i}" data-f="contacto" value="${esc(f.contacto||'')}" placeholder="Nome do responsável" ${dis} /></td>
       <td><input type="email" data-fn="${i}" data-f="email" value="${esc(f.email||'')}" ${dis} /></td>
+      <td><input type="tel" data-fn="${i}" data-f="telefone" value="${esc(f.telefone||'')}" placeholder="+351 ..." ${dis} /></td>
+      <td><input type="text" data-fn="${i}" data-f="morada" value="${esc(f.morada||'')}" placeholder="Morada" ${dis} /></td>
+      <td><input type="text" data-fn="${i}" data-f="website" value="${esc(f.website||'')}" placeholder="https://..." ${dis} /></td>
       <td class="center">${isAdmin ? `<button class="btn btn-ghost btn-icon" data-rmfn="${i}">✕</button>` : ''}</td>`;
     tb.appendChild(tr);
   });
-  if (!list.length) tb.innerHTML = `<tr><td colspan="4" class="center muted" style="padding:16px;">Sem fornecedores.</td></tr>`;
+  if (!list.length) tb.innerHTML = `<tr><td colspan="7" class="center muted" style="padding:16px;">Sem fornecedores.</td></tr>`;
   tb.querySelectorAll('[data-fn]').forEach(el => el.addEventListener('input', () => {
     const i = +el.dataset.fn; config.fornecedores[i][el.dataset.f] = el.value; save(K.cfg, config);
   }));
@@ -2140,7 +2278,7 @@ function renderFornecedores() {
 $('#btnAddForn')?.addEventListener('click', () => {
   if (!isAdmin) return;
   config.fornecedores = config.fornecedores || [];
-  config.fornecedores.push({ nome: 'Novo fornecedor', website: '', email: '' });
+  config.fornecedores.push({ nome: 'Novo fornecedor', contacto: '', email: '', telefone: '', morada: '', website: '' });
   save(K.cfg, config); renderFornecedores();
 });
 
@@ -2150,9 +2288,12 @@ $('#btnAddForn')?.addEventListener('click', () => {
 const IMPORT_FIELDS = {
   tecidos:    [['codigo','SKU Legado'],['nome','Nome Legado'],['nomeOriginal','Nome Original'],['fornecedor','Fornecedor'],['skuFornecedor','SKU Fornecedor'],['tipo','Tipo'],['cores','Cor'],['composicao','Composição'],['preco','Custo €/m'],['confTipo','Tipo Confecção'],['conf','Confecção €/ml']],
   confeccoes: [['cat','Categoria'],['nome','Serviço'],['preco','Preço'],['un','Unidade'],['obs','Observações']],
+  calhas:     [['codigo','Código'],['nome','Nome'],['categoria','Categoria'],['preco','Preço'],['unidade','Unidade'],['fornecedor','Fornecedor'],['refFornecedor','Ref/Obs']],
   produtos:   [['codigo','Código'],['nome','Nome'],['categoria','Categoria'],['preco','Preço'],['unidade','Unidade'],['fornecedor','Fornecedor'],['refFornecedor','Ref/Obs']],
+  decoracao:  [['nome','Nome Legado'],['nomeFornecedor','Nome Fornecedor'],['fornecedor','Fornecedor'],['codFornecedor','Código Fornecedor'],['tipo','Tipo'],['cor','Cor'],['sku','SKU'],['descricao','Descrição'],['custoBase','Custo Base'],['margem','Margem %']],
+  acessorios: [['nome','Nome Legado'],['nomeFornecedor','Nome Fornecedor'],['fornecedor','Fornecedor'],['codFornecedor','Código Fornecedor'],['tipo','Tipo'],['cor','Cor'],['sku','SKU'],['descricao','Descrição'],['custoBase','Custo Base'],['margem','Margem %']],
 };
-const IMPORT_NUM = { preco:1, conf:1 };
+const IMPORT_NUM = { preco:1, conf:1, custoBase:1, margem:1 };
 let _impRows = null;
 
 function parseCSV(text) {
@@ -2190,9 +2331,15 @@ function guessCol(headers, label, key) {
   if (idx < 0) idx = headers.findIndex(h => norm(h).includes(nk) || nk.includes(norm(h)));
   return idx;
 }
+$('#btnImpPick')?.addEventListener('click', () => $('#impFile')?.click());
+$('#impSeccao')?.addEventListener('change', () => {
+  $('#impMapArea').style.display = 'none'; $('#impMapArea').innerHTML = '';
+  $('#impFile').value = ''; $('#impFileName').textContent = 'Nenhum ficheiro escolhido.'; $('#impReport').textContent = ''; _impRows = null;
+});
 $('#impFile')?.addEventListener('change', async (e) => {
   const file = e.target.files[0]; const rep = $('#impReport'); const mapArea = $('#impMapArea');
   if (!file) return;
+  $('#impFileName').textContent = '📄 ' + file.name;
   rep.textContent = 'A ler ficheiro...';
   try {
     const rows = await readImportFile(file);
@@ -2218,8 +2365,14 @@ $('#impFile')?.addEventListener('change', async (e) => {
 function doImport(sec) {
   const map = {}; $$('#impMapArea [data-map]').forEach(s => { map[s.dataset.map] = parseInt(s.value, 10); });
   const fields = IMPORT_FIELDS[sec];
-  const keyField = sec === 'confeccoes' ? 'nome' : 'codigo';
-  const targetArr = sec === 'confeccoes' ? (config.confeccoes = config.confeccoes || []) : (sec === 'tecidos' ? tecidos : produtos);
+  const keyField = sec === 'confeccoes' ? 'nome' : (sec === 'decoracao' || sec === 'acessorios') ? 'nome' : 'codigo';
+  // destino: tecidos/produtos são arrays de topo; confecção/decoração/acessórios ficam no config
+  let targetArr, idPrefix, saveFn;
+  if (sec === 'tecidos') { targetArr = tecidos; idPrefix = 't_'; saveFn = () => save(K.tec, tecidos); }
+  else if (sec === 'confeccoes') { targetArr = config.confeccoes = config.confeccoes || []; idPrefix = 'cf_'; saveFn = () => save(K.cfg, config); }
+  else if (sec === 'decoracao') { targetArr = config.decoracao = config.decoracao || []; idPrefix = 'dec_'; saveFn = () => save(K.cfg, config); }
+  else if (sec === 'acessorios') { targetArr = config.acessorios = config.acessorios || []; idPrefix = 'ace_'; saveFn = () => save(K.cfg, config); }
+  else { targetArr = produtos; idPrefix = 'p_'; saveFn = () => save(K.prod, produtos); }  // calhas + produtos
   const existing = new Set(targetArr.map(x => norm(x[keyField] || '')));
   const existingSku = sec === 'tecidos' ? new Set(tecidos.map(t => norm(t.skuFornecedor || ''))) : null;
   let added = 0, skipped = 0, erro = 0;
@@ -2230,15 +2383,14 @@ function doImport(sec) {
     if (!obj.nome && !obj[keyField]) { erro++; return; }
     if (kv && existing.has(kv)) { skipped++; return; }
     if (existingSku && obj.skuFornecedor && existingSku.has(norm(obj.skuFornecedor))) { skipped++; return; }
-    obj.id = (sec === 'confeccoes' ? 'cf_' : sec === 'tecidos' ? 't_' : 'p_') + uid();
-    if (sec === 'produtos' && !obj.tipo) obj.tipo = 'fixo';
+    obj.id = idPrefix + uid();
+    if (sec === 'calhas' && !obj.categoria) obj.categoria = 'Calhas';
+    if ((sec === 'produtos' || sec === 'calhas') && !obj.tipo) obj.tipo = sec === 'calhas' ? 'calha' : 'fixo';
     targetArr.push(obj);
     if (kv) existing.add(kv);
     added++;
   });
-  if (sec === 'confeccoes') { config.confeccoes = targetArr; save(K.cfg, config); }
-  else if (sec === 'tecidos') save(K.tec, tecidos);
-  else save(K.prod, produtos);
+  saveFn();
   $('#impReport').innerHTML = `<strong>Importação concluída:</strong> ${added} adicionados · ${skipped} ignorados (já existiam) · ${erro} com erro (sem nome/código).`;
   $('#impMapArea').style.display = 'none'; $('#impFile').value = ''; _impRows = null;
   renderProdutos();
@@ -2838,7 +2990,7 @@ function refreshAfterCloudUpdate() {
 
 function wireCloudHandlers() {
   if (!window.Cloud) return;
-  Cloud.onChange.config = (v) => { config = { ...DEFAULT_CONFIG, ...(v||{}) }; config.empresa = { ...DEFAULT_CONFIG.empresa, ...(config.empresa||{}) }; if (!Array.isArray(config.fornecedores)) config.fornecedores = DEFAULT_FORNECEDORES.map(f=>({...f})); if (!Array.isArray(config.confeccoes)) config.confeccoes = DEFAULT_CONFECCOES.map(c=>({...c})); localStorage.setItem(K.cfg, JSON.stringify(config)); updateFormatoInfo(); if ($('#sec-config').classList.contains('active')) renderConfigForm(); };
+  Cloud.onChange.config = (v) => { config = { ...DEFAULT_CONFIG, ...(v||{}) }; config.empresa = { ...DEFAULT_CONFIG.empresa, ...(config.empresa||{}) }; if (!Array.isArray(config.fornecedores)) config.fornecedores = DEFAULT_FORNECEDORES.map(f=>({...f})); if (!Array.isArray(config.confeccoes)) config.confeccoes = DEFAULT_CONFECCOES.map(c=>({...c})); if (!Array.isArray(config.decoracao)) config.decoracao = []; if (!Array.isArray(config.acessorios)) config.acessorios = []; localStorage.setItem(K.cfg, JSON.stringify(config)); updateFormatoInfo(); if ($('#sec-config').classList.contains('active')) renderConfigForm(); };
   Cloud.onChange.produtos = (v) => { produtos = v || []; localStorage.setItem(K.prod, JSON.stringify(produtos)); if ($('#sec-produtos').classList.contains('active')) renderProdutos(); };
   Cloud.onChange.tecidos = (v) => { tecidos = v || []; localStorage.setItem(K.tec, JSON.stringify(tecidos)); if ($('#sec-produtos').classList.contains('active')) renderProdutos(); };
   Cloud.onChange.clientes = (v) => { clientes = v || []; localStorage.setItem(K.cli, JSON.stringify(clientes)); };
