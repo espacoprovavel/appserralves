@@ -480,8 +480,8 @@
   .prod-card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .prod-card { background: var(--white); border: 1px solid var(--border); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; min-width: 0; border-radius: 2px; }
   .prod-card:hover { border-color: var(--dark); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .prod-card .pc-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .prod-card .pc-sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prod-card .pc-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; }
+  .prod-card .pc-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
   .prod-card .pc-price { font-weight: 700; font-size: 14px; margin-top: 6px; color: var(--dark); font-variant-numeric: tabular-nums; }
   .sec-top-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
@@ -505,14 +505,45 @@
   .btn-white { background: var(--white); color: var(--dark); border: 1.5px solid var(--dark); }
   .btn-white:hover { background: var(--soft); opacity: 1; }
 
+  /* ===== HERO CARD — NOVO ORÇAMENTO ===== */
+  .hero-novo { background: var(--white); border: 2px solid var(--dark); padding: 28px 32px; margin-bottom: 24px; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .hero-novo:hover { box-shadow: 0 4px 20px rgba(27,91,74,0.15); border-color: var(--gold); }
+  .hero-novo .hero-title { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; color: var(--dark); }
+  .hero-novo .hero-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .hero-novo .hero-icon { font-size: 32px; color: var(--dark); flex-shrink: 0; }
+
+  /* ===== CATEGORY BLOCKS (Produtos) ===== */
+  .cat-blocks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
+  .cat-block { background: var(--white); border: 1.5px solid var(--border); padding: 14px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s; }
+  .cat-block:hover { border-color: var(--dark); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .cat-block.active { background: var(--dark); border-color: var(--dark); color: var(--creme); }
+  .cat-block .cb-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .cat-block .cb-count { font-size: 10px; opacity: 0.6; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  @media (max-width: 900px) {
+    .cat-blocks { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-block { padding: 12px 8px; min-height: 44px; }
+    .hero-novo { padding: 20px 18px; }
+    .hero-novo .hero-title { font-size: 18px; }
+  }
+  @media (max-width: 480px) {
+    .cat-blocks { grid-template-columns: repeat(2, 1fr); }
+  }
+
   @media (max-width: 900px) {
     .prod-card-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .prod-card { padding: 10px 12px; }
+    .prod-card .pc-sub { white-space: normal; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; }
     .modal-box { padding: 18px 16px; max-width: 100%; }
     .cat-tabs button { min-height: 44px; padding: 6px 12px; font-size: 11px; }
     .forn-block-header .forn-btn { min-height: 36px; padding: 4px 10px; }
+    .forn-block-header { padding: 10px 12px; font-size: 12px; min-height: 44px; }
   }
   @media (max-width: 480px) {
     .prod-card-grid { grid-template-columns: 1fr; }
+    .prod-card { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+    .prod-card .pc-name { flex: 1; margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prod-card .pc-sub { flex: 1; }
+    .prod-card .pc-price { margin-top: 0; flex-shrink: 0; }
   }
 
   /* ===== CATEGORY TOGGLES (3B) ===== */
@@ -635,9 +666,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>
         <span>Novo</span>
       </button>
-      <button data-tab="historico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
-        <span>Histórico</span>
+      <button data-tab="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
+        <span>Configurações</span>
       </button>
       <button data-tab="produtos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>
@@ -651,9 +682,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
         <span>Registo</span>
       </button>
-      <button data-tab="config">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
-        <span>Configurações</span>
+      <button data-tab="historico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+        <span>Histórico</span>
       </button>
     </nav>
     <div class="user-block" id="userBlock" style="display:none;">
@@ -702,11 +733,17 @@
 
       <!-- ============ NOVO ORÇAMENTO ============ -->
       <section class="section active" id="sec-novo">
+        <div class="hero-novo" id="heroNovo">
+          <div>
+            <div class="hero-title">NOVO ORÇAMENTO</div>
+            <div class="hero-sub" id="refDisplay">Referência: SD-00001 · Data: --/--/----</div>
+          </div>
+          <div class="hero-icon">+</div>
+        </div>
         <div class="page-head">
           <div>
             <div class="crumbs">Orçamentos</div>
             <h2>Novo Orçamento</h2>
-            <p class="muted small mb-0" id="refDisplay">Referência: SD-00001 · Data: --/--/----</p>
           </div>
           <div class="btn-row">
             <button class="btn btn-outline btn-sm" id="btnLimpar">Limpar</button>
@@ -862,16 +899,14 @@
       <!-- ============ PRODUTOS ============ -->
       <section class="section" id="sec-produtos">
         <div class="page-head">
-          <div><div class="crumbs">Catálogo</div><h2>Produtos e Tecidos</h2></div>
+          <div><div class="crumbs">Catálogo</div><h2>Produtos</h2></div>
         </div>
 
-        <!-- ===== TAB BAR (always visible) ===== -->
-        <div class="card" style="padding-bottom:14px;">
-          <div class="card-head" style="margin-bottom:8px;">
-            <h3>Catálogo</h3>
-          </div>
-          <div class="cat-tabs" id="catTabs"></div>
-        </div>
+        <!-- ===== CATEGORY BLOCKS ===== -->
+        <div class="cat-blocks" id="catBlocks"></div>
+
+        <!-- ===== EXTRA TABS (Confecção, Decoração, Diversos, etc.) ===== -->
+        <div class="cat-tabs" id="catTabs" style="margin-bottom:14px;"></div>
 
         <!-- ===== CATÁLOGO (por categoria) ===== -->
         <div class="card" id="cardCatalogo">
@@ -1219,9 +1254,9 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
     <span>Novo</span>
   </button>
-  <button data-tab="historico">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-    <span>Histórico</span>
+  <button data-tab="config">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
+    <span>Config</span>
   </button>
   <button data-tab="produtos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/></svg>
@@ -1235,9 +1270,9 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
     <span>Registo</span>
   </button>
-  <button data-tab="config">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.2 2.8z"/></svg>
-    <span>Config</span>
+  <button data-tab="historico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+    <span>Histórico</span>
   </button>
 </nav>
 
@@ -1652,6 +1687,12 @@ function showTab(tab) {
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 $$('.sidebar nav button, .mobile-nav button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+$('#heroNovo')?.addEventListener('click', () => {
+  showTab('novo');
+  const el = $('#cliNome');
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
+});
 
 // ============================================================
 // CLIENTE: autocomplete + binding
@@ -2173,13 +2214,14 @@ $('#histFiltroEstado').addEventListener('change', renderHistorico);
 // ============================================================
 const CAT_ORDER_DEFAULT = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Diversos','Comandos','Serviços'];
 const SECTION_TABS_DEFAULT = ['Tecidos','Confecção','Decoração','Acessórios'];
+const MAIN_BLOCKS = ['Tecidos','Calhas','Varões','Cortinas','Estores','Acessórios'];
 function getTabOrder() {
   const saved = config.tabOrder;
   if (Array.isArray(saved) && saved.length) return saved;
   return [...CAT_ORDER_DEFAULT, ...SECTION_TABS_DEFAULT];
 }
 const SECTION_TABS = SECTION_TABS_DEFAULT;
-let catAtiva = 'Cortinas';
+let catAtiva = 'Tecidos';
 const disAttr = () => !isAdmin ? 'disabled style="opacity:0.75;pointer-events:none;"' : '';
 const fornOptsHTML = (sel) => ['', ...(config.fornecedores||[]).map(f => f.nome)]
   .map(n => `<option value="${esc(n)}" ${sel===n?'selected':''}>${esc(n||'—')}</option>`).join('');
@@ -2202,17 +2244,32 @@ function openModal(title, bodyHTML) {
 }
 function closeModal() { const m = document.getElementById('modalOverlay'); if (m) m.remove(); }
 
+function propagateFornName(oldName, newName) {
+  if (!oldName || oldName === newName) return;
+  produtos.forEach(p => { if (p.fornecedor === oldName) p.fornecedor = newName; });
+  save(K.prod, produtos);
+  tecidos.forEach(t => { if (t.fornecedor === oldName) t.fornecedor = newName; });
+  save(K.tec, tecidos);
+  (config.confeccoes||[]).forEach(c => { if (c.fornecedor === oldName) c.fornecedor = newName; });
+  (config.decoracao||[]).forEach(d => { if (d.fornecedor === oldName) d.fornecedor = newName; });
+  (config.acessorios||[]).forEach(a => { if (a.fornecedor === oldName) a.fornecedor = newName; });
+}
+
 function openFornModal(forn) {
   if (!isAdmin) return;
   const isEdit = !!forn;
-  const d = forn || { nome:'', email:'', telefone:'', website:'' };
+  const d = forn || { nome:'', codigo:'', email:'', telefone:'', website:'', obs:'' };
   const html = `
-    <div class="field"><label>Nome</label><input type="text" id="mfNome" value="${esc(d.nome||'')}" /></div>
+    <div class="grid grid-2">
+      <div class="field"><label>Nome do Fornecedor *</label><input type="text" id="mfNome" value="${esc(d.nome||'')}" /></div>
+      <div class="field"><label>Código</label><input type="text" id="mfCod" value="${esc(d.codigo||'')}" /></div>
+    </div>
     <div class="grid grid-2">
       <div class="field"><label>Email</label><input type="email" id="mfEmail" value="${esc(d.email||'')}" /></div>
       <div class="field"><label>Telefone</label><input type="tel" id="mfTel" value="${esc(d.telefone||d.contacto||'')}" /></div>
     </div>
     <div class="field"><label>Website</label><input type="text" id="mfWeb" value="${esc(d.website||'')}" /></div>
+    <div class="field"><label>Observações</label><textarea id="mfObs" rows="2" style="min-height:50px;">${esc(d.obs||'')}</textarea></div>
     <div class="modal-actions">
       ${isEdit ? '<button class="btn btn-danger btn-sm" id="mfDel">Remover</button>' : ''}
       <button class="btn btn-outline btn-sm" id="mfCancel">Cancelar</button>
@@ -2224,8 +2281,14 @@ function openFornModal(forn) {
     const nome = $('#mfNome').value.trim();
     if (!nome) { alert('O nome é obrigatório.'); return; }
     config.fornecedores = config.fornecedores || [];
-    if (isEdit) { forn.nome = nome; forn.email = $('#mfEmail').value.trim(); forn.telefone = $('#mfTel').value.trim(); forn.website = $('#mfWeb').value.trim(); }
-    else { config.fornecedores.push({ nome, email: $('#mfEmail').value.trim(), telefone: $('#mfTel').value.trim(), website: $('#mfWeb').value.trim() }); }
+    if (isEdit) {
+      const oldName = forn.nome;
+      forn.nome = nome; forn.codigo = $('#mfCod').value.trim(); forn.email = $('#mfEmail').value.trim();
+      forn.telefone = $('#mfTel').value.trim(); forn.website = $('#mfWeb').value.trim(); forn.obs = $('#mfObs').value.trim();
+      propagateFornName(oldName, nome);
+    } else {
+      config.fornecedores.push({ nome, codigo: $('#mfCod').value.trim(), email: $('#mfEmail').value.trim(), telefone: $('#mfTel').value.trim(), website: $('#mfWeb').value.trim(), obs: $('#mfObs').value.trim() });
+    }
     save(K.cfg, config); closeModal(); renderProdutos();
   });
   if (isEdit && $('#mfDel')) $('#mfDel').addEventListener('click', () => {
@@ -2275,26 +2338,45 @@ function openTecEditModal(item, idx) {
   const t = item;
   const html = `
     <div class="grid grid-2">
-      <div class="field"><label>SKU LD</label><input type="text" id="mtCod" value="${esc(t.codigo||'')}" /></div>
+      <div class="field"><label>Código / SKU</label><input type="text" id="mtCod" value="${esc(t.codigo||'')}" /></div>
       <div class="field"><label>Nome</label><input type="text" id="mtNome" value="${esc(t.nome||'')}" /></div>
     </div>
     <div class="grid grid-2">
       <div class="field"><label>Cor</label><input type="text" id="mtCor" value="${esc(t.cores||'')}" /></div>
+      <div class="field"><label>Código Cor (ex: 001=Preto)</label><input type="text" id="mtCorCod" value="${esc(t.codigoCor||'')}" placeholder="001, 003..." /></div>
+    </div>
+    <div class="grid grid-2">
       <div class="field"><label>Nome Original</label><input type="text" id="mtOrig" value="${esc(t.nomeOriginal||'')}" /></div>
-    </div>
-    <div class="grid grid-2">
       <div class="field"><label>Fornecedor</label><select id="mtForn">${fornOptsHTML(t.fornecedor||'')}</select></div>
+    </div>
+    <div class="grid grid-2">
       <div class="field"><label>Tipo</label><input type="text" id="mtTipo" value="${esc(t.tipo||'')}" /></div>
-    </div>
-    <div class="grid grid-2">
       <div class="field"><label>SKU Fornecedor</label><input type="text" id="mtSku" value="${esc(t.skuFornecedor||'')}" /></div>
-      <div class="field"><label>Composição</label><input type="text" id="mtComp" value="${esc(t.composicao||'')}" /></div>
     </div>
     <div class="grid grid-2">
+      <div class="field"><label>Composição</label><input type="text" id="mtComp" value="${esc(t.composicao||'')}" /></div>
       <div class="field"><label>Custo €/m</label><input type="number" step="0.01" id="mtPreco" value="${t.preco??''}" /></div>
-      <div class="field"><label>Confecção</label><select id="mtConf">${confOptsHTML(t.confTipo||'')}</select></div>
     </div>
-    <div class="field"><label>€/ml Confecção</label><input type="number" step="0.01" id="mtConfVal" value="${t.conf??''}" /></div>
+    <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;">Medidas e Confecção</div>
+      <div class="grid grid-2">
+        <div class="field"><label>Largura do Rolo (m)</label><input type="number" step="0.01" id="mtLargRolo" value="${t.larguraRolo??''}" placeholder="Ex: 1.40" /></div>
+        <div class="field"><label>Altura Máxima (m)</label><input type="number" step="0.01" id="mtAltMax" value="${t.alturaMax??''}" placeholder="Ex: 3.00" /></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="field"><label>Fator Franzido</label><input type="number" step="0.01" id="mtFator" value="${t.fatorFranzido??''}" placeholder="Ex: 2.77" /></div>
+        <div class="field"><label>Margem Confecção (m)</label><input type="number" step="0.01" id="mtMargConf" value="${t.margemConf??''}" placeholder="Ex: 0.30" /></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="field"><label>Desperdício (%)</label><input type="number" step="1" id="mtDesp" value="${t.desperdicio??''}" placeholder="Ex: 5" /></div>
+        <div class="field"><label>Orientação</label><select id="mtOrient"><option value="" ${!t.orientacao?'selected':''}>—</option><option value="vertical" ${t.orientacao==='vertical'?'selected':''}>Vertical</option><option value="horizontal" ${t.orientacao==='horizontal'?'selected':''}>Horizontal</option></select></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="field"><label>Confecção</label><select id="mtConf">${confOptsHTML(t.confTipo||'')}</select></div>
+        <div class="field"><label>€/ml Confecção</label><input type="number" step="0.01" id="mtConfVal" value="${t.conf??''}" /></div>
+      </div>
+    </div>
+    <div class="field"><label>Observações</label><input type="text" id="mtObs" value="${esc(t.obs||'')}" /></div>
     <div class="modal-actions">
       <button class="btn btn-danger btn-sm" id="mtDel">Remover</button>
       <button class="btn btn-outline btn-sm" id="mtCancel">Cancelar</button>
@@ -2308,10 +2390,17 @@ function openTecEditModal(item, idx) {
   $('#mtCancel').addEventListener('click', closeModal);
   $('#mtSave').addEventListener('click', () => {
     t.codigo = $('#mtCod').value; t.nome = $('#mtNome').value; t.cores = $('#mtCor').value;
-    t.nomeOriginal = $('#mtOrig').value; t.fornecedor = $('#mtForn').value; t.tipo = $('#mtTipo').value;
+    t.codigoCor = $('#mtCorCod').value; t.nomeOriginal = $('#mtOrig').value;
+    t.fornecedor = $('#mtForn').value; t.tipo = $('#mtTipo').value;
     t.skuFornecedor = $('#mtSku').value; t.composicao = $('#mtComp').value;
     t.preco = parseFloat($('#mtPreco').value)||0; t.confTipo = $('#mtConf').value;
     t.conf = parseFloat($('#mtConfVal').value)||0;
+    t.larguraRolo = $('#mtLargRolo').value === '' ? '' : parseFloat($('#mtLargRolo').value);
+    t.alturaMax = $('#mtAltMax').value === '' ? '' : parseFloat($('#mtAltMax').value);
+    t.fatorFranzido = $('#mtFator').value === '' ? '' : parseFloat($('#mtFator').value);
+    t.margemConf = $('#mtMargConf').value === '' ? '' : parseFloat($('#mtMargConf').value);
+    t.desperdicio = $('#mtDesp').value === '' ? '' : parseFloat($('#mtDesp').value);
+    t.orientacao = $('#mtOrient').value; t.obs = $('#mtObs').value;
     save(K.tec, tecidos); closeModal(); renderTecidosTable();
   });
   $('#mtDel').addEventListener('click', () => {
@@ -2517,52 +2606,60 @@ function renderCalhaGrid() {
   }));
 }
 
+function getBlockCount(cat) {
+  if (cat === 'Tecidos') return tecidos.length;
+  if (cat === 'Acessórios') return (config.acessorios||[]).length + (config.decoracao||[]).length;
+  if (cat === 'Calhas') return produtos.filter(p => ['Calhas','Calhas Design','Calhas Motorizadas'].includes(p.categoria)).length;
+  return produtos.filter(p => p.categoria === cat || (cat === 'Cortinas' && p.categoria === 'Cortinas')).length;
+}
+function mapBlockToCat(block) {
+  if (block === 'Calhas') return ['Calhas','Calhas Design','Calhas Motorizadas'];
+  if (block === 'Acessórios') return null;
+  return [block];
+}
+
 function renderCatalog() {
   const ativas = config.categoriasAtivas || {};
-  const order = getTabOrder();
-  const catSet = new Set(CAT_ORDER_DEFAULT.filter(c => ativas[c] !== false && produtos.some(p => p.categoria === c)));
-  produtos.forEach(p => { if (p.categoria && !catSet.has(p.categoria) && ativas[p.categoria] !== false) catSet.add(p.categoria); });
-  const allValid = new Set([...catSet, ...SECTION_TABS]);
-  const allTabs = order.filter(t => allValid.has(t));
-  allValid.forEach(t => { if (!allTabs.includes(t)) allTabs.push(t); });
-  if (!allTabs.includes(catAtiva)) catAtiva = allTabs[0] || '';
-  const isSection = SECTION_TABS.includes(catAtiva);
-  const tabs = $('#catTabs');
-  if (tabs) {
-    tabs.innerHTML = allTabs.map(t => {
-      let cnt = '';
-      if (SECTION_TABS.includes(t)) {
-        if (t === 'Tecidos') cnt = ` (${tecidos.length})`;
-        else if (t === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
-        else if (t === 'Decoração') cnt = ` (${(config.decoracao||[]).length})`;
-        else if (t === 'Acessórios') cnt = ` (${(config.acessorios||[]).length})`;
-        return `<button draggable="true" data-cat="${esc(t)}" class="${t===catAtiva?'active':''}" style="border-style:dashed;">${esc(t)}${cnt}</button>`;
-      }
-      cnt = ` (${produtos.filter(p=>p.categoria===t).length})`;
-      return `<button draggable="true" data-cat="${esc(t)}" class="${t===catAtiva?'active':''}">${esc(t)}${cnt}</button>`;
+  const blocks = $('#catBlocks');
+  if (blocks) {
+    blocks.innerHTML = MAIN_BLOCKS.map(b => {
+      const cnt = getBlockCount(b);
+      return `<div class="cat-block${b===catAtiva?' active':''}" data-cat="${esc(b)}">
+        <div class="cb-label">${esc(b)}</div>
+        <div class="cb-count">${cnt}</div>
+      </div>`;
     }).join('');
-    tabs.querySelectorAll('[data-cat]').forEach(b => {
+    blocks.querySelectorAll('.cat-block').forEach(b => {
       b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); });
-      b.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', b.dataset.cat); b.style.opacity = '0.4'; });
-      b.addEventListener('dragend', () => { b.style.opacity = ''; });
-      b.addEventListener('dragover', e => { e.preventDefault(); b.style.borderColor = 'var(--gold)'; });
-      b.addEventListener('dragleave', () => { b.style.borderColor = ''; });
-      b.addEventListener('drop', e => {
-        e.preventDefault(); b.style.borderColor = '';
-        const from = e.dataTransfer.getData('text/plain'), to = b.dataset.cat;
-        if (from === to) return;
-        const btns = [...tabs.querySelectorAll('[data-cat]')].map(x => x.dataset.cat);
-        const fi = btns.indexOf(from); btns.splice(fi, 1);
-        const ti = btns.indexOf(to); btns.splice(ti, 0, from);
-        config.tabOrder = btns; save(K.cfg, config); renderCatalog();
-      });
     });
   }
+  const mainBlockCats = ['Cortinas','Calhas','Calhas Design','Calhas Motorizadas','Varões','Estores','Tecidos','Acessórios','Decoração'];
+  const extraCats = CAT_ORDER_DEFAULT.filter(c => !mainBlockCats.includes(c) && ativas[c] !== false && produtos.some(p => p.categoria === c));
+  const extraSections = ['Confecção'];
+  const extraTabs = [...extraCats, ...extraSections];
+  const tabs = $('#catTabs');
+  if (tabs) {
+    if (extraTabs.length) {
+      tabs.style.display = '';
+      tabs.innerHTML = extraTabs.map(t => {
+        let cnt;
+        if (t === 'Confecção') cnt = ` (${(config.confeccoes||[]).length})`;
+        else cnt = ` (${produtos.filter(p=>p.categoria===t).length})`;
+        const dashed = SECTION_TABS.includes(t) ? ' style="border-style:dashed;"' : '';
+        return `<button data-cat="${esc(t)}" class="${t===catAtiva?'active':''}"${dashed}>${esc(t)}${cnt}</button>`;
+      }).join('');
+      tabs.querySelectorAll('[data-cat]').forEach(b => {
+        b.addEventListener('click', () => { catAtiva = b.dataset.cat; renderProdutos(); });
+      });
+    } else { tabs.style.display = 'none'; }
+  }
   const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
+  const isMainBlock = MAIN_BLOCKS.includes(catAtiva);
+  const isSection = SECTION_TABS.includes(catAtiva);
   const cardCat = $('#cardCatalogo');
   if (cardCat) cardCat.style.display = (isSection || isCalha) ? 'none' : '';
   const cardCalha = $('#cardCalhaGrid');
-  if (cardCalha) cardCalha.style.display = isCalha ? '' : 'none';
+  if (cardCalha) cardCalha.style.display = (catAtiva === 'Calhas') ? '' : 'none';
   const cardTec = $('#cardTecidos');
   if (cardTec) cardTec.style.display = catAtiva === 'Tecidos' ? '' : 'none';
   const cardConf = $('#cardConfeccao');
@@ -2570,11 +2667,15 @@ function renderCatalog() {
   const cardDec = $('#cardDecoracao');
   if (cardDec) cardDec.style.display = catAtiva === 'Decoração' ? '' : 'none';
   const cardAce = $('#cardAcessorios');
-  if (cardAce) cardAce.style.display = catAtiva === 'Acessórios' ? '' : 'none';
-  if (isSection || isCalha) return;
+  if (cardAce) cardAce.style.display = (catAtiva === 'Acessórios') ? '' : 'none';
+  if (catAtiva === 'Acessórios' && cardDec) cardDec.style.display = '';
+  if (catAtiva === 'Tecidos' || catAtiva === 'Confecção' || catAtiva === 'Decoração' || catAtiva === 'Acessórios' || catAtiva === 'Calhas') return;
   const area = $('#catCardArea'); if (!area) return;
   const q = norm($('#catSearch')?.value||'').trim();
-  const rows = produtos.filter(p => p.categoria === catAtiva && matchQ(p,q,'codigo','nome','fornecedor'));
+  const filterCats = mapBlockToCat(catAtiva);
+  const rows = filterCats
+    ? produtos.filter(p => filterCats.includes(p.categoria) && matchQ(p,q,'codigo','nome','fornecedor'))
+    : produtos.filter(p => p.categoria === catAtiva && matchQ(p,q,'codigo','nome','fornecedor'));
   if (!rows.length) { area.innerHTML = '<div class="empty-state"><div class="ic">📦</div>Sem produtos nesta categoria.</div>'; return; }
   const byForn = {};
   rows.forEach(p => { const f = p.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(p); });
@@ -2586,10 +2687,11 @@ function renderCatalog() {
     let gridHTML = '<div class="prod-card-grid">';
     items.forEach(p => {
       const i = produtos.indexOf(p);
+      const priceStr = p.preco > 0 ? fmtEUR(p.preco) : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
       gridHTML += `<div class="prod-card" data-pidx="${i}">
         <div class="pc-name">${esc(p.nome||'Sem nome')}</div>
-        <div class="pc-sub">${esc(p.codigo||'')}${p.unidade ? ' · '+esc(p.unidade) : ''}</div>
-        <div class="pc-price">${p.preco > 0 ? fmtEUR(p.preco) : '—'}</div>
+        <div class="pc-sub">${esc(p.fornecedor||'')}${p.codigo ? ' · '+esc(p.codigo) : ''}${p.unidade ? ' · '+esc(p.unidade) : ''}</div>
+        <div class="pc-price">${priceStr}</div>
       </div>`;
     });
     gridHTML += '</div>';
@@ -2642,10 +2744,12 @@ function renderTecidosTable() {
           <div class="prod-card-grid">`;
       byTipo[tipo].forEach(t => {
         const i = tecidos.indexOf(t);
+        const priceStr = t.preco > 0 ? fmtEUR(t.preco)+'/m' : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
+        const corCode = t.codigoCor ? ' ['+esc(t.codigoCor)+']' : '';
         bodyHTML += `<div class="prod-card" data-tidx="${i}">
           <div class="pc-name">${esc(t.nome||'Sem nome')}</div>
-          <div class="pc-sub">${esc(t.cores||'')}${t.codigo ? ' · '+esc(t.codigo) : ''}</div>
-          <div class="pc-price">${t.preco > 0 ? fmtEUR(t.preco)+'/m' : '—'}</div>
+          <div class="pc-sub">${esc(t.cores||'')}${corCode}${t.skuFornecedor ? ' · '+esc(t.skuFornecedor) : ''}</div>
+          <div class="pc-price">${priceStr}</div>
         </div>`;
       });
       bodyHTML += '</div></div></div>';
@@ -2691,10 +2795,11 @@ function renderConfeccoesTable() {
     let gridHTML = '<div class="prod-card-grid">';
     items.forEach(c => {
       const i = confs.indexOf(c);
+      const cPriceStr = c.preco > 0 ? fmtEUR(c.preco) : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
       gridHTML += `<div class="prod-card" data-cidx="${i}">
         <div class="pc-name">${esc(c.nome||'Sem nome')}</div>
-        <div class="pc-sub">${esc(c.cat||'')}${c.un ? ' · '+esc(c.un) : ''}</div>
-        <div class="pc-price">${c.preco > 0 ? fmtEUR(c.preco) : '—'}</div>
+        <div class="pc-sub">${esc(c.fornecedor||'')}${c.cat ? ' · '+esc(c.cat) : ''}${c.un ? ' · '+esc(c.un) : ''}</div>
+        <div class="pc-price">${cPriceStr}</div>
       </div>`;
     });
     gridHTML += '</div>';
@@ -2740,10 +2845,11 @@ function renderDecAce(kind) {
       const mg = clampMargemPct(itemNum(d,'margem', parseFloat(config.margemPct)));
       const custo = parseFloat(d.custoBase)||0;
       const pvp = custo > 0 ? custo / (1 - mg/100) : 0;
+      const dPriceStr = pvp > 0 ? fmtEUR(pvp) : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
       gridHTML += `<div class="prod-card" data-didx="${i}" data-dk="${kind}">
         <div class="pc-name">${esc(d.nome||'Sem nome')}</div>
-        <div class="pc-sub">${esc(d.cor||'')}${d.tipo ? ' · '+esc(d.tipo) : ''}</div>
-        <div class="pc-price">${pvp > 0 ? fmtEUR(pvp) : '—'}</div>
+        <div class="pc-sub">${esc(d.fornecedor||'')}${d.cor ? ' · '+esc(d.cor) : ''}${d.tipo ? ' · '+esc(d.tipo) : ''}</div>
+        <div class="pc-price">${dPriceStr}</div>
       </div>`;
     });
     gridHTML += '</div>';
@@ -2942,7 +3048,7 @@ function renderConfigForm() {
 function renderCatToggles() {
   const wrap = $('#catToggles'); if (!wrap) return;
   const ativas = config.categoriasAtivas || {};
-  wrap.innerHTML = CAT_ORDER.map(cat => {
+  wrap.innerHTML = CAT_ORDER_DEFAULT.map(cat => {
     const checked = ativas[cat] !== false;
     return `<label><input type="checkbox" data-cat="${esc(cat)}" ${checked ? 'checked' : ''} /> ${esc(cat)}</label>`;
   }).join('');
