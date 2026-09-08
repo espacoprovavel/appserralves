@@ -793,7 +793,10 @@
         <div class="card">
           <div class="card-head">
             <h3>Itens do Orçamento</h3>
-            <button class="btn btn-sm" id="btnAddItem">+ Adicionar item</button>
+            <div class="btn-row">
+              <button class="btn btn-sm btn-white" id="btnCortWiz">🪟 Configurar Cortina</button>
+              <button class="btn btn-sm" id="btnAddItem">+ Adicionar item</button>
+            </div>
           </div>
           <div id="itemsList"></div>
         </div>
@@ -902,11 +905,25 @@
           <div><div class="crumbs">Catálogo</div><h2>Produtos</h2></div>
         </div>
 
+        <!-- ===== VIEW TOGGLE ===== -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+          <button class="btn btn-sm" id="btnViewCat" style="font-size:11px;">Por Categoria</button>
+          <button class="btn btn-sm btn-outline" id="btnViewForn" style="font-size:11px;">Por Fornecedor</button>
+        </div>
+
         <!-- ===== CATEGORY BLOCKS ===== -->
         <div class="cat-blocks" id="catBlocks"></div>
 
         <!-- ===== EXTRA TABS (Confecção, Decoração, Diversos, etc.) ===== -->
         <div class="cat-tabs" id="catTabs" style="margin-bottom:14px;"></div>
+
+        <!-- ===== FORNECEDOR-FIRST VIEW ===== -->
+        <div class="card" id="cardFornView" style="display:none;">
+          <div class="sec-filters">
+            <input type="search" id="fornViewSearch" placeholder="Pesquisar fornecedor ou produto..." />
+          </div>
+          <div id="fornViewArea"></div>
+        </div>
 
         <!-- ===== CATÁLOGO (por categoria) ===== -->
         <div class="card" id="cardCatalogo">
@@ -2010,24 +2027,55 @@ function computeSuggested(it) {
     };
   }
 
-  // ----- CORTINA: PVP c/IVA = ((largura×fator)+bainhas) × (custo tecido c/IVA + confecção) ÷ (1−margem) -----
+  // ----- CORTINA: PVP c/IVA = tecido × (custo + confecção) ÷ (1−margem) -----
   const isCortina = prod ? prod.tipo === 'cortina' : (config.coefs && config.coefs[it.nome]);
   if (!isCortina) return { preco: 0, text: '' };
   const tec = tecidos.find(t => t.nome === it.tecido);
   if (!tec || !it.largura) return { preco: 0, text: 'Escolhe o tecido e indica a largura da janela.' };
-  const larg_m = parseFloat(it.largura) || 0;                                    // metros (direto)
-  const fator = itemNum(it, 'fator', (config.coefs && config.coefs[it.nome]) || 2.77);
-  const bainhas = itemNum(it, 'bainhas', (config.margemBainhas != null ? parseFloat(config.margemBainhas) : 0.30));
-  const custoTec = parseFloat(tec.preco) || 0;                                   // €/m fornecedor (c/ IVA)
-  const custoConf = itemNum(it, 'conf', parseFloat(tec.conf) || 0);              // €/ml confecção (override possível)
+  const larg_m = parseFloat(it.largura) || 0;
+  const alt_m = parseFloat(it.altura) || 0;
+  const fatorTec = tec.fatorFranzido ? parseFloat(tec.fatorFranzido) : 0;
+  const fator = itemNum(it, 'fator', fatorTec || (config.coefs && config.coefs[it.nome]) || 2.77);
+  const bainhasConf = tec.margemConf ? parseFloat(tec.margemConf) : 0;
+  const bainhas = itemNum(it, 'bainhas', bainhasConf || (config.margemBainhas != null ? parseFloat(config.margemBainhas) : 0.30));
+  const custoTec = parseFloat(tec.preco) || 0;
+  const custoConf = itemNum(it, 'conf', parseFloat(tec.conf) || 0);
   const margemPct = clampMargemPct(itemNum(it, 'margem', parseFloat(config.margemPct)));
-  const qtdTecido = (larg_m * fator) + bainhas;                                  // metros lineares de tecido
+  const despPct = tec.desperdicio ? parseFloat(tec.desperdicio)/100 : 0;
+  const largRolo = tec.larguraRolo ? parseFloat(tec.larguraRolo) : 0;
+  const altMax = tec.alturaMax ? parseFloat(tec.alturaMax) : 0;
+  const orient = tec.orientacao || '';
+
+  let qtdTecido, avisos = [], detalhes = '';
+  const largTotal = (larg_m * fator) + bainhas;
+
+  if (largRolo > 0 && orient === 'horizontal' && alt_m > 0) {
+    const panos = Math.ceil(largTotal / largRolo);
+    const tecPanos = panos * (alt_m + bainhas);
+    qtdTecido = tecPanos * (1 + despPct);
+    detalhes = `${panos} pano(s) × ${(alt_m + bainhas).toFixed(2)}m`;
+    if (altMax > 0 && alt_m > altMax) avisos.push(`⚠ Altura ${alt_m.toFixed(2)}m > máx ${altMax.toFixed(2)}m — necessita emenda`);
+  } else if (largRolo > 0 && orient === 'vertical' && alt_m > 0) {
+    const panos = Math.ceil(alt_m / largRolo);
+    qtdTecido = largTotal * panos * (1 + despPct);
+    detalhes = `${panos} pano(s) vertical × ${largTotal.toFixed(2)}m`;
+  } else {
+    qtdTecido = largTotal * (1 + despPct);
+    detalhes = `${larg_m.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas`;
+    if (despPct > 0) detalhes += ` + ${(despPct*100).toFixed(0)}% desp.`;
+  }
+
+  if (altMax > 0 && alt_m > 0 && alt_m > altMax && orient !== 'horizontal') {
+    avisos.push(`⚠ Altura ${alt_m.toFixed(2)}m > máx ${altMax.toFixed(2)}m`);
+  }
+
   const base = qtdTecido * (custoTec + custoConf);
   const pvp = base / (1 - margemPct / 100);
   const precoR = Math.round(pvp * 100) / 100;
   const custoR = Math.round(base * 100) / 100;
   const lucro = Math.round((precoR - custoR) * 100) / 100;
   const margemReal = precoR > 0 ? Math.round((lucro / precoR) * 1000) / 10 : 0;
+  const avisoStr = avisos.length ? '\n' + avisos.join('\n') : '';
   return {
     preco: precoR,
     un: 'ml',
@@ -2035,7 +2083,7 @@ function computeSuggested(it) {
     custo: custoR,
     lucro: lucro,
     margemReal: margemReal,
-    text: `(${larg_m.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas) = ${qtdTecido.toFixed(2)} ml × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${margemPct}%) = ${fmtEUR(pvp)} c/IVA`
+    text: `(${detalhes}) = ${qtdTecido.toFixed(2)} ml × (${fmtEUR(custoTec)} + ${fmtEUR(custoConf)} conf.) ÷ (1−${margemPct}%) = ${fmtEUR(pvp)} c/IVA${avisoStr}`
   };
 }
 function updateSuggestion(card, i) {
@@ -2146,6 +2194,175 @@ function saveOrc() {
 }
 
 $('#btnAddItem').addEventListener('click', () => { orc.itens.push(newItem()); renderItems(); recalc(); saveDraft(); });
+
+// ============================================================
+// CORTINA WIZARD — step-by-step configurator
+// ============================================================
+$('#btnCortWiz')?.addEventListener('click', openCortinaWizard);
+function openCortinaWizard() {
+  const wiz = { step: 0, calha: null, cortina: null, tecido: null, cor: '', confeccao: null, largura: 0, altura: 0, qtd: 1 };
+  const calhas = produtos.filter(p => p.tipo === 'calha');
+  const cortinas = produtos.filter(p => p.tipo === 'cortina');
+  const confs = config.confeccoes || [];
+
+  function render() {
+    const steps = ['Sistema (Calha)', 'Modelo (Cortina)', 'Tecido', 'Cor', 'Confecção', 'Medidas', 'Resultado'];
+    const stepBar = steps.map((s, i) => `<span style="font-size:10px;font-weight:${i===wiz.step?'700':'400'};color:${i===wiz.step?'var(--dark)':'var(--muted)'};padding:2px 6px;${i<wiz.step?'text-decoration:line-through;opacity:0.5;':''}">${i+1}. ${s}</span>`).join(' → ');
+    let body = '';
+
+    if (wiz.step === 0) {
+      const opts = calhas.map((c, i) => `<div class="wiz-opt${wiz.calha===c?' active':''}" data-ci="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.calha===c?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.calha===c?'var(--soft)':'var(--white)'}"><strong>${esc(c.nome)}</strong><div style="font-size:11px;color:var(--muted)">${esc(c.fornecedor||'')}${c.obs?' — '+esc(c.obs.substring(0,80)):''}</div></div>`).join('');
+      body = `<div style="max-height:320px;overflow-y:auto">${opts || '<p>Nenhuma calha cadastrada.</p>'}</div>`;
+    } else if (wiz.step === 1) {
+      const opts = cortinas.map((c, i) => `<div class="wiz-opt${wiz.cortina===c?' active':''}" data-ci="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.cortina===c?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.cortina===c?'var(--soft)':'var(--white)'}"><strong>${esc(c.nome)}</strong></div>`).join('');
+      body = `<div style="max-height:320px;overflow-y:auto">${opts || '<p>Nenhum modelo de cortina cadastrado.</p>'}</div>`;
+    } else if (wiz.step === 2) {
+      const opts = tecidos.map((t, i) => {
+        const priceStr = t.preco > 0 ? fmtEUR(t.preco)+'/m' : '<span style="color:var(--err)">Sem preço</span>';
+        return `<div class="wiz-opt${wiz.tecido===t?' active':''}" data-ci="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.tecido===t?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.tecido===t?'var(--soft)':'var(--white)'}"><strong>${esc(t.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(t.fornecedor||'')} · ${priceStr}</span></div>`;
+      }).join('');
+      body = `<div class="field" style="margin-bottom:8px"><input type="text" id="wizTecSearch" placeholder="Filtrar tecidos..." style="width:100%" /></div><div id="wizTecList" style="max-height:280px;overflow-y:auto">${opts || '<p>Nenhum tecido cadastrado.</p>'}</div>`;
+    } else if (wiz.step === 3) {
+      const cores = wiz.tecido ? (wiz.tecido.cores || '').split(',').map(c => c.trim()).filter(Boolean) : [];
+      body = `<div class="field"><label>Cor</label><input type="text" id="wizCor" value="${esc(wiz.cor)}" placeholder="${cores.length ? cores.join(', ') : 'Ex: Linho, Cru, Preto...'}" /></div>`;
+      if (cores.length) body += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${cores.map(c => `<button class="btn btn-outline btn-sm wiz-cor-btn" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>`;
+    } else if (wiz.step === 4) {
+      const opts = confs.map((c, i) => {
+        const priceStr = c.preco > 0 ? fmtEUR(c.preco)+'/'+esc(c.un||'ml') : '<span style="color:var(--err)">Sem preço</span>';
+        return `<div class="wiz-opt${wiz.confeccao===c?' active':''}" data-ci="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.confeccao===c?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.confeccao===c?'var(--soft)':'var(--white)'}"><strong>${esc(c.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(c.fornecedor||'')} · ${priceStr}</span></div>`;
+      }).join('');
+      body = `<div style="max-height:320px;overflow-y:auto">${opts || '<p>Nenhuma confecção cadastrada.</p>'}</div><div style="margin-top:8px"><label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wizSkipConf" ${!wiz.confeccao?'':''}> Sem confecção</label></div>`;
+    } else if (wiz.step === 5) {
+      body = `<div class="grid grid-2">
+        <div class="field"><label>Largura da janela (m) *</label><input type="number" step="0.01" id="wizLarg" value="${wiz.largura||''}" placeholder="Ex: 2.20" /></div>
+        <div class="field"><label>Altura da janela (m)</label><input type="number" step="0.01" id="wizAlt" value="${wiz.altura||''}" placeholder="Ex: 2.75" /></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="field"><label>Quantidade</label><input type="number" min="1" id="wizQtd" value="${wiz.qtd||1}" /></div>
+        <div class="field"><label>Fator de franzido</label><input type="number" step="0.01" id="wizFator" value="" placeholder="padrão ${(config.coefs&&wiz.cortina?config.coefs[wiz.cortina.nome]:null)||2.77}" /></div>
+      </div>`;
+    } else if (wiz.step === 6) {
+      const larg = wiz.largura || 0;
+      const fator = wiz._fator || (config.coefs && wiz.cortina ? config.coefs[wiz.cortina.nome] : null) || 2.77;
+      const bainhas = config.margemBainhas ?? 0.30;
+      const custoTec = wiz.tecido ? (parseFloat(wiz.tecido.preco)||0) : 0;
+      const custoConf = wiz.confeccao ? (parseFloat(wiz.confeccao.preco)||0) : 0;
+      const margemPct = parseFloat(config.margemPct) || 60;
+      const qtdTecido = (larg * fator) + bainhas;
+      const base = qtdTecido * (custoTec + custoConf);
+      const pvp = margemPct < 100 ? base / (1 - margemPct/100) : base;
+      const calhaInfo = wiz.calha ? wiz.calha.nome : '—';
+      body = `<div style="background:var(--soft);padding:14px;margin-bottom:12px;font-size:13px;line-height:1.8">
+        <div><strong>Calha:</strong> ${esc(calhaInfo)}</div>
+        <div><strong>Cortina:</strong> ${esc(wiz.cortina?.nome||'—')}</div>
+        <div><strong>Tecido:</strong> ${esc(wiz.tecido?.nome||'—')} (${custoTec>0?fmtEUR(custoTec)+'/m':'Sem preço'})</div>
+        <div><strong>Cor:</strong> ${esc(wiz.cor||'—')}</div>
+        <div><strong>Confecção:</strong> ${esc(wiz.confeccao?.nome||'Sem confecção')} (${custoConf>0?fmtEUR(custoConf)+'/ml':'—'})</div>
+        <div><strong>Largura:</strong> ${larg.toFixed(2)}m · <strong>Altura:</strong> ${(wiz.altura||0).toFixed(2)}m · <strong>Qtd:</strong> ${wiz.qtd}</div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div><strong>Tecido necessário:</strong> (${larg.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m) = ${qtdTecido.toFixed(2)} ml</div>
+          <div><strong>Custo base:</strong> ${fmtEUR(Math.round(base*100)/100)}</div>
+          <div><strong>PVP c/IVA (margem ${margemPct}%):</strong> <span style="font-size:16px;font-weight:700">${fmtEUR(Math.round(pvp*100)/100)}</span></div>
+        </div>
+      </div>`;
+    }
+
+    const canBack = wiz.step > 0;
+    const canNext = wiz.step < 6;
+    const isFinish = wiz.step === 6;
+    const html = `<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:2px;align-items:center">${stepBar}</div>${body}
+      <div class="modal-actions">
+        ${canBack ? '<button class="btn btn-outline btn-sm" id="wizBack">← Voltar</button>' : ''}
+        <button class="btn btn-outline btn-sm" id="wizCancel">Cancelar</button>
+        ${isFinish ? '<button class="btn btn-sm" id="wizFinish">✓ Adicionar ao Orçamento</button>' : '<button class="btn btn-sm" id="wizNext">Avançar →</button>'}
+      </div>`;
+    openModal('🪟 Configurar Cortina', html);
+
+    // Wire up step-specific interactions
+    const overlay = $('#modalOverlay');
+    if (wiz.step === 0) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.calha = calhas[+el.dataset.ci]; render();
+      }));
+    } else if (wiz.step === 1) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.cortina = cortinas[+el.dataset.ci]; render();
+      }));
+    } else if (wiz.step === 2) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.tecido = tecidos[+el.dataset.ci]; render();
+      }));
+      const si = $('#wizTecSearch');
+      if (si) si.addEventListener('input', () => {
+        const q = norm(si.value).trim();
+        const list = $('#wizTecList');
+        if (!list) return;
+        list.querySelectorAll('.wiz-opt').forEach((el, i) => {
+          const t = tecidos[i];
+          const vis = !q || norm(t.nome+' '+t.fornecedor+' '+(t.cores||'')).includes(q);
+          el.style.display = vis ? '' : 'none';
+        });
+      });
+    } else if (wiz.step === 3) {
+      overlay.querySelectorAll('.wiz-cor-btn').forEach(el => el.addEventListener('click', () => {
+        wiz.cor = el.dataset.c; const inp = $('#wizCor'); if (inp) inp.value = wiz.cor;
+      }));
+    } else if (wiz.step === 4) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.confeccao = confs[+el.dataset.ci]; const cb = $('#wizSkipConf'); if (cb) cb.checked = false; render();
+      }));
+    }
+
+    $('#wizCancel')?.addEventListener('click', closeModal);
+    $('#wizBack')?.addEventListener('click', () => { wiz.step--; render(); });
+    $('#wizNext')?.addEventListener('click', () => {
+      if (wiz.step === 0 && !wiz.calha) { toast('Selecione uma calha/sistema', true); return; }
+      if (wiz.step === 1 && !wiz.cortina) { toast('Selecione um modelo de cortina', true); return; }
+      if (wiz.step === 2 && !wiz.tecido) { toast('Selecione um tecido', true); return; }
+      if (wiz.step === 3) { const inp = $('#wizCor'); wiz.cor = inp ? inp.value.trim() : wiz.cor; }
+      if (wiz.step === 4) {
+        const skip = $('#wizSkipConf'); if (skip && skip.checked) wiz.confeccao = null;
+        if (!wiz.confeccao && !(skip && skip.checked)) { toast('Selecione uma confecção ou marque "Sem confecção"', true); return; }
+      }
+      if (wiz.step === 5) {
+        const l = parseFloat($('#wizLarg')?.value); if (!l || l <= 0) { toast('Indique a largura da janela', true); return; }
+        wiz.largura = l; wiz.altura = parseFloat($('#wizAlt')?.value) || 0; wiz.qtd = parseInt($('#wizQtd')?.value) || 1;
+        wiz._fator = parseFloat($('#wizFator')?.value) || 0;
+      }
+      wiz.step++; render();
+    });
+    $('#wizFinish')?.addEventListener('click', () => {
+      const fator = wiz._fator || (config.coefs && wiz.cortina ? config.coefs[wiz.cortina.nome] : null) || 2.77;
+      const confVal = wiz.confeccao ? parseFloat(wiz.confeccao.preco)||0 : 0;
+      // Add cortina item
+      const cortinaItem = newItem();
+      cortinaItem.nome = wiz.cortina.nome;
+      cortinaItem.codigo = wiz.cortina.codigo || '';
+      cortinaItem.tecido = wiz.tecido.nome;
+      cortinaItem.cor = wiz.cor;
+      cortinaItem.largura = wiz.largura;
+      cortinaItem.altura = wiz.altura;
+      cortinaItem.qtd = wiz.qtd;
+      if (wiz._fator) cortinaItem.fator = wiz._fator;
+      if (confVal) cortinaItem.conf = confVal;
+      cortinaItem.fornecedorRef = (wiz.tecido.fornecedor||'') + (wiz.confeccao ? ' + ' + (wiz.confeccao.fornecedor||wiz.confeccao.nome) : '');
+      orc.itens.push(cortinaItem);
+      // Add calha item
+      const calhaItem = newItem();
+      calhaItem.nome = wiz.calha.nome;
+      calhaItem.codigo = wiz.calha.codigo || '';
+      calhaItem.largura = wiz.largura;
+      calhaItem.qtd = wiz.qtd;
+      calhaItem.fornecedorRef = wiz.calha.fornecedor || '';
+      orc.itens.push(calhaItem);
+      renderItems(); recalc(); saveDraft();
+      closeModal();
+      toast('Cortina + calha adicionadas ao orçamento');
+    });
+  }
+  render();
+}
+
 $('#btnLimpar').addEventListener('click', () => {
   if (!confirm('Limpar este orçamento? (não apaga histórico)')) return;
   orc = newOrc(); applyOrcToForm(); renderItems(); recalc(); saveDraft(); toast('Limpo');
@@ -2302,19 +2519,24 @@ function openFornModal(forn) {
 function openProdEditModal(item, idx) {
   if (!isAdmin) return;
   const p = item;
+  const allCats = [...CAT_ORDER_DEFAULT];
+  const catOpts = allCats.map(c => `<option value="${esc(c)}"${c===p.categoria?' selected':''}>${esc(c)}</option>`).join('');
+  const fornList = (config.fornecedores||[]).map(f => f.nome||f).filter(Boolean);
+  const fornOpts = ['', ...fornList].map(f => `<option value="${esc(f)}"${f===p.fornecedor?' selected':''}>${f||'— Sem fornecedor —'}</option>`).join('');
   const html = `
     <div class="grid grid-2">
       <div class="field"><label>Código</label><input type="text" id="mpCod" value="${esc(p.codigo||'')}" /></div>
       <div class="field"><label>Nome</label><input type="text" id="mpNome" value="${esc(p.nome||'')}" /></div>
     </div>
     <div class="grid grid-2">
-      <div class="field"><label>Preço (€)</label><input type="number" step="0.01" id="mpPreco" value="${p.preco??0}" /></div>
-      <div class="field"><label>Unidade</label><input type="text" id="mpUn" value="${esc(p.unidade||'')}" /></div>
+      <div class="field"><label>Categoria</label><select id="mpCat">${catOpts}</select></div>
+      <div class="field"><label>Fornecedor</label><select id="mpForn">${fornOpts}</select></div>
     </div>
     <div class="grid grid-2">
-      <div class="field"><label>Fornecedor</label><input type="text" id="mpForn" value="${esc(p.fornecedor||'')}" /></div>
-      <div class="field"><label>Ref/Obs</label><input type="text" id="mpRef" value="${esc(p.refFornecedor||p.obs||'')}" /></div>
+      <div class="field"><label>Preço (€)</label><input type="number" step="0.01" id="mpPreco" value="${p.preco??0}" /></div>
+      <div class="field"><label>Unidade</label><select id="mpUn"><option value="uni"${p.unidade==='uni'?' selected':''}>Unidade</option><option value="ml"${p.unidade==='ml'?' selected':''}>Metro Linear</option><option value="m2"${p.unidade==='m2'?' selected':''}>Metro Quadrado</option><option value="kg"${p.unidade==='kg'?' selected':''}>Quilograma</option><option value="par"${p.unidade==='par'?' selected':''}>Par</option><option value="cx"${p.unidade==='cx'?' selected':''}>Caixa</option></select></div>
     </div>
+    <div class="field"><label>Ref/Obs</label><input type="text" id="mpRef" value="${esc(p.refFornecedor||p.obs||'')}" /></div>
     <div class="modal-actions">
       <button class="btn btn-danger btn-sm" id="mpDel">Remover</button>
       <button class="btn btn-outline btn-sm" id="mpCancel">Cancelar</button>
@@ -2324,7 +2546,7 @@ function openProdEditModal(item, idx) {
   $('#mpCancel').addEventListener('click', closeModal);
   $('#mpSave').addEventListener('click', () => {
     p.codigo = $('#mpCod').value; p.nome = $('#mpNome').value; p.preco = parseFloat($('#mpPreco').value)||0;
-    p.unidade = $('#mpUn').value; p.fornecedor = $('#mpForn').value; p.refFornecedor = $('#mpRef').value;
+    p.categoria = $('#mpCat').value; p.unidade = $('#mpUn').value; p.fornecedor = $('#mpForn').value; p.refFornecedor = $('#mpRef').value;
     save(K.prod, produtos); closeModal(); renderCatalog();
   });
   $('#mpDel').addEventListener('click', () => {
@@ -2519,13 +2741,65 @@ function buildFornBlock(fornName, count, collapsed, bodyHTML, onToggle, onEdit) 
   return block;
 }
 
+let _prodView = 'cat'; // 'cat' or 'forn'
 function renderProdutos() {
-  renderCatalog();
-  renderCalhaGrid();
-  renderTecidosTable();
-  renderConfeccoesTable();
-  renderDecAce('decoracao');
-  renderDecAce('acessorios');
+  const btnCat = $('#btnViewCat'), btnForn = $('#btnViewForn');
+  if (btnCat) { btnCat.className = 'btn btn-sm' + (_prodView==='cat'?'':' btn-outline'); btnCat.style.fontSize = '11px'; }
+  if (btnForn) { btnForn.className = 'btn btn-sm' + (_prodView==='forn'?'':' btn-outline'); btnForn.style.fontSize = '11px'; }
+  const catEls = ['catBlocks','catTabs','cardCatalogo','cardCalhaGrid','cardTecidos','cardConfeccao','cardDecoracao','cardAcessorios'];
+  if (_prodView === 'forn') {
+    catEls.forEach(id => { const el = $('#'+id); if (el) el.style.display = 'none'; });
+    const fv = $('#cardFornView'); if (fv) fv.style.display = '';
+    renderFornView();
+  } else {
+    const fv = $('#cardFornView'); if (fv) fv.style.display = 'none';
+    renderCatalog();
+    renderCalhaGrid();
+    renderTecidosTable();
+    renderConfeccoesTable();
+    renderDecAce('decoracao');
+    renderDecAce('acessorios');
+  }
+}
+$('#btnViewCat')?.addEventListener('click', () => { _prodView = 'cat'; renderProdutos(); });
+$('#btnViewForn')?.addEventListener('click', () => { _prodView = 'forn'; renderProdutos(); });
+$('#fornViewSearch')?.addEventListener('input', renderFornView);
+
+function renderFornView() {
+  const area = $('#fornViewArea'); if (!area) return;
+  const q = norm($('#fornViewSearch')?.value||'').trim();
+  const allItems = [...produtos, ...tecidos.map(t => ({...t, _isTecido: true}))];
+  const byForn = {};
+  allItems.forEach(p => {
+    const f = p.fornecedor || 'Sem fornecedor';
+    if (q && !norm(f + ' ' + (p.nome||'') + ' ' + (p.codigo||'')).includes(q)) return;
+    (byForn[f] = byForn[f] || []).push(p);
+  });
+  if (!Object.keys(byForn).length) { area.innerHTML = '<div class="empty-state"><div class="ic">📦</div>Sem resultados.</div>'; return; }
+  area.innerHTML = '';
+  Object.keys(byForn).sort().forEach(forn => {
+    const items = byForn[forn];
+    const fornKey = 'forn|' + forn;
+    const collapsed = _fornCollapsed[fornKey];
+    const byCat = {};
+    items.forEach(p => {
+      const cat = p._isTecido ? 'Tecidos' : (p.categoria || 'Sem categoria');
+      (byCat[cat] = byCat[cat] || []).push(p);
+    });
+    let bodyHTML = '';
+    Object.keys(byCat).sort().forEach(cat => {
+      bodyHTML += `<div style="padding:4px 0"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin:6px 0 4px">${esc(cat)} (${byCat[cat].length})</div>`;
+      bodyHTML += '<div class="prod-card-grid">';
+      byCat[cat].forEach(p => {
+        const priceStr = (p.preco > 0) ? fmtEUR(p.preco) : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
+        const sub = p._isTecido ? (p.cores||'') : ((p.codigo ? esc(p.codigo)+' · ':'')+(p.unidade||''));
+        bodyHTML += `<div class="prod-card"><div class="pc-name">${esc(p.nome||'Sem nome')}</div><div class="pc-sub">${sub}</div><div class="pc-price">${priceStr}</div></div>`;
+      });
+      bodyHTML += '</div></div>';
+    });
+    const block = buildFornBlock(forn, items.length, collapsed, bodyHTML, null, null);
+    area.appendChild(block);
+  });
 }
 
 // ============================================================
@@ -2709,9 +2983,30 @@ function renderCatalog() {
 }
 function addProdToForn(forn) {
   if (!isAdmin) return;
-  produtos.unshift({ id:'p_'+uid(), codigo:'', nome:'Novo produto', categoria:catAtiva||'', tipo:'fixo', preco:0, unidade:'uni', fornecedor:forn, refFornecedor:'' });
-  save(K.prod, produtos); renderCatalog();
-  const el = $('#cardCatalogo'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  const cat = catAtiva || '';
+  const html = `
+    <div class="grid grid-2">
+      <div class="field"><label>Nome *</label><input type="text" id="napfNome" placeholder="Nome do produto" /></div>
+      <div class="field"><label>Código</label><input type="text" id="napfCod" /></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field"><label>Preço (€)</label><input type="number" step="0.01" id="napfPreco" value="0" /></div>
+      <div class="field"><label>Unidade</label><select id="napfUn"><option value="uni">Unidade</option><option value="ml">Metro Linear</option><option value="m2">Metro Quadrado</option></select></div>
+    </div>
+    <div class="field"><label>Ref/Observações</label><input type="text" id="napfRef" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="napfCancel">Cancelar</button>
+      <button class="btn btn-sm" id="napfSave">Adicionar</button>
+    </div>`;
+  openModal('+ Produto em ' + esc(forn), html);
+  $('#napfCancel').addEventListener('click', closeModal);
+  $('#napfSave').addEventListener('click', () => {
+    const nome = $('#napfNome').value.trim();
+    if (!nome) { toast('Indique o nome do produto', true); $('#napfNome').focus(); return; }
+    produtos.unshift({ id:'p_'+uid(), codigo:$('#napfCod').value, nome, categoria:cat, tipo:'fixo', preco:parseFloat($('#napfPreco').value)||0, unidade:$('#napfUn').value, fornecedor:forn, refFornecedor:$('#napfRef').value });
+    save(K.prod, produtos); closeModal(); renderCatalog();
+    const el = $('#cardCatalogo'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
 }
 
 const _tecCollapsed = {};
@@ -2881,9 +3176,37 @@ $('#decSearch')?.addEventListener('input', () => renderDecAce('decoracao'));
 $('#aceSearch')?.addEventListener('input', () => renderDecAce('acessorios'));
 $('#btnAddProduto')?.addEventListener('click', () => {
   if (!isAdmin) return;
-  produtos.unshift({ id:'p_'+uid(), codigo:'', nome:'Novo produto', categoria:catAtiva||'', tipo:'fixo', preco:0, unidade:'uni', fornecedor:'', refFornecedor:'' });
-  save(K.prod, produtos); renderCatalog();
-  const el = $('#cardCatalogo'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  const allCats = [...CAT_ORDER_DEFAULT];
+  const catOpts = allCats.map(c => `<option value="${esc(c)}"${c===catAtiva?' selected':''}>${esc(c)}</option>`).join('');
+  const fornList = (config.fornecedores||[]).map(f => f.nome||f).filter(Boolean);
+  const fornOpts = ['', ...fornList].map(f => `<option value="${esc(f)}">${f||'— Sem fornecedor —'}</option>`).join('');
+  const html = `
+    <div class="grid grid-2">
+      <div class="field"><label>Nome *</label><input type="text" id="napNome" placeholder="Nome do produto" /></div>
+      <div class="field"><label>Código</label><input type="text" id="napCod" placeholder="Ref." /></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field"><label>Categoria</label><select id="napCat">${catOpts}</select></div>
+      <div class="field"><label>Fornecedor</label><select id="napForn">${fornOpts}</select></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field"><label>Preço (€)</label><input type="number" step="0.01" id="napPreco" value="0" /></div>
+      <div class="field"><label>Unidade</label><select id="napUn"><option value="uni">Unidade</option><option value="ml">Metro Linear</option><option value="m2">Metro Quadrado</option><option value="kg">Quilograma</option><option value="par">Par</option><option value="cx">Caixa</option></select></div>
+    </div>
+    <div class="field"><label>Ref/Observações</label><input type="text" id="napRef" placeholder="Referência ou observação" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="napCancel">Cancelar</button>
+      <button class="btn btn-sm" id="napSave">Adicionar</button>
+    </div>`;
+  openModal('+ Adicionar Produto', html);
+  $('#napCancel').addEventListener('click', closeModal);
+  $('#napSave').addEventListener('click', () => {
+    const nome = $('#napNome').value.trim();
+    if (!nome) { toast('Indique o nome do produto', true); $('#napNome').focus(); return; }
+    produtos.unshift({ id:'p_'+uid(), codigo:$('#napCod').value, nome, categoria:$('#napCat').value, tipo:'fixo', preco:parseFloat($('#napPreco').value)||0, unidade:$('#napUn').value, fornecedor:$('#napForn').value, refFornecedor:$('#napRef').value });
+    save(K.prod, produtos); closeModal(); catAtiva = $('#napCat').value; renderProdutos();
+    const el = $('#cardCatalogo'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
 });
 $('#btnAddTecido')?.addEventListener('click', () => {
   if (!isAdmin) return;
