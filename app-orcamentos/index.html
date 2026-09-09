@@ -483,6 +483,8 @@
   .prod-card .pc-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; }
   .prod-card .pc-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
   .prod-card .pc-price { font-weight: 700; font-size: 14px; margin-top: 6px; color: var(--dark); font-variant-numeric: tabular-nums; }
+  .tec-cor-badges { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  .tec-cor-badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; background: var(--soft); color: var(--text); border: 1px solid var(--border); white-space: nowrap; }
   .sec-top-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
   /* ===== MODAL SYSTEM ===== */
@@ -850,6 +852,7 @@
             </table>
           </div>
           <div class="totals">
+            <div id="descGlobalRow" class="row muted" style="display:none"><span class="dl"></span><span class="dv" style="color:var(--err)"></span></div>
             <div class="row total"><span>TOTAL A PAGAR</span><span id="total">€0,00</span></div>
             <div class="row muted"><span></span><span id="ivaNote">* Valores com IVA incluído à taxa em vigor (23%)</span></div>
           </div>
@@ -952,8 +955,9 @@
             <button class="btn btn-sm btn-white" id="btnAddFornTec">+ Novo Fornecedor</button>
             <button class="btn btn-sm btn-white" id="btnAddTecido">+ Novo Tecido</button>
           </div>
-          <div class="sec-filters">
-            <input type="search" id="tecSearch" placeholder="Pesquisar nome, cor ou SKU..." />
+          <div class="sec-filters" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="search" id="tecSearch" placeholder="Pesquisar nome, cor ou SKU..." style="flex:1;min-width:160px" />
+            <select id="tecColorFilter" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);min-width:120px"><option value="">Todas as cores</option></select>
           </div>
           <div id="tecGroupArea"></div>
         </div>
@@ -1990,8 +1994,6 @@ function clampMargemPct(pct) {
   return pct;
 }
 // Margem padrão (fração) definida no painel.
-function getMargem() { return clampMargemPct(parseFloat(config.margemPct)) / 100; }
-
 // Lê um override numérico do item (só conta se preenchido); senão devolve o valor padrão.
 function itemNum(it, key, fallback) {
   const v = it[key];
@@ -2134,13 +2136,45 @@ function recalc() {
     `;
     tbody.appendChild(tr);
   });
-  $('#total').textContent = fmtEUR(total);
+  // Global discount
+  const gDescTipo = orc.descTipo || 'none';
+  const gDescVal = parseFloat(orc.descValor) || 0;
+  let descLabel = '', descAmount = 0;
+  if (gDescTipo === 'pct' && gDescVal > 0) {
+    descAmount = Math.round(total * gDescVal / 100 * 100) / 100;
+    descLabel = `Desconto global (${gDescVal}%)`;
+  } else if (gDescTipo === 'fixed' && gDescVal > 0) {
+    descAmount = Math.min(gDescVal, total);
+    descLabel = 'Desconto global (fixo)';
+  }
+  const finalTotal = Math.round((total - descAmount) * 100) / 100;
+
+  const descRow = $('#descGlobalRow');
+  if (descRow) {
+    if (descAmount > 0) {
+      descRow.style.display = '';
+      const dlEl = descRow.querySelector('.dl'); if (dlEl) dlEl.textContent = descLabel;
+      const dvEl = descRow.querySelector('.dv'); if (dvEl) dvEl.textContent = '−' + fmtEUR(descAmount);
+    } else {
+      descRow.style.display = 'none';
+    }
+  }
+  $('#total').textContent = fmtEUR(finalTotal);
   $('#refDisplay').textContent = `Referência: ${orc.ref} · Data: ${fmtDate(orc.data)}`;
   const ivaEl = $('#ivaNote'); if (ivaEl) ivaEl.textContent = `* Valores com IVA incluído à taxa em vigor (${iva}%)`;
 }
 
+function applyGlobalDiscount(subtotal, o) {
+  const tipo = o.descTipo || 'none';
+  const val = parseFloat(o.descValor) || 0;
+  if (tipo === 'pct' && val > 0) return Math.round(subtotal * (1 - val/100) * 100) / 100;
+  if (tipo === 'fixed' && val > 0) return Math.round(Math.max(0, subtotal - val) * 100) / 100;
+  return subtotal;
+}
+
 function totalOf(o) {
-  return o.itens.filter(it => !it.oculto).reduce((a, it) => a + lineTotal(it), 0);
+  const sub = o.itens.filter(it => !it.oculto).reduce((a, it) => a + lineTotal(it), 0);
+  return applyGlobalDiscount(sub, o);
 }
 
 // ============================================================
@@ -2174,6 +2208,7 @@ function loadDraft() { const d = load(K.draft, null); if (d && d.itens) orc = d;
 function saveOrc() {
   if (!orc.cliente.nome.trim()) { toast('Indique o nome do cliente', true); $('#cliNome').focus(); return false; }
   persistClienteFromOrc();
+  const isNew = !orc.id;
   if (orc.id) {
     const i = historico.findIndex(o => o.id === orc.id);
     if (i >= 0) historico[i] = JSON.parse(JSON.stringify(orc));
@@ -2186,8 +2221,7 @@ function saveOrc() {
   }
   save(K.hist, historico);
   if (window.Cloud && Cloud.ready) {
-    const action = orc.id ? 'orcamento_editado' : 'orcamento_criado';
-    Cloud.logAction(action, `${orc.ref} — ${orc.cliente.nome}`);
+    Cloud.logAction(isNew ? 'orcamento_criado' : 'orcamento_editado', `${orc.ref} — ${orc.cliente.nome}`);
   }
   saveDraft();
   return true;
@@ -2243,14 +2277,38 @@ function openCortinaWizard() {
       </div>`;
     } else if (wiz.step === 6) {
       const larg = wiz.largura || 0;
-      const fator = wiz._fator || (config.coefs && wiz.cortina ? config.coefs[wiz.cortina.nome] : null) || 2.77;
-      const bainhas = config.margemBainhas ?? 0.30;
-      const custoTec = wiz.tecido ? (parseFloat(wiz.tecido.preco)||0) : 0;
+      const alt = wiz.altura || 0;
+      const tec = wiz.tecido;
+      const fatorTec = tec && tec.fatorFranzido ? parseFloat(tec.fatorFranzido) : 0;
+      const fator = wiz._fator || fatorTec || (config.coefs && wiz.cortina ? config.coefs[wiz.cortina.nome] : null) || 2.77;
+      const bainhasConf = tec && tec.margemConf ? parseFloat(tec.margemConf) : 0;
+      const bainhas = bainhasConf || (config.margemBainhas != null ? parseFloat(config.margemBainhas) : 0.30);
+      const custoTec = tec ? (parseFloat(tec.preco)||0) : 0;
       const custoConf = wiz.confeccao ? (parseFloat(wiz.confeccao.preco)||0) : 0;
-      const margemPct = parseFloat(config.margemPct) || 60;
-      const qtdTecido = (larg * fator) + bainhas;
+      const margemPct = clampMargemPct(parseFloat(config.margemPct));
+      const despPct = tec && tec.desperdicio ? parseFloat(tec.desperdicio)/100 : 0;
+      const largRolo = tec && tec.larguraRolo ? parseFloat(tec.larguraRolo) : 0;
+      const altMax = tec && tec.alturaMax ? parseFloat(tec.alturaMax) : 0;
+      const orient = (tec && tec.orientacao) || '';
+      const largTotal = (larg * fator) + bainhas;
+      let qtdTecido, wizDetalhes = '', wizAvisos = [];
+      if (largRolo > 0 && orient === 'horizontal' && alt > 0) {
+        const panos = Math.ceil(largTotal / largRolo);
+        qtdTecido = panos * (alt + bainhas) * (1 + despPct);
+        wizDetalhes = `${panos} pano(s) × ${(alt + bainhas).toFixed(2)}m`;
+        if (altMax > 0 && alt > altMax) wizAvisos.push(`⚠ Altura ${alt.toFixed(2)}m > máx ${altMax.toFixed(2)}m — necessita emenda`);
+      } else if (largRolo > 0 && orient === 'vertical' && alt > 0) {
+        const panos = Math.ceil(alt / largRolo);
+        qtdTecido = largTotal * panos * (1 + despPct);
+        wizDetalhes = `${panos} pano(s) vertical × ${largTotal.toFixed(2)}m`;
+      } else {
+        qtdTecido = largTotal * (1 + despPct);
+        wizDetalhes = `${larg.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m bainhas`;
+        if (despPct > 0) wizDetalhes += ` + ${(despPct*100).toFixed(0)}% desp.`;
+      }
+      if (altMax > 0 && alt > 0 && alt > altMax && orient !== 'horizontal') wizAvisos.push(`⚠ Altura ${alt.toFixed(2)}m > máx ${altMax.toFixed(2)}m`);
       const base = qtdTecido * (custoTec + custoConf);
-      const pvp = margemPct < 100 ? base / (1 - margemPct/100) : base;
+      const pvp = base / (1 - margemPct/100);
       const calhaInfo = wiz.calha ? wiz.calha.nome : '—';
       body = `<div style="background:var(--soft);padding:14px;margin-bottom:12px;font-size:13px;line-height:1.8">
         <div><strong>Calha:</strong> ${esc(calhaInfo)}</div>
@@ -2258,9 +2316,10 @@ function openCortinaWizard() {
         <div><strong>Tecido:</strong> ${esc(wiz.tecido?.nome||'—')} (${custoTec>0?fmtEUR(custoTec)+'/m':'Sem preço'})</div>
         <div><strong>Cor:</strong> ${esc(wiz.cor||'—')}</div>
         <div><strong>Confecção:</strong> ${esc(wiz.confeccao?.nome||'Sem confecção')} (${custoConf>0?fmtEUR(custoConf)+'/ml':'—'})</div>
-        <div><strong>Largura:</strong> ${larg.toFixed(2)}m · <strong>Altura:</strong> ${(wiz.altura||0).toFixed(2)}m · <strong>Qtd:</strong> ${wiz.qtd}</div>
+        <div><strong>Largura:</strong> ${larg.toFixed(2)}m · <strong>Altura:</strong> ${alt.toFixed(2)}m · <strong>Qtd:</strong> ${wiz.qtd}</div>
         <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
-          <div><strong>Tecido necessário:</strong> (${larg.toFixed(2)}m × ${fator} + ${bainhas.toFixed(2)}m) = ${qtdTecido.toFixed(2)} ml</div>
+          <div><strong>Tecido necessário:</strong> ${wizDetalhes} = ${qtdTecido.toFixed(2)} ml</div>
+          ${wizAvisos.length ? `<div style="color:var(--err)">${wizAvisos.join('<br>')}</div>` : ''}
           <div><strong>Custo base:</strong> ${fmtEUR(Math.round(base*100)/100)}</div>
           <div><strong>PVP c/IVA (margem ${margemPct}%):</strong> <span style="font-size:16px;font-weight:700">${fmtEUR(Math.round(pvp*100)/100)}</span></div>
         </div>
@@ -2722,8 +2781,8 @@ function buildFornBlock(fornName, count, collapsed, bodyHTML, onToggle, onEdit) 
     <span style="flex:1;overflow:hidden;text-overflow:ellipsis;">${esc(fornName)}</span>
     <span class="forn-cnt">(${count})</span>
     <span class="forn-actions">
-      ${isAdmin ? `<button class="forn-btn forn-edit-btn" title="Editar fornecedor">✎</button>` : ''}
-      ${isAdmin ? `<button class="forn-btn forn-add-btn">+ Produto</button>` : ''}
+      ${isAdmin && onEdit ? `<button class="forn-btn forn-edit-btn" title="Editar fornecedor">✎</button>` : ''}
+      ${isAdmin && onToggle ? `<button class="forn-btn forn-add-btn">+ Produto</button>` : ''}
     </span>
   </div>
   <div class="forn-block-body" ${collapsed ? 'style="display:none;"' : ''}>${bodyHTML}</div>`;
@@ -2928,7 +2987,6 @@ function renderCatalog() {
     } else { tabs.style.display = 'none'; }
   }
   const isCalha = ['Calhas','Calhas Design','Calhas Motorizadas'].includes(catAtiva);
-  const isMainBlock = MAIN_BLOCKS.includes(catAtiva);
   const isSection = SECTION_TABS.includes(catAtiva);
   const cardCat = $('#cardCatalogo');
   if (cardCat) cardCat.style.display = (isSection || isCalha) ? 'none' : '';
@@ -3014,7 +3072,18 @@ const _fornCollapsed = {};
 function renderTecidosTable() {
   const area = $('#tecGroupArea'); if (!area) return;
   const q = norm($('#tecSearch')?.value||'').trim();
-  const rows = tecidos.filter(t => matchQ(t,q,'codigo','nome','cores','skuFornecedor','fornecedor'));
+  const colorFilter = ($('#tecColorFilter')?.value || '').trim();
+  const allColors = new Set();
+  tecidos.forEach(t => { (t.cores||'').split(',').map(c => c.trim()).filter(Boolean).forEach(c => allColors.add(c)); });
+  const sel = $('#tecColorFilter');
+  if (sel) {
+    const prev = sel.value;
+    const opts = ['<option value="">Todas as cores</option>'];
+    [...allColors].sort((a,b) => a.localeCompare(b,'pt')).forEach(c => { opts.push(`<option value="${esc(c)}"${c===prev?' selected':''}>${esc(c)}</option>`); });
+    sel.innerHTML = opts.join('');
+  }
+  let rows = tecidos.filter(t => matchQ(t,q,'codigo','nome','cores','skuFornecedor','fornecedor'));
+  if (colorFilter) rows = rows.filter(t => (t.cores||'').split(',').map(c => c.trim()).includes(colorFilter));
   if (!rows.length) { area.innerHTML = '<div class="empty-state"><div class="ic">🧵</div>Sem resultados.</div>'; return; }
   const byForn = {};
   rows.forEach(t => { const f = t.fornecedor || 'Sem fornecedor'; (byForn[f] = byForn[f] || []).push(t); });
@@ -3041,9 +3110,12 @@ function renderTecidosTable() {
         const i = tecidos.indexOf(t);
         const priceStr = t.preco > 0 ? fmtEUR(t.preco)+'/m' : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
         const corCode = t.codigoCor ? ' ['+esc(t.codigoCor)+']' : '';
+        const cores = (t.cores||'').split(',').map(c => c.trim()).filter(Boolean);
+        const corBadges = cores.length ? '<div class="tec-cor-badges">' + cores.map(c => `<span class="tec-cor-badge">${esc(c)}</span>`).join('') + '</div>' : '';
         bodyHTML += `<div class="prod-card" data-tidx="${i}">
           <div class="pc-name">${esc(t.nome||'Sem nome')}</div>
-          <div class="pc-sub">${esc(t.cores||'')}${corCode}${t.skuFornecedor ? ' · '+esc(t.skuFornecedor) : ''}</div>
+          <div class="pc-sub">${corCode}${t.skuFornecedor ? esc(t.skuFornecedor) : ''}</div>
+          ${corBadges}
           <div class="pc-price">${priceStr}</div>
         </div>`;
       });
@@ -3137,7 +3209,8 @@ function renderDecAce(kind) {
     let gridHTML = '<div class="prod-card-grid">';
     items.forEach(d => {
       const i = arr.indexOf(d);
-      const mg = clampMargemPct(itemNum(d,'margem', parseFloat(config.margemPct)));
+      const kindMargem = kind === 'decoracao' ? config.margemDecoracao : config.margemAcessorios;
+      const mg = clampMargemPct(itemNum(d,'margem', parseFloat(kindMargem ?? config.margemPct)));
       const custo = parseFloat(d.custoBase)||0;
       const pvp = custo > 0 ? custo / (1 - mg/100) : 0;
       const dPriceStr = pvp > 0 ? fmtEUR(pvp) : '<span style="color:var(--err);font-size:11px;">Preço não configurado</span>';
@@ -3171,6 +3244,7 @@ function addDecAceToForn(kind, forn) {
 
 $('#catSearch')?.addEventListener('input', renderCatalog);
 $('#tecSearch')?.addEventListener('input', renderTecidosTable);
+$('#tecColorFilter')?.addEventListener('change', renderTecidosTable);
 $('#confSearch')?.addEventListener('input', renderConfeccoesTable);
 $('#decSearch')?.addEventListener('input', () => renderDecAce('decoracao'));
 $('#aceSearch')?.addEventListener('input', () => renderDecAce('acessorios'));
@@ -3659,8 +3733,14 @@ function pdfHTML(o, lang) {
   const L = PDF_LABELS[lang] || PDF_LABELS.pt;
   const iva = config.ivaPct ?? 23;
   const visItens = o.itens.filter(it => !it.oculto);
-  let total = 0;
-  visItens.forEach(it => total += lineTotal(it));
+  let subtotal = 0;
+  visItens.forEach(it => subtotal += lineTotal(it));
+  const gDescTipo = o.descTipo || 'none';
+  const gDescVal = parseFloat(o.descValor) || 0;
+  let pdfDescAmt = 0, pdfDescLbl = '';
+  if (gDescTipo === 'pct' && gDescVal > 0) { pdfDescAmt = Math.round(subtotal * gDescVal / 100 * 100) / 100; pdfDescLbl = lang === 'en' ? `Global discount (${gDescVal}%)` : `Desconto global (${gDescVal}%)`; }
+  else if (gDescTipo === 'fixed' && gDescVal > 0) { pdfDescAmt = Math.min(gDescVal, subtotal); pdfDescLbl = lang === 'en' ? 'Global discount (fixed)' : 'Desconto global (fixo)'; }
+  const total = Math.round((subtotal - pdfDescAmt) * 100) / 100;
 
   const dt = new Date(o.data + 'T00:00');
   const vd = new Date(dt); vd.setDate(vd.getDate() + (parseInt(o.validade)||30));
@@ -3745,6 +3825,7 @@ function pdfHTML(o, lang) {
           <tbody>${linhas}</tbody>
         </table>
 
+        ${pdfDescAmt > 0 ? `<div style="text-align:right;font-size:11px;color:#666;margin:-2px 0 4px">${esc(pdfDescLbl)}: −${fmtEUR(pdfDescAmt)}</div>` : ''}
         <div class="pdf-pagar">
           <div class="pagar-label">${L.totalPagar}</div>
           <div class="pagar-valor">${fmtEUR(total)}</div>
