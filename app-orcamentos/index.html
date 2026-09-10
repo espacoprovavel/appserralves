@@ -514,6 +514,37 @@
   .hero-novo .hero-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .hero-novo .hero-icon { font-size: 32px; color: var(--dark); flex-shrink: 0; }
 
+  /* ===== WIZARD STEPS ===== */
+  .wiz-stepper { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+  .wiz-stepper-item { flex: 1; text-align: center; padding: 10px 6px 12px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; position: relative; cursor: default; }
+  .wiz-stepper-item.active { color: var(--dark); }
+  .wiz-stepper-item.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: var(--dark); }
+  .wiz-stepper-item.done { color: var(--dark); opacity: 0.6; cursor: pointer; }
+  .wiz-stepper-item .ws-num { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; border-radius: 50%; background: var(--border); color: var(--white); font-size: 11px; margin-right: 4px; vertical-align: middle; }
+  .wiz-stepper-item.active .ws-num { background: var(--dark); }
+  .wiz-stepper-item.done .ws-num { background: var(--gold); }
+  .wiz-page { display: none; }
+  .wiz-page.active { display: block; }
+  .wiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .wiz-nav .btn { min-width: 160px; }
+
+  /* ===== PRODUCT TYPE GRID ===== */
+  .wiz-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .wiz-type-card { background: var(--white); border: 2px solid var(--border); padding: 20px 14px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .wiz-type-card:hover { border-color: var(--dark); box-shadow: 0 3px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .wiz-type-card .wtc-icon { font-size: 28px; margin-bottom: 6px; }
+  .wiz-type-card .wtc-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dark); }
+  .wiz-type-card .wtc-count { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* ===== WIZARD ITEMS ADDED LIST ===== */
+  .wiz-item-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .wiz-item-row:last-child { border-bottom: none; }
+  .wiz-item-row .wi-name { flex: 1; font-weight: 600; }
+  .wiz-item-row .wi-detail { color: var(--muted); font-size: 11px; }
+  .wiz-item-row .wi-price { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; }
+  .wiz-item-row .wi-rm { background: none; border: none; color: var(--err); cursor: pointer; font-size: 14px; padding: 4px; }
+  .wiz-running-total { text-align: right; padding: 12px; font-size: 15px; font-weight: 700; color: var(--dark); border-top: 2px solid var(--dark); }
+
   /* ===== CATEGORY BLOCKS (Produtos) ===== */
   .cat-blocks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
   .cat-block { background: var(--white); border: 1.5px solid var(--border); padding: 14px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s; }
@@ -526,9 +557,16 @@
     .cat-block { padding: 12px 8px; min-height: 44px; }
     .hero-novo { padding: 20px 18px; }
     .hero-novo .hero-title { font-size: 18px; }
+    .wiz-type-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .wiz-stepper-item { font-size: 10px; padding: 8px 4px 10px; letter-spacing: 0.4px; }
+    .wiz-nav .btn { min-width: 120px; font-size: 12px; }
   }
   @media (max-width: 480px) {
     .cat-blocks { grid-template-columns: repeat(2, 1fr); }
+    .wiz-type-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .wiz-type-card { padding: 14px 10px; }
+    .wiz-type-card .wtc-icon { font-size: 22px; }
+    .wiz-stepper-item .ws-num { display: none; }
   }
 
   @media (max-width: 900px) {
@@ -735,147 +773,213 @@
 
       <!-- ============ NOVO ORÇAMENTO ============ -->
       <section class="section active" id="sec-novo">
-        <div class="hero-novo" id="heroNovo">
-          <div>
-            <div class="hero-title">NOVO ORÇAMENTO</div>
-            <div class="hero-sub" id="refDisplay">Referência: SD-00001 · Data: --/--/----</div>
-          </div>
-          <div class="hero-icon">+</div>
+
+        <!-- Wizard Step Indicator (hidden on landing) -->
+        <div class="wiz-stepper" id="wizStepper" style="display:none">
+          <div class="wiz-stepper-item active" data-ws="1"><span class="ws-num">1</span>Cliente</div>
+          <div class="wiz-stepper-item" data-ws="2"><span class="ws-num">2</span>Itens</div>
+          <div class="wiz-stepper-item" data-ws="3"><span class="ws-num">3</span>Finalizar</div>
         </div>
-        <div class="page-head">
-          <div>
-            <div class="crumbs">Orçamentos</div>
-            <h2>Novo Orçamento</h2>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-outline btn-sm" id="btnLimpar">Limpar</button>
-            <button class="btn btn-white btn-sm" id="btnGuardar">Guardar</button>
+
+        <!-- ===== PAGE 0: LANDING ===== -->
+        <div class="wiz-page active" id="wizP0">
+          <div class="hero-novo" id="heroNovo">
+            <div>
+              <div class="hero-title">NOVO ORÇAMENTO</div>
+              <div class="hero-sub" id="refDisplay">Referência: SD-00001 · Data: --/--/----</div>
+            </div>
+            <div class="hero-icon">+</div>
           </div>
         </div>
 
-        <!-- Cliente -->
-        <div class="card">
-          <div class="card-head">
-            <h3>Cliente</h3>
-            <span class="sub" id="cliBadge"></span>
-          </div>
-          <div class="field">
-            <label>Pesquisar cliente existente</label>
-            <div class="autocomplete">
-              <input type="search" id="cliSearch" placeholder="Procurar por nome, telefone, email, NIF ou morada..." autocomplete="off" />
-              <div class="autocomplete-list" id="cliList"></div>
+        <!-- ===== PAGE 1: CLIENTE ===== -->
+        <div class="wiz-page" id="wizP1">
+          <div class="page-head">
+            <div>
+              <div class="crumbs">Novo Orçamento</div>
+              <h2>Dados do Cliente</h2>
             </div>
           </div>
-          <div class="grid grid-2">
-            <div class="field"><label>Nome *</label><input type="text" id="cliNome" placeholder="Nome do cliente" /></div>
-            <div class="field"><label>Empresa</label><input type="text" id="cliEmpresa" placeholder="Empresa (se aplicável)" /></div>
-            <div class="field"><label>Telefone</label><input type="tel" id="cliTel" placeholder="+351 2XX XXX XXX" /></div>
-            <div class="field"><label>Telemóvel</label><input type="tel" id="cliTelemovel" placeholder="+351 9XX XXX XXX" /></div>
-            <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="email@exemplo.pt" /></div>
-            <div class="field"><label>NIF pessoal</label><input type="text" id="cliNif" placeholder="123 456 789" /></div>
-            <div class="field"><label>NIF empresa</label><input type="text" id="cliNifEmpresa" placeholder="500 000 000" /></div>
+          <div class="card">
+            <div class="card-head">
+              <h3>Cliente</h3>
+              <span class="sub" id="cliBadge"></span>
+            </div>
+            <div class="field">
+              <label>Pesquisar cliente existente</label>
+              <div class="autocomplete">
+                <input type="search" id="cliSearch" placeholder="Procurar por nome, telefone, email, NIF ou morada..." autocomplete="off" />
+                <div class="autocomplete-list" id="cliList"></div>
+              </div>
+            </div>
+            <div class="grid grid-2">
+              <div class="field"><label>Nome *</label><input type="text" id="cliNome" placeholder="Nome do cliente" /></div>
+              <div class="field"><label>Empresa</label><input type="text" id="cliEmpresa" placeholder="Empresa (se aplicável)" /></div>
+              <div class="field"><label>Telefone</label><input type="tel" id="cliTel" placeholder="+351 2XX XXX XXX" /></div>
+              <div class="field"><label>Telemóvel</label><input type="tel" id="cliTelemovel" placeholder="+351 9XX XXX XXX" /></div>
+              <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="email@exemplo.pt" /></div>
+              <div class="field"><label>NIF pessoal</label><input type="text" id="cliNif" placeholder="123 456 789" /></div>
+              <div class="field"><label>NIF empresa</label><input type="text" id="cliNifEmpresa" placeholder="500 000 000" /></div>
+            </div>
+            <div class="sub-head">Morada</div>
+            <div class="grid grid-2">
+              <div class="field" style="grid-column: 1 / -1;"><label>Rua e número</label><input type="text" id="cliMorada" placeholder="Rua das Flores, 123" /></div>
+              <div class="field"><label>Andar / Fração</label><input type="text" id="cliAndar" placeholder="3.º Esq." /></div>
+              <div class="field"><label>Código postal</label><input type="text" id="cliCp" placeholder="4000-123" inputmode="numeric" maxlength="8" /></div>
+              <div class="field"><label>Localidade</label><input type="text" id="cliLocalidade" placeholder="Porto" /></div>
+              <div class="field"><label>Concelho</label><input type="text" id="cliConcelho" placeholder="Porto" /></div>
+              <div class="field"><label>Distrito</label><input type="text" id="cliDistrito" placeholder="Porto" /></div>
+              <div class="field"><label>País</label><input type="text" id="cliPais" placeholder="Portugal" /></div>
+            </div>
+            <div class="sub-head">Notas internas</div>
+            <div class="field"><label>Observações sobre o cliente</label><textarea id="cliObs" rows="2" placeholder="Acessos, horários de visita, preferências..."></textarea><div class="muted small" style="margin-top:4px;">Uso interno — não aparece no orçamento.</div></div>
           </div>
-
-          <div class="sub-head">Morada</div>
-          <div class="grid grid-2">
-            <div class="field" style="grid-column: 1 / -1;"><label>Rua e número</label><input type="text" id="cliMorada" placeholder="Rua das Flores, 123" /></div>
-            <div class="field"><label>Andar / Fração</label><input type="text" id="cliAndar" placeholder="3.º Esq." /></div>
-            <div class="field"><label>Código postal</label><input type="text" id="cliCp" placeholder="4000-123" inputmode="numeric" maxlength="8" /></div>
-            <div class="field"><label>Localidade</label><input type="text" id="cliLocalidade" placeholder="Porto" /></div>
-            <div class="field"><label>Concelho</label><input type="text" id="cliConcelho" placeholder="Porto" /></div>
-            <div class="field"><label>Distrito</label><input type="text" id="cliDistrito" placeholder="Porto" /></div>
-            <div class="field"><label>País</label><input type="text" id="cliPais" placeholder="Portugal" /></div>
+          <div class="wiz-nav">
+            <button class="btn btn-outline" id="wizBack0">← Voltar</button>
+            <button class="btn" id="wizNext1">Próximo: Adicionar Itens →</button>
           </div>
-
-          <div class="sub-head">Notas internas</div>
-          <div class="field"><label>Observações sobre o cliente</label><textarea id="cliObs" rows="2" placeholder="Acessos, horários de visita, preferências..."></textarea><div class="muted small" style="margin-top:4px;">Uso interno — não aparece no orçamento.</div></div>
         </div>
 
-        <!-- Itens -->
-        <div class="card">
-          <div class="card-head">
-            <h3>Itens do Orçamento</h3>
+        <!-- ===== PAGE 2: ITENS ===== -->
+        <div class="wiz-page" id="wizP2">
+          <div class="page-head">
+            <div>
+              <div class="crumbs">Novo Orçamento · <span id="wizCliName"></span></div>
+              <h2>Itens do Orçamento</h2>
+            </div>
+          </div>
+
+          <!-- Items added so far -->
+          <div class="card" id="wizItemsCard">
+            <div class="card-head">
+              <h3>Itens adicionados</h3>
+              <span class="sub" id="wizItemCount"></span>
+            </div>
+            <div id="wizItemsArea">
+              <div class="empty-state" style="padding:16px"><div class="ic" style="font-size:24px">📋</div>Nenhum item adicionado. Escolha um tipo de pedido abaixo.</div>
+            </div>
+            <div class="wiz-running-total" id="wizRunTotal" style="display:none">
+              Subtotal: <span id="wizSubtotalVal">€0,00</span>
+            </div>
+          </div>
+
+          <!-- Product type selection -->
+          <div class="card">
+            <h3>Que tipo de item quer adicionar?</h3>
+            <div class="wiz-type-grid" id="wizTypeGrid"></div>
+          </div>
+
+          <div class="wiz-nav">
+            <button class="btn btn-outline" id="wizBack1">← Dados do Cliente</button>
+            <button class="btn" id="wizNext2">Finalizar Orçamento →</button>
+          </div>
+        </div>
+
+        <!-- ===== PAGE 3: FINALIZAR ===== -->
+        <div class="wiz-page" id="wizP3">
+          <div class="page-head">
+            <div>
+              <div class="crumbs">Novo Orçamento · Finalizar</div>
+              <h2>Resumo e Finalização</h2>
+            </div>
             <div class="btn-row">
-              <button class="btn btn-sm btn-white" id="btnCortWiz">🪟 Configurar Cortina</button>
-              <button class="btn btn-sm" id="btnAddItem">+ Adicionar item</button>
+              <button class="btn btn-outline btn-sm" id="btnLimpar">Limpar tudo</button>
+              <button class="btn btn-white btn-sm" id="btnGuardar">Guardar</button>
             </div>
           </div>
-          <div id="itemsList"></div>
-        </div>
 
-        <!-- Desconto + Notas + Estado -->
-        <div class="grid grid-2">
-          <div class="card">
-            <h3>Desconto</h3>
-            <div class="grid grid-2">
-              <div class="field"><label>Tipo</label>
-                <select id="descTipo">
-                  <option value="none">Sem desconto</option>
-                  <option value="pct">Percentagem (%)</option>
-                  <option value="eur">Valor fixo (€)</option>
-                </select>
-              </div>
-              <div class="field"><label>Valor</label><input type="number" id="descValor" min="0" step="0.01" placeholder="0" /></div>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Detalhes</h3>
-            <div class="grid grid-2">
-              <div class="field"><label>Validade (dias)</label><input type="number" id="validade" min="1" value="30" /></div>
-              <div class="field"><label>Estado</label>
-                <select id="estado">
-                  <option value="rascunho">Rascunho</option>
-                  <option value="enviado">Enviado</option>
-                  <option value="aprovado">Aprovado</option>
-                  <option value="rejeitado">Rejeitado</option>
-                </select>
+          <!-- Desconto + Notas + Estado -->
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>Desconto</h3>
+              <div class="grid grid-2">
+                <div class="field"><label>Tipo</label>
+                  <select id="descTipo">
+                    <option value="none">Sem desconto</option>
+                    <option value="pct">Percentagem (%)</option>
+                    <option value="eur">Valor fixo (€)</option>
+                  </select>
+                </div>
+                <div class="field"><label>Valor</label><input type="number" id="descValor" min="0" step="0.01" placeholder="0" /></div>
               </div>
             </div>
+            <div class="card">
+              <h3>Detalhes</h3>
+              <div class="grid grid-2">
+                <div class="field"><label>Validade (dias)</label><input type="number" id="validade" min="1" value="30" /></div>
+                <div class="field"><label>Estado</label>
+                  <select id="estado">
+                    <option value="rascunho">Rascunho</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="aprovado">Aprovado</option>
+                    <option value="rejeitado">Rejeitado</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Notas e Condições</h3>
+            <textarea id="notas" rows="3"></textarea>
+          </div>
+
+          <!-- Itens editáveis (legacy) -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Itens do Orçamento</h3>
+              <div class="btn-row">
+                <button class="btn btn-sm btn-white" id="btnCortWiz">Configurar Cortina</button>
+                <button class="btn btn-sm" id="btnAddItem">+ Adicionar item</button>
+              </div>
+            </div>
+            <div id="itemsList"></div>
+          </div>
+
+          <!-- Resumo -->
+          <div class="card">
+            <h3>Resumo</h3>
+            <div class="tbl-wrap">
+              <table class="t" id="resumoTable" style="min-width:640px;">
+                <colgroup>
+                  <col style="width:36px"><col style="width:200px"><col style="width:110px"><col style="width:44px"><col style="width:72px"><col style="width:50px"><col style="width:44px"><col style="width:84px">
+                </colgroup>
+                <thead><tr><th>#</th><th>Descrição</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">IVA</th><th class="num">Total</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="totals">
+              <div id="descGlobalRow" class="row muted" style="display:none"><span class="dl"></span><span class="dv" style="color:var(--err)"></span></div>
+              <div class="row total"><span>TOTAL A PAGAR</span><span id="total">€0,00</span></div>
+              <div class="row muted"><span></span><span id="ivaNote">* Valores com IVA incluído à taxa em vigor (23%)</span></div>
+            </div>
+          </div>
+
+          <!-- Acções PDF -->
+          <div class="card">
+            <h3>Gerar e Enviar</h3>
+            <p class="small muted" id="formatoInfo">Formato: A4 — pode alterar para Recibo 80mm nas Configurações.</p>
+            <div class="btn-row mt-12">
+              <button class="btn" id="btnPreview">Pré-visualizar</button>
+              <button class="btn btn-outline" id="btnDownloadPDF">Descarregar PDF</button>
+              <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
+              <button class="btn btn-outline" id="btnPdfEN">PDF in English</button>
+              <button class="btn btn-wa" id="btnWhatsApp">WhatsApp</button>
+              <button class="btn btn-outline" id="btnEmail">Email</button>
+            </div>
+          </div>
+
+          <!-- Pré-visualização (toggle) -->
+          <div class="card" id="printPreviewCard" style="display:none; padding: 0; overflow: auto;">
+            <div id="previewArea"></div>
+          </div>
+
+          <div class="wiz-nav">
+            <button class="btn btn-outline" id="wizBack2">← Adicionar mais itens</button>
+            <button class="btn" id="wizSave">Guardar Orçamento</button>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Notas e Condições</h3>
-          <textarea id="notas" rows="3"></textarea>
-        </div>
-
-        <!-- Resumo -->
-        <div class="card">
-          <h3>Resumo</h3>
-          <div class="tbl-wrap">
-            <table class="t" id="resumoTable" style="min-width:640px;">
-              <colgroup>
-                <col style="width:36px"><col style="width:200px"><col style="width:110px"><col style="width:44px"><col style="width:72px"><col style="width:50px"><col style="width:44px"><col style="width:84px">
-              </colgroup>
-              <thead><tr><th>#</th><th>Descrição</th><th>Medidas</th><th class="num">Qtd</th><th class="num">P.V.P.</th><th class="num">Desc</th><th class="center">IVA</th><th class="num">Total</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="totals">
-            <div id="descGlobalRow" class="row muted" style="display:none"><span class="dl"></span><span class="dv" style="color:var(--err)"></span></div>
-            <div class="row total"><span>TOTAL A PAGAR</span><span id="total">€0,00</span></div>
-            <div class="row muted"><span></span><span id="ivaNote">* Valores com IVA incluído à taxa em vigor (23%)</span></div>
-          </div>
-        </div>
-
-        <!-- Acções PDF -->
-        <div class="card">
-          <h3>Gerar e Enviar</h3>
-          <p class="small muted" id="formatoInfo">Formato: A4 — pode alterar para Recibo 80mm nas Configurações.</p>
-          <div class="btn-row mt-12">
-            <button class="btn" id="btnPreview">Pré-visualizar</button>
-            <button class="btn btn-outline" id="btnDownloadPDF">Descarregar PDF</button>
-            <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
-            <button class="btn btn-outline" id="btnPdfEN">PDF in English</button>
-            <button class="btn btn-wa" id="btnWhatsApp">WhatsApp</button>
-            <button class="btn btn-outline" id="btnEmail">Email</button>
-          </div>
-        </div>
-
-        <!-- Pré-visualização (toggle) -->
-        <div class="card" id="printPreviewCard" style="display:none; padding: 0; overflow: auto;">
-          <div id="previewArea"></div>
-        </div>
       </section>
 
       <!-- ============ HISTÓRICO ============ -->
@@ -1709,11 +1813,399 @@ function showTab(tab) {
 }
 $$('.sidebar nav button, .mobile-nav button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
+// ============================================================
+// WIZARD: multi-step budget creation flow
+// ============================================================
+let _wizPage = 0;
+
+function wizGoto(page) {
+  _wizPage = page;
+  ['wizP0','wizP1','wizP2','wizP3'].forEach((id, i) => {
+    const el = $('#'+id);
+    if (el) { el.classList.toggle('active', i === page); }
+  });
+  const stepper = $('#wizStepper');
+  if (stepper) {
+    stepper.style.display = page === 0 ? 'none' : '';
+    stepper.querySelectorAll('.wiz-stepper-item').forEach(s => {
+      const ws = +s.dataset.ws;
+      s.classList.toggle('active', ws === page);
+      s.classList.toggle('done', ws < page);
+    });
+  }
+  if (page === 2) { wizRenderTypeGrid(); wizRenderItems(); }
+  if (page === 3) { renderItems(); recalc(); }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
 $('#heroNovo')?.addEventListener('click', () => {
   showTab('novo');
+  wizGoto(1);
   const el = $('#cliNome');
   if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
 });
+
+$('#wizBack0')?.addEventListener('click', () => wizGoto(0));
+$('#wizNext1')?.addEventListener('click', () => {
+  if (!orc.cliente.nome.trim()) { toast('Indique o nome do cliente', true); $('#cliNome').focus(); return; }
+  $('#wizCliName').textContent = orc.cliente.nome;
+  wizGoto(2);
+});
+$('#wizBack1')?.addEventListener('click', () => wizGoto(1));
+$('#wizNext2')?.addEventListener('click', () => {
+  if (!orc.itens.length) { toast('Adicione pelo menos um item ao orçamento', true); return; }
+  wizGoto(3);
+});
+$('#wizBack2')?.addEventListener('click', () => wizGoto(2));
+$('#wizSave')?.addEventListener('click', () => { if (saveOrc()) toast('Orçamento guardado'); });
+
+$('#wizStepper')?.querySelectorAll('.wiz-stepper-item').forEach(s => {
+  s.addEventListener('click', () => {
+    const ws = +s.dataset.ws;
+    if (s.classList.contains('done')) wizGoto(ws);
+  });
+});
+
+const WIZ_TYPES = [
+  { key: 'cortina', icon: '🪟', label: 'Cortina', desc: 'Cortina + calha + tecido + confecção' },
+  { key: 'estor', icon: '🔲', label: 'Estor', desc: 'Estores venezianos e roller' },
+  { key: 'colcha', icon: '🛏️', label: 'Colcha / Edredão', desc: 'Colchas e edredões confeccionados' },
+  { key: 'lencol', icon: '🛌', label: 'Lençóis', desc: 'Lençóis solteiro e casal' },
+  { key: 'almofada', icon: '🪡', label: 'Almofada / Coxim', desc: 'Almofadas, coxins e capas' },
+  { key: 'capa', icon: '🧵', label: 'Capa Edredão', desc: 'Capas de edredão solteiro e casal' },
+  { key: 'toalha', icon: '🍽️', label: 'Toalhas de Mesa', desc: 'Toalhas, individuais e guardanapos' },
+  { key: 'decoracao', icon: '🎨', label: 'Decoração', desc: 'Artigos de decoração' },
+  { key: 'acessorio', icon: '🔩', label: 'Acessório', desc: 'Acessórios de instalação e apoio' },
+  { key: 'outro', icon: '✏️', label: 'Item personalizado', desc: 'Qualquer artigo ou serviço' }
+];
+
+const CONF_CAT_MAP = {
+  cortina: 'CORTINAS',
+  estor: 'ESTORES VENEZIANOS',
+  colcha: 'COLCHAS E EDREDÕES',
+  lencol: 'LENÇÓIS',
+  almofada: 'ALMOFADAS E COXINS',
+  capa: 'CAPAS DE EDREDÃO',
+  toalha: 'TOALHAS DE MESA'
+};
+
+function wizGetConfsByType(typeKey) {
+  const cat = CONF_CAT_MAP[typeKey];
+  if (!cat) return [];
+  return (config.confeccoes || []).filter(c => c.cat === cat);
+}
+
+function wizRenderTypeGrid() {
+  const grid = $('#wizTypeGrid');
+  if (!grid) return;
+  grid.innerHTML = WIZ_TYPES.map(t => {
+    let cnt = '';
+    if (t.key === 'cortina') cnt = `${produtos.filter(p=>p.tipo==='cortina').length} modelos`;
+    else if (t.key === 'estor') cnt = `${produtos.filter(p=>p.categoria==='Estores').length} produtos`;
+    else if (t.key === 'decoracao') cnt = `${(config.decoracao||[]).length} artigos`;
+    else if (t.key === 'acessorio') cnt = `${(config.acessorios||[]).length} artigos`;
+    else if (t.key === 'outro') cnt = 'livre';
+    else { const confs = wizGetConfsByType(t.key); cnt = `${confs.length} confecções`; }
+    return `<div class="wiz-type-card" data-wtype="${t.key}">
+      <div class="wtc-icon">${t.icon}</div>
+      <div class="wtc-label">${t.label}</div>
+      <div class="wtc-count">${cnt}</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.wiz-type-card').forEach(c => c.addEventListener('click', () => wizOpenTypeWizard(c.dataset.wtype)));
+}
+
+function wizRenderItems() {
+  const area = $('#wizItemsArea');
+  const countEl = $('#wizItemCount');
+  const totalEl = $('#wizRunTotal');
+  if (!area) return;
+  const items = orc.itens.filter(it => !it.oculto);
+  if (!items.length) {
+    area.innerHTML = '<div class="empty-state" style="padding:16px"><div class="ic" style="font-size:24px">📋</div>Nenhum item adicionado. Escolha um tipo de pedido abaixo.</div>';
+    if (totalEl) totalEl.style.display = 'none';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+  area.innerHTML = items.map((it, idx) => {
+    const i = orc.itens.indexOf(it);
+    const tot = lineTotal(it);
+    const med = (it.largura && it.altura) ? `${(+it.largura).toFixed(2)}m × ${(+it.altura).toFixed(2)}m` : (it.largura ? `${(+it.largura).toFixed(2)}m` : '');
+    const detail = [it.tecido, it.cor, med].filter(Boolean).join(' · ');
+    return `<div class="wiz-item-row">
+      <span class="wi-name">${esc(it.nome||'Item '+(idx+1))}</span>
+      <span class="wi-detail">${esc(detail)}${it.qtd>1?' × '+it.qtd:''}</span>
+      <span class="wi-price">${fmtEUR(tot)}</span>
+      <button class="wi-rm" data-wri="${i}" title="Remover item">✕</button>
+    </div>`;
+  }).join('');
+  area.querySelectorAll('.wi-rm').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.wri;
+    orc.itens.splice(i, 1);
+    wizRenderItems();
+    saveDraft();
+  }));
+  const sub = items.reduce((a, it) => a + lineTotal(it), 0);
+  if (countEl) countEl.textContent = `${items.length} item${items.length>1?'s':''}`;
+  if (totalEl) { totalEl.style.display = ''; $('#wizSubtotalVal').textContent = fmtEUR(sub); }
+}
+
+function wizOpenTypeWizard(typeKey) {
+  if (typeKey === 'cortina') { openCortinaWizard(); return; }
+  if (typeKey === 'outro') { wizOpenCustomItem(); return; }
+  if (typeKey === 'decoracao') { wizOpenDecAceWizard('decoracao'); return; }
+  if (typeKey === 'acessorio') { wizOpenDecAceWizard('acessorios'); return; }
+  if (typeKey === 'estor') { wizOpenProdutoWizard('Estores'); return; }
+  wizOpenConfWizard(typeKey);
+}
+
+function wizOpenCustomItem() {
+  const html = `<div class="field"><label>Nome do item *</label><input type="text" id="wciNome" placeholder="Ex: Medição ao domicílio" /></div>
+    <div class="grid grid-2">
+      <div class="field"><label>Preço unitário (€)</label><input type="number" step="0.01" id="wciPreco" placeholder="0.00" /></div>
+      <div class="field"><label>Quantidade</label><input type="number" min="1" id="wciQtd" value="1" /></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field"><label>Largura (m)</label><input type="number" step="0.01" id="wciLarg" placeholder="opcional" /></div>
+      <div class="field"><label>Altura (m)</label><input type="number" step="0.01" id="wciAlt" placeholder="opcional" /></div>
+    </div>
+    <div class="field"><label>Observações</label><input type="text" id="wciObs" placeholder="opcional" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" id="wciCancel">Cancelar</button>
+      <button class="btn btn-sm" id="wciAdd">Adicionar ao Orçamento</button>
+    </div>`;
+  openModal('✏️ Item Personalizado', html);
+  $('#wciCancel')?.addEventListener('click', closeModal);
+  $('#wciAdd')?.addEventListener('click', () => {
+    const nome = $('#wciNome').value.trim();
+    if (!nome) { toast('Indique o nome do item', true); return; }
+    const it = newItem();
+    it.nome = nome;
+    it.preco = parseFloat($('#wciPreco').value) || 0;
+    it.qtd = parseInt($('#wciQtd').value) || 1;
+    it.largura = parseFloat($('#wciLarg').value) || 0;
+    it.altura = parseFloat($('#wciAlt').value) || 0;
+    it.obs = $('#wciObs').value;
+    orc.itens.push(it);
+    closeModal(); wizRenderItems(); recalc(); saveDraft();
+    toast('Item adicionado');
+  });
+}
+
+function wizOpenProdutoWizard(categoria) {
+  const prods = produtos.filter(p => p.categoria === categoria);
+  if (!prods.length) { toast('Nenhum produto nesta categoria', true); return; }
+  let sel = null;
+  function render() {
+    const opts = prods.map((p, i) => {
+      const priceStr = p.preco > 0 ? fmtEUR(p.preco) : '<span style="color:var(--err)">Sem preço</span>';
+      return `<div class="wiz-opt${sel===p?' active':''}" data-pi="${i}" style="padding:10px 14px;border:1.5px solid ${sel===p?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${sel===p?'var(--soft)':'var(--white)'}">
+        <strong>${esc(p.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(p.fornecedor||'')} · ${priceStr}</span>
+      </div>`;
+    }).join('');
+    const html = `<div style="max-height:300px;overflow-y:auto">${opts}</div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="field"><label>Quantidade</label><input type="number" min="1" id="wpQtd" value="1" /></div>
+        <div class="field"><label>Largura (m)</label><input type="number" step="0.01" id="wpLarg" placeholder="opcional" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" id="wpCancel">Cancelar</button>
+        <button class="btn btn-sm" id="wpAdd">Adicionar</button>
+      </div>`;
+    openModal(`🔲 Escolher ${categoria}`, html);
+    $('#modalOverlay').querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+      sel = prods[+el.dataset.pi]; render();
+    }));
+    $('#wpCancel')?.addEventListener('click', closeModal);
+    $('#wpAdd')?.addEventListener('click', () => {
+      if (!sel) { toast('Selecione um produto', true); return; }
+      const it = newItem();
+      it.nome = sel.nome;
+      it.codigo = sel.codigo || '';
+      it.preco = parseFloat(sel.preco) || 0;
+      it.qtd = parseInt($('#wpQtd').value) || 1;
+      it.largura = parseFloat($('#wpLarg').value) || 0;
+      it.fornecedorRef = sel.fornecedor || '';
+      orc.itens.push(it);
+      closeModal(); wizRenderItems(); recalc(); saveDraft();
+      toast(`${sel.nome} adicionado`);
+    });
+  }
+  render();
+}
+
+function wizOpenDecAceWizard(kind) {
+  const arr = config[kind] || [];
+  if (!arr.length) { toast('Nenhum artigo cadastrado nesta categoria', true); return; }
+  let sel = null;
+  const kindLabel = kind === 'decoracao' ? 'Decoração' : 'Acessório';
+  const kindMargem = kind === 'decoracao' ? config.margemDecoracao : config.margemAcessorios;
+  function render() {
+    const opts = arr.map((d, i) => {
+      const mg = clampMargemPct(itemNum(d, 'margem', parseFloat(kindMargem ?? config.margemPct)));
+      const custo = parseFloat(d.custoBase) || 0;
+      const pvp = custo > 0 ? custo / (1 - mg/100) : 0;
+      const priceStr = pvp > 0 ? fmtEUR(pvp) : '<span style="color:var(--err)">Sem preço</span>';
+      return `<div class="wiz-opt${sel===d?' active':''}" data-di="${i}" style="padding:10px 14px;border:1.5px solid ${sel===d?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${sel===d?'var(--soft)':'var(--white)'}">
+        <strong>${esc(d.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(d.fornecedor||'')}${d.cor?' · '+esc(d.cor):''} · ${priceStr}</span>
+      </div>`;
+    }).join('');
+    const html = `<div style="max-height:300px;overflow-y:auto">${opts}</div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="field"><label>Quantidade</label><input type="number" min="1" id="wdQtd" value="1" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" id="wdCancel">Cancelar</button>
+        <button class="btn btn-sm" id="wdAdd">Adicionar</button>
+      </div>`;
+    openModal(`${kind==='decoracao'?'🎨':'🔩'} Escolher ${kindLabel}`, html);
+    $('#modalOverlay').querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+      sel = arr[+el.dataset.di]; render();
+    }));
+    $('#wdCancel')?.addEventListener('click', closeModal);
+    $('#wdAdd')?.addEventListener('click', () => {
+      if (!sel) { toast(`Selecione um artigo de ${kindLabel.toLowerCase()}`, true); return; }
+      const mg = clampMargemPct(itemNum(sel, 'margem', parseFloat(kindMargem ?? config.margemPct)));
+      const custo = parseFloat(sel.custoBase) || 0;
+      const pvp = custo > 0 ? custo / (1 - mg/100) : 0;
+      const it = newItem();
+      it.nome = sel.nome;
+      it.preco = Math.round(pvp * 100) / 100;
+      it.qtd = parseInt($('#wdQtd').value) || 1;
+      it.fornecedorRef = sel.fornecedor || '';
+      orc.itens.push(it);
+      closeModal(); wizRenderItems(); recalc(); saveDraft();
+      toast(`${sel.nome} adicionado`);
+    });
+  }
+  render();
+}
+
+function wizOpenConfWizard(typeKey) {
+  const confs = wizGetConfsByType(typeKey);
+  const typeLabel = WIZ_TYPES.find(t => t.key === typeKey)?.label || typeKey;
+  const needsTecido = ['colcha','lencol','almofada','capa','toalha'].includes(typeKey);
+  const wiz = { step: 0, tecido: null, conf: null, largura: 0, altura: 0, qtd: 1 };
+
+  function render() {
+    let body = '', stepBar = '';
+    const steps = needsTecido ? ['Tecido','Confecção','Medidas','Confirmar'] : ['Confecção','Medidas','Confirmar'];
+    steps.forEach((s, i) => {
+      const st = i < wiz.step ? 'done' : (i === wiz.step ? 'active' : '');
+      stepBar += `<span style="padding:4px 8px;font-size:10px;font-weight:700;${st==='active'?'background:var(--dark);color:var(--creme);':'background:var(--soft);color:var(--muted);'}border-radius:3px;">${s}</span>`;
+    });
+
+    if (needsTecido && wiz.step === 0) {
+      const opts = tecidos.map((t, i) => {
+        const priceStr = t.preco > 0 ? fmtEUR(t.preco)+'/m' : '<span style="color:var(--err)">Sem preço</span>';
+        return `<div class="wiz-opt${wiz.tecido===t?' active':''}" data-ti="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.tecido===t?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.tecido===t?'var(--soft)':'var(--white)'}">
+          <strong>${esc(t.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(t.fornecedor||'')} · ${priceStr}</span>
+        </div>`;
+      }).join('');
+      body = `<div class="field" style="margin-bottom:8px"><input type="text" id="wcfTecSearch" placeholder="Filtrar tecidos..." style="width:100%" /></div>
+        <div id="wcfTecList" style="max-height:280px;overflow-y:auto">${opts || '<p>Nenhum tecido cadastrado.</p>'}</div>`;
+    } else if ((!needsTecido && wiz.step === 0) || (needsTecido && wiz.step === 1)) {
+      if (!confs.length) {
+        body = '<div class="empty-state"><div class="ic">📋</div>Nenhuma confecção disponível para esta categoria.</div>';
+      } else {
+        const opts = confs.map((c, i) => {
+          const priceStr = c.preco > 0 ? fmtEUR(c.preco)+'/'+esc(c.un||'un') : '<span style="color:var(--err)">Sem preço</span>';
+          return `<div class="wiz-opt${wiz.conf===c?' active':''}" data-ci="${i}" style="padding:10px 14px;border:1.5px solid ${wiz.conf===c?'var(--dark)':'var(--border)'};cursor:pointer;margin-bottom:6px;background:${wiz.conf===c?'var(--soft)':'var(--white)'}">
+            <strong>${esc(c.nome)}</strong> <span style="font-size:11px;color:var(--muted)">${esc(c.fornecedor||'')} · ${priceStr}</span>
+          </div>`;
+        }).join('');
+        body = `<div style="max-height:300px;overflow-y:auto">${opts}</div>`;
+      }
+    } else if ((!needsTecido && wiz.step === 1) || (needsTecido && wiz.step === 2)) {
+      body = `<div class="grid grid-2">
+        <div class="field"><label>Largura (m)</label><input type="number" step="0.01" id="wcfLarg" value="${wiz.largura||''}" placeholder="Ex: 2.20" /></div>
+        <div class="field"><label>Altura (m)</label><input type="number" step="0.01" id="wcfAlt" value="${wiz.altura||''}" placeholder="Ex: 2.75" /></div>
+      </div>
+      <div class="field"><label>Quantidade</label><input type="number" min="1" id="wcfQtd" value="${wiz.qtd||1}" /></div>`;
+    } else {
+      const confInfo = wiz.conf ? wiz.conf.nome : '—';
+      const tecInfo = wiz.tecido ? wiz.tecido.nome : '—';
+      const confPreco = wiz.conf ? (parseFloat(wiz.conf.preco)||0) : 0;
+      const tecPreco = wiz.tecido ? (parseFloat(wiz.tecido.preco)||0) : 0;
+      const total = (confPreco + tecPreco) * wiz.qtd;
+      body = `<div style="background:var(--soft);padding:14px;font-size:13px;line-height:1.8">
+        ${needsTecido ? `<div><strong>Tecido:</strong> ${esc(tecInfo)} (${tecPreco>0?fmtEUR(tecPreco)+'/m':'Sem preço'})</div>` : ''}
+        <div><strong>Confecção:</strong> ${esc(confInfo)} (${confPreco>0?fmtEUR(confPreco):'—'})</div>
+        <div><strong>Medidas:</strong> ${wiz.largura?wiz.largura.toFixed(2)+'m':'—'} × ${wiz.altura?wiz.altura.toFixed(2)+'m':'—'}</div>
+        <div><strong>Quantidade:</strong> ${wiz.qtd}</div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div><strong>Preço estimado:</strong> <span style="font-size:16px;font-weight:700">${fmtEUR(Math.round(total*100)/100)}</span></div>
+        </div>
+      </div>`;
+    }
+
+    const totalSteps = steps.length;
+    const isLast = wiz.step === totalSteps - 1;
+    const html = `<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:2px;align-items:center">${stepBar}</div>${body}
+      <div class="modal-actions">
+        ${wiz.step > 0 ? '<button class="btn btn-outline btn-sm" id="wcfBack">← Voltar</button>' : ''}
+        <button class="btn btn-outline btn-sm" id="wcfCancel">Cancelar</button>
+        ${isLast ? '<button class="btn btn-sm" id="wcfFinish">Adicionar ao Orçamento</button>' : '<button class="btn btn-sm" id="wcfNext">Avançar →</button>'}
+      </div>`;
+    openModal(`${WIZ_TYPES.find(t=>t.key===typeKey)?.icon||'📋'} ${typeLabel}`, html);
+
+    const overlay = $('#modalOverlay');
+    if (needsTecido && wiz.step === 0) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.tecido = tecidos[+el.dataset.ti]; render();
+      }));
+      const si = $('#wcfTecSearch');
+      if (si) si.addEventListener('input', () => {
+        const q = norm(si.value).trim();
+        const list = $('#wcfTecList');
+        if (!list) return;
+        list.querySelectorAll('.wiz-opt').forEach((el, i) => {
+          const t = tecidos[i];
+          const vis = !q || norm(t.nome+' '+t.fornecedor+' '+(t.cores||'')).includes(q);
+          el.style.display = vis ? '' : 'none';
+        });
+      });
+    }
+    if ((!needsTecido && wiz.step === 0) || (needsTecido && wiz.step === 1)) {
+      overlay.querySelectorAll('.wiz-opt').forEach(el => el.addEventListener('click', () => {
+        wiz.conf = confs[+el.dataset.ci]; render();
+      }));
+    }
+
+    $('#wcfCancel')?.addEventListener('click', closeModal);
+    $('#wcfBack')?.addEventListener('click', () => { wiz.step--; render(); });
+    $('#wcfNext')?.addEventListener('click', () => {
+      if (needsTecido && wiz.step === 0 && !wiz.tecido) { toast('Selecione um tecido', true); return; }
+      const confStep = needsTecido ? 1 : 0;
+      if (wiz.step === confStep && !wiz.conf) { toast('Selecione uma confecção', true); return; }
+      const medStep = needsTecido ? 2 : 1;
+      if (wiz.step === medStep) {
+        wiz.largura = parseFloat($('#wcfLarg')?.value) || 0;
+        wiz.altura = parseFloat($('#wcfAlt')?.value) || 0;
+        wiz.qtd = parseInt($('#wcfQtd')?.value) || 1;
+      }
+      wiz.step++;
+      render();
+    });
+    $('#wcfFinish')?.addEventListener('click', () => {
+      const it = newItem();
+      it.nome = wiz.conf ? wiz.conf.nome : typeLabel;
+      if (wiz.tecido) { it.tecido = wiz.tecido.nome; it.fornecedorRef = wiz.tecido.fornecedor || ''; }
+      if (wiz.conf) {
+        it.preco = parseFloat(wiz.conf.preco) || 0;
+        it.un = wiz.conf.un || 'un';
+        if (!it.fornecedorRef) it.fornecedorRef = wiz.conf.fornecedor || '';
+      }
+      it.largura = wiz.largura;
+      it.altura = wiz.altura;
+      it.qtd = wiz.qtd;
+      orc.itens.push(it);
+      closeModal(); wizRenderItems(); recalc(); saveDraft();
+      toast(`${it.nome} adicionado ao orçamento`);
+    });
+  }
+  render();
+}
 
 // ============================================================
 // CLIENTE: autocomplete + binding
@@ -2414,7 +2906,7 @@ function openCortinaWizard() {
       calhaItem.qtd = wiz.qtd;
       calhaItem.fornecedorRef = wiz.calha.fornecedor || '';
       orc.itens.push(calhaItem);
-      renderItems(); recalc(); saveDraft();
+      renderItems(); recalc(); saveDraft(); wizRenderItems();
       closeModal();
       toast('Cortina + calha adicionadas ao orçamento');
     });
@@ -2424,7 +2916,7 @@ function openCortinaWizard() {
 
 $('#btnLimpar').addEventListener('click', () => {
   if (!confirm('Limpar este orçamento? (não apaga histórico)')) return;
-  orc = newOrc(); applyOrcToForm(); renderItems(); recalc(); saveDraft(); toast('Limpo');
+  orc = newOrc(); applyOrcToForm(); renderItems(); recalc(); saveDraft(); wizGoto(0); toast('Limpo');
 });
 $('#btnGuardar').addEventListener('click', () => { if (saveOrc()) toast('Orçamento guardado'); });
 
@@ -2464,7 +2956,7 @@ function renderHistorico() {
     const o = historico.find(x => x.id === r.dataset.id); if (!o) return;
     orc = JSON.parse(JSON.stringify(o));
     applyOrcToForm(); renderItems(); recalc();
-    showTab('novo'); toast('Carregado');
+    showTab('novo'); wizGoto(3); toast('Carregado');
   }));
   wrap.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
