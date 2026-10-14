@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'sd-orcamentos-v39';
+const CACHE_VERSION = 'sd-orcamentos-v40';
 const ASSETS = [
   './',
   './index.html',
