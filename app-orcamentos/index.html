@@ -380,11 +380,21 @@
     .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
     .item-grid-a { grid-template-columns: 110px 1fr 160px; }
     .item-grid-a > :nth-child(3) { grid-column: auto; }
+    .item-grid-b { grid-template-columns: 1fr 90px 90px 70px 80px 90px 70px; }
+    .hist-row, .hist-head { grid-template-columns: 90px 90px 1fr 110px 110px 90px; }
+    .hist-head { display: grid; }
+    .hist-row .ref { grid-column: auto; }
+    .hist-row .date { grid-column: auto; text-align: left; font-size: 13px; color: var(--dark); }
+    .hist-row .cli { grid-column: auto; font-weight: 400; }
+    .hist-row .total { grid-column: auto; text-align: right; }
+    .hist-row .status { grid-column: auto; }
+    .hist-row .actions { grid-column: auto; }
   }
   @media (min-width: 768px) {
-    .main { padding: 20px 24px 90px; max-width: 800px; margin: 0 auto; }
+    .main { padding: 24px 32px 90px; max-width: 1200px; margin: 0 auto; }
     .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .card { padding: 18px; }
+    .card { padding: 22px 24px; }
+    .cfg-row { grid-template-columns: 1fr 1fr; }
   }
 
   /* ===== AUTH OVERLAY ===== */
@@ -638,19 +648,9 @@
     <div class="auth-logo">
       <img class="brand-logo-img" src="" alt="Logo" style="display:none;height:90px;width:auto;" />
       <svg class="brand-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 132" role="img" aria-label="Legado Decor">
-        <g transform="translate(100,42)">
-          <g fill="#B8A080" class="brand-fill-accent">
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(0)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(51.43)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(102.86)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(154.29)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(205.71)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(257.14)"/>
-            <ellipse cx="0" cy="-24" rx="1.6" ry="14" transform="rotate(308.57)"/>
-          </g>
-          <circle cx="0" cy="0" r="6" fill="#B8A080" class="brand-fill-accent"/>
-        </g>
-        <text x="100" y="104" font-family="'Playfair Display', Georgia, serif" font-size="18" font-weight="700" letter-spacing="3" fill="#7A6652" class="brand-fill-primary brand-name-text" text-anchor="middle">LEGADO DECOR</text>
+        <rect x="55" y="10" width="90" height="90" rx="18" fill="#7A6652" class="brand-fill-primary"/>
+        <text x="100" y="72" font-family="'Georgia','Playfair Display',serif" font-size="48" font-weight="700" fill="#F7F3EE" text-anchor="middle" letter-spacing="-2">LD</text>
+        <text x="100" y="90" font-family="'Arial','DM Sans',sans-serif" font-size="9" fill="rgba(247,243,238,0.6)" text-anchor="middle" letter-spacing="3">DECOR</text>
         <text x="100" y="120" font-family="'DM Sans', Arial, sans-serif" font-size="6.5" letter-spacing="2.5" fill="#9E8E7E" text-anchor="middle" class="brand-tagline-text">ELEGÂNCIA FEITA À SUA MEDIDA</text>
       </svg>
     </div>
@@ -748,20 +748,11 @@
     <div style="display:flex;align-items:center;gap:10px;">
       <img class="brand-logo-img" src="" alt="Logo" style="display:none;height:40px;width:auto;" />
       <svg class="brand-svg brand-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 50" role="img" aria-label="Legado Decor">
-        <g transform="translate(22,25)">
-          <g fill="#B8A080" class="brand-fill-accent">
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(0)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(51.43)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(102.86)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(154.29)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(205.71)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(257.14)"/>
-            <ellipse cx="0" cy="-16" rx="1.1" ry="9.5" transform="rotate(308.57)"/>
-          </g>
-          <circle cx="0" cy="0" r="4.2" fill="#B8A080" class="brand-fill-accent"/>
-        </g>
-        <text x="50" y="20" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="700" letter-spacing="2.5" fill="#F5F0E6" class="brand-name-text">LEGADO DECOR</text>
-        <text x="50" y="36" font-family="'DM Sans', Arial, sans-serif" font-size="6.5" letter-spacing="2" fill="rgba(245,240,230,0.42)" class="brand-tagline-text">ELEGÂNCIA FEITA À SUA MEDIDA</text>
+        <rect x="2" y="3" width="40" height="40" rx="8" fill="#7A6652" class="brand-fill-primary"/>
+        <text x="22" y="30" font-family="'Georgia','Playfair Display',serif" font-size="20" font-weight="700" fill="#F7F3EE" text-anchor="middle" letter-spacing="-1">LD</text>
+        <text x="22" y="40" font-family="'Arial','DM Sans',sans-serif" font-size="5" fill="rgba(247,243,238,0.6)" text-anchor="middle" letter-spacing="1.5">DECOR</text>
+        <text x="55" y="23" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="700" letter-spacing="2.5" fill="#F5F0E6" class="brand-name-text">LEGADO DECOR</text>
+        <text x="55" y="38" font-family="'DM Sans', Arial, sans-serif" font-size="6.5" letter-spacing="2" fill="rgba(245,240,230,0.42)" class="brand-tagline-text">ELEGÂNCIA FEITA À SUA MEDIDA</text>
       </svg>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -4388,13 +4379,22 @@ $('#brandLogoFile')?.addEventListener('change', (e) => {
     b.logo = reader.result;
     saveBranding(b);
     applyBranding(b);
+    if (window.Cloud && Cloud.ready) {
+      config.branding = { colorPrimary: b.colorPrimary, colorAccent: b.colorAccent, name: b.name, tagline: b.tagline, logo: b.logo };
+      save(K.cfg, config);
+    }
     toast('Logo carregado');
   };
   reader.readAsDataURL(file);
   e.target.value = '';
 });
 $('#btnRemoveLogo')?.addEventListener('click', () => {
-  const b = loadBranding(); b.logo = ''; saveBranding(b); applyBranding(b); toast('Logo removido');
+  const b = loadBranding(); b.logo = ''; saveBranding(b); applyBranding(b);
+  if (window.Cloud && Cloud.ready) {
+    config.branding = { colorPrimary: b.colorPrimary, colorAccent: b.colorAccent, name: b.name, tagline: b.tagline, logo: '' };
+    save(K.cfg, config);
+  }
+  toast('Logo removido');
 });
 
 $('#btnSaveBranding')?.addEventListener('click', () => {
