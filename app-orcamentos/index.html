@@ -391,7 +391,7 @@
     .hist-row .actions { grid-column: auto; }
   }
   @media (min-width: 768px) {
-    .main { padding: 24px 32px 90px; max-width: 1200px; margin: 0 auto; }
+    .main { padding: 24px 40px 90px; max-width: 96vw; margin: 0 auto; }
     .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .card { padding: 22px 24px; }
     .cfg-row { grid-template-columns: 1fr 1fr; }
@@ -4537,22 +4537,7 @@ function pdfHTML(o, lang) {
             <div class="line"><strong>${L.vendedor}</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" style="width:140px;height:auto;display:block;margin:0 auto;">
-              <g transform="translate(80,30)">
-                <g fill="#B8A080">
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(0)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(51.43)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(102.86)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(154.29)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(205.71)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(257.14)"/>
-                  <ellipse cx="0" cy="-20" rx="1.4" ry="11.5" transform="rotate(308.57)"/>
-                </g>
-                <circle cx="0" cy="0" r="5.2" fill="#B8A080"/>
-              </g>
-              <text x="80" y="76" font-family="'Playfair Display',Georgia,serif" font-size="13" font-weight="700" letter-spacing="2.5" fill="#7A6652" text-anchor="middle">${esc(emp.nome||'LEGADO DECOR')}</text>
-              <text x="80" y="92" font-family="'DM Sans',Arial,sans-serif" font-size="6" letter-spacing="2" fill="#9E8E7E" text-anchor="middle">${esc(L.slogan)}</text>
-            </svg>
+            ${(function(){ const br = loadBranding(); if (br.logo) return '<img src="'+br.logo+'" style="max-width:160px;max-height:100px;display:block;margin:0 auto;object-fit:contain;" />'; return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" style="width:140px;height:auto;display:block;margin:0 auto;"><rect x="35" y="2" width="90" height="60" rx="12" fill="'+(br.colorPrimary||'#7A6652')+'"/><text x="80" y="42" font-family="Georgia,serif" font-size="32" font-weight="700" fill="#F7F3EE" text-anchor="middle" letter-spacing="-1">LD</text><text x="80" y="56" font-family="Arial,sans-serif" font-size="7" fill="rgba(247,243,238,0.6)" text-anchor="middle" letter-spacing="2">DECOR</text><text x="80" y="82" font-family="Playfair Display,Georgia,serif" font-size="13" font-weight="700" letter-spacing="2.5" fill="'+(br.colorPrimary||'#7A6652')+'" text-anchor="middle">'+esc(emp.nome||br.name||'LEGADO DECOR')+'</text><text x="80" y="96" font-family="DM Sans,Arial,sans-serif" font-size="6" letter-spacing="2" fill="#9E8E7E" text-anchor="middle">'+esc(L.slogan)+'</text></svg>'; })()}
           </div>
           <div class="pdf-col-r">
             <div class="line"><strong>${L.orcamento}</strong> ${esc(o.ref)}</div>
