@@ -1,5 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="96" fill="#7A6652"/>
-  <text x="256" y="300" font-family="'Georgia','Playfair Display',serif" font-size="260" font-weight="700" fill="#F7F3EE" text-anchor="middle" letter-spacing="-10">LD</text>
-  <text x="256" y="390" font-family="'Arial','DM Sans',sans-serif" font-size="42" fill="rgba(247,243,238,0.6)" text-anchor="middle" letter-spacing="8">DECOR</text>
+  <g transform="translate(100,60)">
+    <!-- L letter - serif style -->
+    <text x="0" y="230" font-family="Georgia,'Playfair Display',serif" font-size="260" font-weight="700" fill="#F7F3EE" letter-spacing="-8">L</text>
+    <!-- D letter -->
+    <text x="140" y="230" font-family="Georgia,'Playfair Display',serif" font-size="260" font-weight="700" fill="#F7F3EE" letter-spacing="-8">D</text>
+    <!-- Curtain drape from D curve -->
+    <path d="M290,30 Q310,25 320,40 Q335,60 330,100 Q325,140 310,180 Q295,220 280,250 Q270,270 265,280 L258,278 Q265,260 275,235 Q290,200 300,165 Q310,130 308,95 Q306,60 295,40 Q288,32 290,30Z" fill="#D4C4A8" opacity="0.85"/>
+    <path d="M320,40 Q340,50 345,80 Q350,115 340,155 Q330,195 315,230 Q300,260 290,278 L282,275 Q295,250 308,215 Q320,180 328,145 Q335,110 330,78 Q325,50 320,40Z" fill="#C4B498" opacity="0.7"/>
+    <!-- Curtain tie/gather -->
+    <ellipse cx="272" cy="280" rx="22" ry="7" fill="#B8A080" opacity="0.6" transform="rotate(-5,272,280)"/>
+    <!-- Flowing fabric below tie -->
+    <path d="M252,282 Q254,310 250,335 Q248,350 252,358" stroke="#D4C4A8" stroke-width="4.5" fill="none" opacity="0.65"/>
+    <path d="M268,284 Q270,315 268,340 Q266,355 270,362" stroke="#C8B898" stroke-width="5.5" fill="none" opacity="0.55"/>
+    <path d="M284,278 Q288,305 286,330 Q284,348 285,355" stroke="#D4C4A8" stroke-width="4" fill="none" opacity="0.5"/>
+  </g>
+  <!-- LEGADO DECOR text -->
+  <text x="256" y="420" font-family="Arial,'DM Sans',Helvetica,sans-serif" font-size="48" font-weight="700" fill="#F7F3EE" text-anchor="middle" letter-spacing="10">LEGADO DECOR</text>
+  <!-- Tagline -->
+  <text x="256" y="462" font-family="Georgia,'Playfair Display',serif" font-size="24" font-style="italic" fill="rgba(247,243,238,0.55)" text-anchor="middle" letter-spacing="2">Elegância feita à sua medida</text>
 </svg>
