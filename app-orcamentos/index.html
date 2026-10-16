@@ -30,6 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
 <script src="firebase-config.js"></script>
 <script type="module" src="cloud.js"></script>
 <style>
@@ -289,7 +290,8 @@
   .pdf-header-clean { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: flex-start; margin-bottom: 28px; }
   .pdf-header-clean .pdf-col-l { font-size: 12px; line-height: 1.7; }
   .pdf-header-clean .pdf-col-r { text-align: right; font-size: 12px; line-height: 1.7; }
-  .pdf-header-clean .pdf-col-c { text-align: center; padding: 0 12px; }
+  .pdf-header-clean .pdf-col-c { text-align: center; padding: 0 12px; overflow: visible; }
+  .pdf-header-clean .pdf-col-c img { background: #fff; border-radius: 4px; }
   .pdf-header-clean .pdf-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
   .pdf-header-clean .pdf-logo-sub { font-size: 9px; letter-spacing: 2px; color: #888; margin-top: 4px; text-transform: uppercase; }
   .pdf-header-clean .line { font-size: 12px; }
@@ -4548,7 +4550,7 @@ function pdfHTML(o, lang) {
             <div class="line"><strong>${L.vendedor}</strong> ${esc(vendedor)}</div>
           </div>
           <div class="pdf-col-c">
-            ${(function(){ const br = loadBranding(); if (br.logo) return '<img src="'+br.logo+'" style="max-width:160px;max-height:100px;display:block;margin:0 auto;object-fit:contain;" />'; const pc = br.colorPrimary||'#7A6652'; return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" style="width:150px;height:auto;display:block;margin:0 auto;"><g transform="translate(38,2)"><text x="0" y="55" font-family="Georgia,serif" font-size="68" font-weight="700" fill="'+pc+'" letter-spacing="-2">L</text><text x="36" y="55" font-family="Georgia,serif" font-size="68" font-weight="700" fill="'+pc+'" letter-spacing="-2">D</text><path d="M76,5 Q80,3 82,10 Q86,20 83,35 Q80,50 74,62 Q71,68 69,70 L67,69 Q70,62 74,50 Q78,38 78,25 Q77,12 74,7 Q73,5 76,5Z" fill="#C4B498" opacity="0.75"/><path d="M82,10 Q87,14 88,25 Q89,38 84,50 Q81,58 78,64 L76,62 Q80,54 84,42 Q87,30 85,20 Q83,12 82,10Z" fill="#B8A080" opacity="0.6"/></g><text x="90" y="88" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="'+pc+'" text-anchor="middle" letter-spacing="2.5">'+esc(emp.nome||br.name||'LEGADO DECOR')+'</text><text x="90" y="102" font-family="Georgia,serif" font-size="6.5" font-style="italic" fill="#9E8E7E" text-anchor="middle" letter-spacing="1.5">'+esc(L.slogan)+'</text></svg>'; })()}
+            ${(function(){ const br = loadBranding(); if (br.logo) return '<img src="'+br.logo+'" style="max-width:140px;max-height:90px;display:block;margin:0 auto;object-fit:contain;background:#fff;padding:4px;border-radius:6px;" />'; const pc = br.colorPrimary||'#7A6652'; return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" style="width:150px;height:auto;display:block;margin:0 auto;"><g transform="translate(38,2)"><text x="0" y="55" font-family="Georgia,serif" font-size="68" font-weight="700" fill="'+pc+'" letter-spacing="-2">L</text><text x="36" y="55" font-family="Georgia,serif" font-size="68" font-weight="700" fill="'+pc+'" letter-spacing="-2">D</text><path d="M76,5 Q80,3 82,10 Q86,20 83,35 Q80,50 74,62 Q71,68 69,70 L67,69 Q70,62 74,50 Q78,38 78,25 Q77,12 74,7 Q73,5 76,5Z" fill="#C4B498" opacity="0.75"/><path d="M82,10 Q87,14 88,25 Q89,38 84,50 Q81,58 78,64 L76,62 Q80,54 84,42 Q87,30 85,20 Q83,12 82,10Z" fill="#B8A080" opacity="0.6"/></g><text x="90" y="88" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="'+pc+'" text-anchor="middle" letter-spacing="2.5">'+esc(emp.nome||br.name||'LEGADO DECOR')+'</text><text x="90" y="102" font-family="Georgia,serif" font-size="6.5" font-style="italic" fill="#9E8E7E" text-anchor="middle" letter-spacing="1.5">'+esc(L.slogan)+'</text></svg>'; })()}
           </div>
           <div class="pdf-col-r">
             <div class="line"><strong>${L.orcamento}</strong> ${esc(o.ref)}</div>
@@ -4637,38 +4639,62 @@ $('#btnImprimir').addEventListener('click', () => {
   setTimeout(() => { window.print(); }, 150);
 });
 
-$('#btnDownloadPDF').addEventListener('click', () => {
-  // Usa o motor de impressão nativo do browser (fiável em todos os dispositivos,
-  // funciona offline). O antigo html2canvas cortava o lado esquerdo do documento.
+$('#btnDownloadPDF').addEventListener('click', async () => {
   renderToTargets();
-  $('#printPreviewCard').style.display = 'block';
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  toast(isIOS ? 'Toca em Partilhar → Guardar em Ficheiros (PDF)' : 'Na janela de impressão, escolhe "Guardar como PDF"');
-  setTimeout(() => { window.print(); }, 200);
+  toast('A gerar PDF…');
+  const el = document.getElementById('pdfArea');
+  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
+  try {
+    const opt = { margin: 0, filename: (orc.ref||'orcamento')+'.pdf', image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
+    await html2pdf().set(opt).from(el).save();
+    toast('PDF guardado!');
+  } catch(e) { console.error(e); window.print(); }
+  Object.assign(el.style, prev);
 });
 
-$('#btnPdfEN').addEventListener('click', () => {
+$('#btnPdfEN').addEventListener('click', async () => {
   _pdfLang = 'en';
   renderToTargets();
-  $('#printPreviewCard').style.display = 'block';
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  toast(isIOS ? 'Tap Share → Save to Files (PDF)' : 'In the print dialog, choose "Save as PDF"');
-  setTimeout(() => { window.print(); _pdfLang = 'pt'; }, 200);
+  toast('Generating PDF…');
+  const el = document.getElementById('pdfArea');
+  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
+  try {
+    const opt = { margin: 0, filename: (orc.ref||'quote')+'-EN.pdf', image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
+    await html2pdf().set(opt).from(el).save();
+    toast('PDF saved!');
+  } catch(e) { console.error(e); window.print(); }
+  Object.assign(el.style, prev);
+  _pdfLang = 'pt';
 });
 
-$('#btnWhatsApp').addEventListener('click', () => {
+$('#btnWhatsApp').addEventListener('click', async () => {
+  renderToTargets();
   const tot = totalOf(orc);
-  const lines = orc.itens.map(it => {
-    const d = it.nome || '—';
-    const med = (it.largura&&it.altura) ? ` ${(+it.largura).toFixed(2)}m×${(+it.altura).toFixed(2)}m` : '';
-    return `• ${d}${med} — ${it.qtd}× ${fmtEUR(it.preco)} = ${fmtEUR((it.qtd||0)*(it.preco||0))}`;
-  }).join('\n');
-  const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\n` +
-    `Cliente: ${orc.cliente.nome}${orc.cliente.empresa?` (${orc.cliente.empresa})`:''}\n` +
-    `Data: ${fmtDate(orc.data)}\n\n${lines}\n\n*Total: ${fmtEUR(tot)}*\nIVA incluído · Válido ${orc.validade||30} dias\n\n${config.empresa.nome} · ${config.empresa.tel}`;
-  const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
-  const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\nCliente: ${orc.cliente.nome}${orc.cliente.empresa?` (${orc.cliente.empresa})`:''}\nData: ${fmtDate(orc.data)}\n*Total: ${fmtEUR(tot)}*\nIVA incluído · Válido ${orc.validade||30} dias`;
+  const el = document.getElementById('pdfArea');
+  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
+  try {
+    const opt = { margin: 0, image:{type:'jpeg',quality:0.92}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
+    const blob = await html2pdf().set(opt).from(el).outputPdf('blob');
+    const file = new File([blob], (orc.ref||'orcamento')+'.pdf', {type:'application/pdf'});
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      await navigator.share({ text: msg, files: [file] });
+    } else {
+      const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
+      const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+      toast('PDF não pôde ser anexado — partilhado como texto');
+    }
+  } catch(e) {
+    console.error(e);
+    const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
+    const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  }
+  Object.assign(el.style, prev);
 });
 
 $('#btnEmail').addEventListener('click', () => {
