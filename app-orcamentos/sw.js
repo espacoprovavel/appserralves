@@ -1,12 +1,13 @@
-const CACHE_VERSION = 'sd-orcamentos-v46';
+const CACHE_VERSION = 'sd-orcamentos-v47';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './firebase-config.js',
   './cloud.js',
+  './favicon.ico',
+  './icons/favicon-32.png',
   './icons/icon-192.png',
-  './icons/logo.svg',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
