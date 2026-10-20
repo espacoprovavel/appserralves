@@ -31,7 +31,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
 <script src="firebase-config.js"></script>
 <script type="module" src="cloud.js"></script>
 <style>
@@ -743,7 +742,7 @@
   <!-- Mobile header -->
   <header class="mobile-header no-print">
     <div style="display:flex;align-items:center;gap:10px;">
-      <img class="brand-logo-img" src="icons/icon-512.png" alt="Legado Decor" style="height:40px;width:auto;display:block;border-radius:4px;" />
+      <img class="brand-logo-img" src="icons/icon-512.png" alt="Legado Decor" style="height:40px;width:auto;display:block;border-radius:6px;background:#fff;padding:2px 4px;" />
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="net-status"><span class="net-dot" id="netDotM"></span></span>
@@ -4621,30 +4620,42 @@ $('#btnImprimir').addEventListener('click', () => {
 $('#btnDownloadPDF').addEventListener('click', async () => {
   renderToTargets();
   toast('A gerar PDF…');
-  const el = document.getElementById('pdfArea');
-  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
-  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
   try {
+    await loadHtml2Pdf();
+    const el = document.getElementById('pdfArea');
+    const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+    Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
     const opt = { margin: 0, filename: (orc.ref||'orcamento')+'.pdf', image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
     await html2pdf().set(opt).from(el).save();
+    Object.assign(el.style, prev);
     toast('PDF guardado!');
-  } catch(e) { console.error(e); window.print(); }
-  Object.assign(el.style, prev);
+  } catch(e) {
+    console.error(e);
+    $('#printPreviewCard').style.display = 'block';
+    toast('A abrir impressão…');
+    setTimeout(() => window.print(), 200);
+  }
 });
 
 $('#btnPdfEN').addEventListener('click', async () => {
   _pdfLang = 'en';
   renderToTargets();
   toast('Generating PDF…');
-  const el = document.getElementById('pdfArea');
-  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
-  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
   try {
+    await loadHtml2Pdf();
+    const el = document.getElementById('pdfArea');
+    const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+    Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
     const opt = { margin: 0, filename: (orc.ref||'quote')+'-EN.pdf', image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
     await html2pdf().set(opt).from(el).save();
+    Object.assign(el.style, prev);
     toast('PDF saved!');
-  } catch(e) { console.error(e); window.print(); }
-  Object.assign(el.style, prev);
+  } catch(e) {
+    console.error(e);
+    $('#printPreviewCard').style.display = 'block';
+    setTimeout(() => { window.print(); _pdfLang = 'pt'; }, 200);
+    return;
+  }
   _pdfLang = 'pt';
 });
 
@@ -4652,28 +4663,27 @@ $('#btnWhatsApp').addEventListener('click', async () => {
   renderToTargets();
   const tot = totalOf(orc);
   const msg = `*Orçamento ${orc.ref}* — ${config.empresa.nome}\nCliente: ${orc.cliente.nome}${orc.cliente.empresa?` (${orc.cliente.empresa})`:''}\nData: ${fmtDate(orc.data)}\n*Total: ${fmtEUR(tot)}*\nIVA incluído · Válido ${orc.validade||30} dias`;
-  const el = document.getElementById('pdfArea');
-  const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
-  Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
+  const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
   try {
+    await loadHtml2Pdf();
+    const el = document.getElementById('pdfArea');
+    const prev = { pos: el.style.position, op: el.style.opacity, ptr: el.style.pointerEvents, ov: el.style.overflow, zi: el.style.zIndex };
+    Object.assign(el.style, { position:'absolute', opacity:'1', pointerEvents:'auto', overflow:'visible', zIndex:'1' });
     const opt = { margin: 0, image:{type:'jpeg',quality:0.92}, html2canvas:{scale:2, useCORS:true, width:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']} };
     const blob = await html2pdf().set(opt).from(el).outputPdf('blob');
+    Object.assign(el.style, prev);
     const file = new File([blob], (orc.ref||'orcamento')+'.pdf', {type:'application/pdf'});
     if (navigator.canShare && navigator.canShare({files:[file]})) {
       await navigator.share({ text: msg, files: [file] });
     } else {
-      const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
       const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
-      toast('PDF não pôde ser anexado — partilhado como texto');
     }
   } catch(e) {
     console.error(e);
-    const tel = (orc.cliente.telemovel || orc.cliente.tel || '').replace(/[^\d+]/g,'').replace(/^\+/,'');
     const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   }
-  Object.assign(el.style, prev);
 });
 
 $('#btnEmail').addEventListener('click', () => {
@@ -5100,6 +5110,22 @@ if (document.readyState === 'loading') {
     try { toast('Aplicação instalada!'); } catch {}
   });
 })();
+
+// ============================================================
+// HTML2PDF (lazy load)
+// ============================================================
+let _html2pdfLoaded = false;
+function loadHtml2Pdf() {
+  return new Promise((resolve, reject) => {
+    if (typeof html2pdf !== 'undefined') { _html2pdfLoaded = true; resolve(); return; }
+    if (_html2pdfLoaded) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js';
+    s.onload = () => { _html2pdfLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('html2pdf load failed'));
+    document.head.appendChild(s);
+  });
+}
 
 // ============================================================
 // SERVICE WORKER
